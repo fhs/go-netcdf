@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/fhs/go-netcdf.png)](https://travis-ci.org/fhs/go-netcdf)
+
 ## Overview
 
 Package netcdf is a Go binding for the netCDF C library.
