@@ -27,8 +27,8 @@ func (ft *FileTest) putInt(t *testing.T, v Var, n uint64) {
 	for i := 0; i < int(n); i++ {
 		data[i] = int32(genData(i))
 	}
-	if err := v.PutInt(data); err != nil {
-		t.Fatalf("PutInt failed: %v\n", err)
+	if err := v.WriteInt(data); err != nil {
+		t.Fatalf("WriteInt failed: %v\n", err)
 	}
 }
 
@@ -37,15 +37,15 @@ func (ft *FileTest) putFloat(t *testing.T, v Var, n uint64) {
 	for i := 0; i < int(n); i++ {
 		data[i] = float32(genData(i))
 	}
-	if err := v.PutFloat(data); err != nil {
-		t.Fatalf("PutFloat failed: %v\n", err)
+	if err := v.WriteFloat(data); err != nil {
+		t.Fatalf("WriteFloat failed: %v\n", err)
 	}
 }
 
 func (ft *FileTest) getInt(t *testing.T, v Var, n uint64) {
 	data := make([]int32, n)
-	if err := v.GetInt(data); err != nil {
-		t.Fatalf("GetInt failed: %v\n", err)
+	if err := v.ReadInt(data); err != nil {
+		t.Fatalf("ReadInt failed: %v\n", err)
 	}
 	for i := 0; i < int(n); i++ {
 		if val := int32(genData(i)); data[i] != val {
@@ -56,8 +56,8 @@ func (ft *FileTest) getInt(t *testing.T, v Var, n uint64) {
 
 func (ft *FileTest) getFloat(t *testing.T, v Var, n uint64) {
 	data := make([]float32, n)
-	if err := v.GetFloat(data); err != nil {
-		t.Fatalf("GetInt failed: %v\n", err)
+	if err := v.ReadFloat(data); err != nil {
+		t.Fatalf("ReadFloat failed: %v\n", err)
 	}
 	for i := 0; i < int(n); i++ {
 		if val := float32(genData(i)); data[i] != val {
@@ -68,7 +68,7 @@ func (ft *FileTest) getFloat(t *testing.T, v Var, n uint64) {
 
 func (ft *FileTest) putAttrs(t *testing.T, v Var) {
 	for key, val := range ft.Attr {
-		if err := v.Attr(key).PutChar([]byte(val)); err != nil {
+		if err := v.Attr(key).WriteChar([]byte(val)); err != nil {
 			t.Fatalf("writing attribute %s failed: %v\n", key, err)
 		}
 	}
@@ -83,7 +83,7 @@ func (ft *FileTest) getAttrs(t *testing.T, v Var) {
 		}
 		switch typ {
 		case NC_CHAR:
-			b, err := a.GetChar()
+			b, err := a.ReadChar()
 			if err != nil {
 				t.Fatalf("read attribute %s failed: %v\n", key, err)
 			}

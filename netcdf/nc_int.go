@@ -14,25 +14,25 @@ import (
 // #include <netcdf.h>
 import "C"
 
-// PutInt writes data as the entire data for variable v.
-func (v Var) PutInt(data []int32) error {
+// WriteInt writes data as the entire data for variable v.
+func (v Var) WriteInt(data []int32) error {
 	if err := v.okData(NC_INT, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_int(C.int(v.f), C.int(v.id), (*C.int)(unsafe.Pointer(&data[0]))))
 }
 
-// GetInt reads the entire variable v into data, which must have enough
+// ReadInt reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
-func (v Var) GetInt(data []int32) error {
+func (v Var) ReadInt(data []int32) error {
 	if err := v.okData(NC_INT, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_int(C.int(v.f), C.int(v.id), (*C.int)(unsafe.Pointer(&data[0]))))
 }
 
-// PutInt sets the value of attribute a to val.
-func (a Attr) PutInt(val []int32) error {
+// WriteInt sets the value of attribute a to val.
+func (a Attr) WriteInt(val []int32) error {
 	// TODO: check Type is NC_DOUBLE and len(val) is corrent
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
@@ -40,8 +40,8 @@ func (a Attr) PutInt(val []int32) error {
 		C.nc_type(NC_INT), C.size_t(len(val)), (*C.int)(unsafe.Pointer(&val[0]))))
 }
 
-// GetInt returns the attribute value.
-func (a Attr) GetInt() (val []int32, err error) {
+// ReadInt returns the attribute value.
+func (a Attr) ReadInt() (val []int32, err error) {
 	// TODO: check Type is NC_DOUBLE
 	n, err := a.Len()
 	if err != nil {

@@ -14,25 +14,25 @@ import (
 // #include <netcdf.h>
 import "C"
 
-// PutFloat writes data as the entire data for variable v.
-func (v Var) PutFloat(data []float32) error {
+// WriteFloat writes data as the entire data for variable v.
+func (v Var) WriteFloat(data []float32) error {
 	if err := v.okData(NC_FLOAT, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_float(C.int(v.f), C.int(v.id), (*C.float)(unsafe.Pointer(&data[0]))))
 }
 
-// GetFloat reads the entire variable v into data, which must have enough
+// ReadFloat reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
-func (v Var) GetFloat(data []float32) error {
+func (v Var) ReadFloat(data []float32) error {
 	if err := v.okData(NC_FLOAT, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_float(C.int(v.f), C.int(v.id), (*C.float)(unsafe.Pointer(&data[0]))))
 }
 
-// PutFloat sets the value of attribute a to val.
-func (a Attr) PutFloat(val []float32) error {
+// WriteFloat sets the value of attribute a to val.
+func (a Attr) WriteFloat(val []float32) error {
 	// TODO: check Type is NC_DOUBLE and len(val) is corrent
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
@@ -40,8 +40,8 @@ func (a Attr) PutFloat(val []float32) error {
 		C.nc_type(NC_FLOAT), C.size_t(len(val)), (*C.float)(unsafe.Pointer(&val[0]))))
 }
 
-// GetFloat returns the attribute value.
-func (a Attr) GetFloat() (val []float32, err error) {
+// ReadFloat returns the attribute value.
+func (a Attr) ReadFloat() (val []float32, err error) {
 	// TODO: check Type is NC_DOUBLE
 	n, err := a.Len()
 	if err != nil {

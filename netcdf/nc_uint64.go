@@ -14,25 +14,25 @@ import (
 // #include <netcdf.h>
 import "C"
 
-// PutUint64 writes data as the entire data for variable v.
-func (v Var) PutUint64(data []uint64) error {
+// WriteUint64 writes data as the entire data for variable v.
+func (v Var) WriteUint64(data []uint64) error {
 	if err := v.okData(NC_UINT64, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_ulonglong(C.int(v.f), C.int(v.id), (*C.ulonglong)(unsafe.Pointer(&data[0]))))
 }
 
-// GetUint64 reads the entire variable v into data, which must have enough
+// ReadUint64 reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
-func (v Var) GetUint64(data []uint64) error {
+func (v Var) ReadUint64(data []uint64) error {
 	if err := v.okData(NC_UINT64, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_ulonglong(C.int(v.f), C.int(v.id), (*C.ulonglong)(unsafe.Pointer(&data[0]))))
 }
 
-// PutUint64 sets the value of attribute a to val.
-func (a Attr) PutUint64(val []uint64) error {
+// WriteUint64 sets the value of attribute a to val.
+func (a Attr) WriteUint64(val []uint64) error {
 	// TODO: check Type is NC_DOUBLE and len(val) is corrent
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
@@ -40,8 +40,8 @@ func (a Attr) PutUint64(val []uint64) error {
 		C.nc_type(NC_UINT64), C.size_t(len(val)), (*C.ulonglong)(unsafe.Pointer(&val[0]))))
 }
 
-// GetUint64 returns the attribute value.
-func (a Attr) GetUint64() (val []uint64, err error) {
+// ReadUint64 returns the attribute value.
+func (a Attr) ReadUint64() (val []uint64, err error) {
 	// TODO: check Type is NC_DOUBLE
 	n, err := a.Len()
 	if err != nil {

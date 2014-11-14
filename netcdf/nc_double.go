@@ -15,25 +15,25 @@ import (
 import "C"
 
 
-// PutDouble writes data as the entire data for variable v.
-func (v Var) PutDouble(data []float64) error {
+// WriteDouble writes data as the entire data for variable v.
+func (v Var) WriteDouble(data []float64) error {
 	if err := v.okData(NC_DOUBLE, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_double(C.int(v.f), C.int(v.id), (*C.double)(unsafe.Pointer(&data[0]))))
 }
 
-// GetDouble reads the entire variable v into data, which must have enough
+// ReadDouble reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
-func (v Var) GetDouble(data []float64) error {
+func (v Var) ReadDouble(data []float64) error {
 	if err := v.okData(NC_DOUBLE, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_double(C.int(v.f), C.int(v.id), (*C.double)(unsafe.Pointer(&data[0]))))
 }
 
-// PutDouble sets the value of attribute a to val.
-func (a Attr) PutDouble(val []float64) error {
+// WriteDouble sets the value of attribute a to val.
+func (a Attr) WriteDouble(val []float64) error {
 	// TODO: check Type is NC_DOUBLE and len(val) is corrent
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
@@ -41,8 +41,8 @@ func (a Attr) PutDouble(val []float64) error {
 		C.nc_type(NC_DOUBLE), C.size_t(len(val)), (*C.double)(unsafe.Pointer(&val[0]))))
 }
 
-// GetDouble returns the attribute value.
-func (a Attr) GetDouble() (val []float64, err error) {
+// ReadDouble returns the attribute value.
+func (a Attr) ReadDouble() (val []float64, err error) {
 	// TODO: check Type is NC_DOUBLE
 	n, err := a.Len()
 	if err != nil {

@@ -14,25 +14,25 @@ import (
 // #include <netcdf.h>
 import "C"
 
-// PutByte writes data as the entire data for variable v.
-func (v Var) PutByte(data []int8) error {
+// WriteByte writes data as the entire data for variable v.
+func (v Var) WriteByte(data []int8) error {
 	if err := v.okData(NC_BYTE, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_schar(C.int(v.f), C.int(v.id), (*C.schar)(unsafe.Pointer(&data[0]))))
 }
 
-// GetByte reads the entire variable v into data, which must have enough
+// ReadByte reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
-func (v Var) GetByte(data []int8) error {
+func (v Var) ReadByte(data []int8) error {
 	if err := v.okData(NC_BYTE, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_schar(C.int(v.f), C.int(v.id), (*C.schar)(unsafe.Pointer(&data[0]))))
 }
 
-// PutByte sets the value of attribute a to val.
-func (a Attr) PutByte(val []int8) error {
+// WriteByte sets the value of attribute a to val.
+func (a Attr) WriteByte(val []int8) error {
 	// TODO: check Type is NC_DOUBLE and len(val) is corrent
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
@@ -40,8 +40,8 @@ func (a Attr) PutByte(val []int8) error {
 		C.nc_type(NC_BYTE), C.size_t(len(val)), (*C.schar)(unsafe.Pointer(&val[0]))))
 }
 
-// GetByte returns the attribute value.
-func (a Attr) GetByte() (val []int8, err error) {
+// ReadByte returns the attribute value.
+func (a Attr) ReadByte() (val []int8, err error) {
 	// TODO: check Type is NC_DOUBLE
 	n, err := a.Len()
 	if err != nil {
