@@ -9,6 +9,7 @@ import "C"
 const (
 	_NC_NOERR    = 0
 	_NC_MAX_NAME = 256
+	_NC_GLOBAL   = -1 // Attribute id to put/get a global attribute
 )
 
 // FileMode represents a file's mode.
@@ -25,10 +26,6 @@ const (
 const (
 	NC_NOWRITE FileMode = 0x0000 // set read-only access
 	NC_WRITE   FileMode = 0x0001 // set read-write access
-)
-
-const (
-	NC_GLOBAL = -1 // Attribute id to put/get a global attribute
 )
 
 // File modes for Create

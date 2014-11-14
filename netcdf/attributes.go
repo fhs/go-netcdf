@@ -90,3 +90,13 @@ func (v Var) AttrN(n int) (a Attr, err error) {
 	a = Attr{v: v, name: C.GoString(buf)}
 	return
 }
+
+// Attr returns attribute named name.
+func (f File) Attr(name string) (a Attr) {
+	return Var{f, _NC_GLOBAL}.Attr(name)
+}
+
+// AttrN returns attribute for attribute number n.
+func (f File) AttrN(n int) (a Attr, err error) {
+	return Var{f, _NC_GLOBAL}.AttrN(n)
+}

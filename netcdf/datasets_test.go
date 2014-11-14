@@ -61,7 +61,7 @@ func (ft *FileTest) getFloat(t *testing.T, v Var, n uint64) {
 	}
 	for i := 0; i < int(n); i++ {
 		if val := float32(genData(i)); data[i] != val {
-			t.Errorf("data at position %d is %d; expected %d\n", i, data[i], val)
+			t.Errorf("data at position %d is %f; expected %f\n", i, data[i], val)
 		}
 	}
 }
@@ -134,11 +134,11 @@ func createFile(t *testing.T, filename string, ft *FileTest) {
 	}
 	dims := make([]Dim, 2)
 	for i, name := range ft.DimNames {
-		if dims[i], err = f.PutDim(name, ft.DimLens[i]); err != nil {
+		if dims[i], err = f.CreateDim(name, ft.DimLens[i]); err != nil {
 			t.Fatalf("PutDim failed: %v\n", err)
 		}
 	}
-	v, err := f.PutVar(ft.VarName, ft.DataType, dims)
+	v, err := f.CreateVar(ft.VarName, ft.DataType, dims)
 	if err != nil {
 		t.Fatalf("PutVar failed: %v\n", err)
 	}
@@ -167,7 +167,7 @@ func readFile(t *testing.T, filename string, ft *FileTest) {
 		t.Fatalf("Open failed: %v\n", err)
 	}
 	for i, name := range ft.DimNames {
-		d, err := f.GetDim(name)
+		d, err := f.Dim(name)
 		if err != nil {
 			t.Fatalf("GetDim failed: %v\n", err)
 		}
@@ -186,7 +186,7 @@ func readFile(t *testing.T, filename string, ft *FileTest) {
 			t.Fatalf("Dim length is %d; expected %d\n", n, ft.DimLens[i])
 		}
 	}
-	v, err := f.GetVar(ft.VarName)
+	v, err := f.Var(ft.VarName)
 	if err != nil {
 		t.Errorf("GetVar failed: %v\n", err)
 	}
