@@ -21,6 +21,7 @@ type Dim struct {
 // Name returns the name of dimension d.
 func (d Dim) Name() (name string, err error) {
 	buf := C.CString(string(make([]byte, _NC_MAX_NAME+1)))
+	defer C.free(unsafe.Pointer(buf))
 	err = newError(C.nc_inq_dimname(C.int(d.f), d.id, buf))
 	name = C.GoString(buf)
 	return

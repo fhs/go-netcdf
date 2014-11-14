@@ -27,6 +27,10 @@ const (
 	NC_WRITE   FileMode = 0x0001 // set read-write access
 )
 
+const (
+	NC_GLOBAL = -1 // Attribute id to put/get a global attribute
+)
+
 // File modes for Create
 const (
 	NC_CLOBBER       FileMode = 0x0000 // destroy existing file

@@ -133,6 +133,11 @@ func (f File) PutVar(name string, t Type, dims []Dim) (v Var, err error) {
 	return
 }
 
+// VarN returns a new variable in File f with ID id.
+func (f File) VarN(id int) Var {
+	return Var{f, C.int(id)}
+}
+
 // GetVar returns the Var for the variable named name.
 func (f File) GetVar(name string) (d Var, err error) {
 	cname := C.CString(name)
