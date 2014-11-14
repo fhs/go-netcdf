@@ -126,6 +126,14 @@ cat nc_double.go |
 	sed 's_^// ReadDouble _// ReadByte _' \
 	> nc_byte.go
 
+
+# We return []byte (i.e. []uint8) for NC_CHAR Type because:
+#	- Returning string would not be very flexible, since '\0' characters
+#	  may or may not require trimming.
+#	- Returning []rune (i.e. []int32) takes up more space and we know
+#	  we're limited to ASCII.
+#	- Any other types can't be easily converted to a string
+#	  (e.g. string([]int8) does not work)
 cat nc_double.go |
 	gofmt -r 'float64 -> byte' |
 	gofmt -r 'C.double -> C.char' |

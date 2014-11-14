@@ -16,7 +16,7 @@ import "C"
 
 // WriteUbyte writes data as the entire data for variable v.
 func (v Var) WriteUbyte(data []uint8) error {
-	if err := v.okData(NC_UBYTE, len(data)); err != nil {
+	if err := okData(v, NC_UBYTE, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_uchar(C.int(v.f), C.int(v.id), (*C.uchar)(unsafe.Pointer(&data[0]))))
@@ -25,7 +25,7 @@ func (v Var) WriteUbyte(data []uint8) error {
 // ReadUbyte reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
 func (v Var) ReadUbyte(data []uint8) error {
-	if err := v.okData(NC_UBYTE, len(data)); err != nil {
+	if err := okData(v, NC_UBYTE, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_uchar(C.int(v.f), C.int(v.id), (*C.uchar)(unsafe.Pointer(&data[0]))))
@@ -33,7 +33,8 @@ func (v Var) ReadUbyte(data []uint8) error {
 
 // WriteUbyte sets the value of attribute a to val.
 func (a Attr) WriteUbyte(val []uint8) error {
-	// TODO: check Type is NC_DOUBLE and len(val) is corrent
+	// We don't need okData here because netcdf library doesn't know
+	// the length or type of the attribute yet.
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
 	return newError(C.nc_put_att_uchar(C.int(a.v.f), C.int(a.v.id), cname,
@@ -41,15 +42,12 @@ func (a Attr) WriteUbyte(val []uint8) error {
 }
 
 // ReadUbyte returns the attribute value.
-func (a Attr) ReadUbyte() (val []uint8, err error) {
-	// TODO: check Type is NC_DOUBLE
-	n, err := a.Len()
-	if err != nil {
-		return nil, err
+func (a Attr) ReadUbyte(val []uint8) (err error) {
+	if err := okData(a, NC_UBYTE, len(val)); err != nil {
+		return err
 	}
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
-	val = make([]uint8, n)
 	err = newError(C.nc_get_att_uchar(C.int(a.v.f), C.int(a.v.id), cname,
 		(*C.uchar)(unsafe.Pointer(&val[0]))))
 	return

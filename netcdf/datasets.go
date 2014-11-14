@@ -2,12 +2,6 @@
 // Use of this source code is governed by the MIT
 // license that can be found in the LICENSE file.
 
-// Package netcdf is a Go binding for the netCDF C library.
-//
-// This package supports netCDF version 3, and 4 if
-// netCDF 4 support is enabled in the C library.
-// The C library interface used is documented here:
-// http://www.unidata.ucar.edu/software/netcdf/docs/netcdf-c/
 package netcdf
 
 // #cgo pkg-config: netcdf

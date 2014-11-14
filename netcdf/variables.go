@@ -9,7 +9,6 @@ package netcdf
 import "C"
 
 import (
-	"fmt"
 	"unsafe"
 )
 
@@ -61,26 +60,6 @@ func (v Var) Len() (uint64, error) {
 		n *= len
 	}
 	return n, nil
-}
-
-// okData checks if t agrees with v.Type() and n agrees with v.Len().
-func (v Var) okData(t Type, n int) error {
-	u, err := v.Type()
-	if err != nil {
-		return err
-	}
-	if u != t {
-		return fmt.Errorf("wrong data type %s; expected %s", typeNames[u], typeNames[t])
-	}
-
-	m, err := v.Len()
-	if err != nil {
-		return err
-	}
-	if n < int(m) {
-		return fmt.Errorf("data length %d is smaller than %d", n, m)
-	}
-	return nil
 }
 
 // AddVar adds a new a variable named name of type t and dimensions dims.

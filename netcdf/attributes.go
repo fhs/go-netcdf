@@ -2,21 +2,6 @@
 // Use of this source code is governed by the MIT
 // license that can be found in the LICENSE file.
 
-// Some design decisions:
-//
-// The Get* methods below do their own allocations unlike the Var Get*
-// methods because attributes are expected to be much smaller. Thus, we
-// free the user from the burden of finding the length of the attribute
-// and allocating the buffer for it.
-//
-// Also, we return []byte (i.e. []uint8) for NC_CHAR Type because:
-//	- Returning string would not be very flexible, since '\0' characters
-//	  may or may not require trimming.
-//	- Returning []rune (i.e. []int32) takes up more space and we know
-//	  we're limited to ASCII.
-//	- Any other types can't be easily converted to a string
-//	  (e.g. string([]int8) does not work)
-
 package netcdf
 
 // #include <stdlib.h>
