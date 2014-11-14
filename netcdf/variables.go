@@ -117,9 +117,9 @@ func (v Var) GetFloat(data []float32) error {
 	return newError(C.nc_get_var_float(C.int(v.f), C.int(v.id), (*C.float)(unsafe.Pointer(&data[0]))))
 }
 
-// CreateVar adds a new a variable named name of type t and dimensions dims.
+// AddVar adds a new a variable named name of type t and dimensions dims.
 // The new variable v is returned.
-func (f File) CreateVar(name string, t Type, dims []Dim) (v Var, err error) {
+func (f File) AddVar(name string, t Type, dims []Dim) (v Var, err error) {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 	var varid C.int

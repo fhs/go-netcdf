@@ -35,9 +35,9 @@ func (d Dim) Len() (n uint64, err error) {
 	return
 }
 
-// CreateDim adds a new dimension named name of length len.
+// AddDim adds a new dimension named name of length len.
 // The new dimension d is returned.
-func (f File) CreateDim(name string, len uint64) (d Dim, err error) {
+func (f File) AddDim(name string, len uint64) (d Dim, err error) {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 	var dimid C.int

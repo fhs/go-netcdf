@@ -134,11 +134,11 @@ func createFile(t *testing.T, filename string, ft *FileTest) {
 	}
 	dims := make([]Dim, 2)
 	for i, name := range ft.DimNames {
-		if dims[i], err = f.CreateDim(name, ft.DimLens[i]); err != nil {
+		if dims[i], err = f.AddDim(name, ft.DimLens[i]); err != nil {
 			t.Fatalf("PutDim failed: %v\n", err)
 		}
 	}
-	v, err := f.CreateVar(ft.VarName, ft.DataType, dims)
+	v, err := f.AddVar(ft.VarName, ft.DataType, dims)
 	if err != nil {
 		t.Fatalf("PutVar failed: %v\n", err)
 	}
