@@ -91,12 +91,12 @@ func (v Var) AttrN(n int) (a Attr, err error) {
 	return
 }
 
-// Attr returns attribute named name.
+// Attr returns global attribute named name.
 func (f File) Attr(name string) (a Attr) {
 	return Var{f, _NC_GLOBAL}.Attr(name)
 }
 
-// AttrN returns attribute for attribute number n.
+// AttrN returns global attribute for attribute number n.
 func (f File) AttrN(n int) (a Attr, err error) {
 	return Var{f, _NC_GLOBAL}.AttrN(n)
 }
