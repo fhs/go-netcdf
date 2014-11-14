@@ -55,28 +55,6 @@ func (a Attr) Len() (n uint64, err error) {
 	return
 }
 
-// PutChar sets the value of attribute a to val.
-func (a Attr) PutChar(val []byte) error {
-	cname := C.CString(a.name)
-	defer C.free(unsafe.Pointer(cname))
-	return newError(C.nc_put_att_text(C.int(a.v.f), C.int(a.v.id), cname,
-		C.size_t(len(val)), (*C.char)(unsafe.Pointer(&val[0]))))
-}
-
-// GetChar returns the attribute value.
-func (a Attr) GetChar() (val []byte, err error) {
-	n, err := a.Len()
-	if err != nil {
-		return nil, err
-	}
-	cname := C.CString(a.name)
-	defer C.free(unsafe.Pointer(cname))
-	val = make([]byte, n)
-	err = newError(C.nc_get_att_text(C.int(a.v.f), C.int(a.v.id), cname,
-		(*C.char)(unsafe.Pointer(&val[0]))))
-	return
-}
-
 // Attr returns attribute named name.
 func (v Var) Attr(name string) (a Attr) {
 	return Attr{v: v, name: name}

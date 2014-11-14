@@ -83,40 +83,6 @@ func (v Var) okData(t Type, n int) error {
 	return nil
 }
 
-// PutInt writes data as the entire data for variable v.
-func (v Var) PutInt(data []int32) error {
-	if err := v.okData(NC_INT, len(data)); err != nil {
-		return err
-	}
-	return newError(C.nc_put_var_int(C.int(v.f), C.int(v.id), (*C.int)(unsafe.Pointer(&data[0]))))
-}
-
-// PutInt writes data as the entire data for variable v.
-func (v Var) PutFloat(data []float32) error {
-	if err := v.okData(NC_FLOAT, len(data)); err != nil {
-		return err
-	}
-	return newError(C.nc_put_var_float(C.int(v.f), C.int(v.id), (*C.float)(unsafe.Pointer(&data[0]))))
-}
-
-// GetInt reads the entire variable v into data, which must have enough
-// space for all the values (i.e. len(data) must be at least v.Len()).
-func (v Var) GetInt(data []int32) error {
-	if err := v.okData(NC_INT, len(data)); err != nil {
-		return err
-	}
-	return newError(C.nc_get_var_int(C.int(v.f), C.int(v.id), (*C.int)(unsafe.Pointer(&data[0]))))
-}
-
-// GetFloat reads the entire variable v into data, which must have enough
-// space for all the values (i.e. len(data) must be at least v.Len()).
-func (v Var) GetFloat(data []float32) error {
-	if err := v.okData(NC_FLOAT, len(data)); err != nil {
-		return err
-	}
-	return newError(C.nc_get_var_float(C.int(v.f), C.int(v.id), (*C.float)(unsafe.Pointer(&data[0]))))
-}
-
 // AddVar adds a new a variable named name of type t and dimensions dims.
 // The new variable v is returned.
 func (f File) AddVar(name string, t Type, dims []Dim) (v Var, err error) {
