@@ -14,7 +14,7 @@ import (
 
 // Var represents a variable.
 type Var struct {
-	f  File
+	f  Dataset
 	id C.int
 }
 
@@ -32,7 +32,7 @@ func (v Var) Dims() (dims []Dim, err error) {
 	}
 	dims = make([]Dim, ndims)
 	for i, id := range dimids {
-		dims[i] = Dim{f: v.f, id: id}
+		dims[i] = Dim{ds: v.f, id: id}
 	}
 	return
 }
@@ -72,7 +72,7 @@ func (v Var) NAttrs() (n int, err error) {
 
 // AddVar adds a new a variable named name of type t and dimensions dims.
 // The new variable v is returned.
-func (f File) AddVar(name string, t Type, dims []Dim) (v Var, err error) {
+func (ds Dataset) AddVar(name string, t Type, dims []Dim) (v Var, err error) {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 	var varid C.int
@@ -80,23 +80,23 @@ func (f File) AddVar(name string, t Type, dims []Dim) (v Var, err error) {
 	for i, d := range dims {
 		dimids[i] = d.id
 	}
-	err = newError(C.nc_def_var(C.int(f), cname, C.nc_type(t),
+	err = newError(C.nc_def_var(C.int(ds), cname, C.nc_type(t),
 		C.int(len(dimids)), &dimids[0], &varid))
-	v = Var{f: f, id: varid}
+	v = Var{f: ds, id: varid}
 	return
 }
 
 // VarN returns a new variable in File f with ID id.
-func (f File) VarN(id int) Var {
-	return Var{f, C.int(id)}
+func (ds Dataset) VarN(id int) Var {
+	return Var{ds, C.int(id)}
 }
 
 // Var returns the Var for the variable named name.
-func (f File) Var(name string) (d Var, err error) {
+func (ds Dataset) Var(name string) (d Var, err error) {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 	var id C.int
-	err = newError(C.nc_inq_varid(C.int(f), cname, &id))
-	d = Var{f, id}
+	err = newError(C.nc_inq_varid(C.int(ds), cname, &id))
+	d = Var{ds, id}
 	return
 }

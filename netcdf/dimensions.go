@@ -14,7 +14,7 @@ import (
 
 // Dim represents a dimension.
 type Dim struct {
-	f  File
+	ds Dataset
 	id C.int
 }
 
@@ -22,7 +22,7 @@ type Dim struct {
 func (d Dim) Name() (name string, err error) {
 	buf := C.CString(string(make([]byte, _NC_MAX_NAME+1)))
 	defer C.free(unsafe.Pointer(buf))
-	err = newError(C.nc_inq_dimname(C.int(d.f), d.id, buf))
+	err = newError(C.nc_inq_dimname(C.int(d.ds), d.id, buf))
 	name = C.GoString(buf)
 	return
 }
@@ -30,28 +30,28 @@ func (d Dim) Name() (name string, err error) {
 // Len returns the length of dimension d.
 func (d Dim) Len() (n uint64, err error) {
 	var len C.size_t
-	err = newError(C.nc_inq_dimlen(C.int(d.f), d.id, &len))
+	err = newError(C.nc_inq_dimlen(C.int(d.ds), d.id, &len))
 	n = uint64(len)
 	return
 }
 
 // AddDim adds a new dimension named name of length len.
 // The new dimension d is returned.
-func (f File) AddDim(name string, len uint64) (d Dim, err error) {
+func (ds Dataset) AddDim(name string, len uint64) (d Dim, err error) {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 	var dimid C.int
-	err = newError(C.nc_def_dim(C.int(f), cname, C.size_t(len), &dimid))
-	d = Dim{f, dimid}
+	err = newError(C.nc_def_dim(C.int(ds), cname, C.size_t(len), &dimid))
+	d = Dim{ds: ds, id: dimid}
 	return
 }
 
 // Dim returns the Dim for the dimension named name.
-func (f File) Dim(name string) (d Dim, err error) {
+func (ds Dataset) Dim(name string) (d Dim, err error) {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 	var id C.int
-	err = newError(C.nc_inq_dimid(C.int(f), cname, &id))
-	d = Dim{f, id}
+	err = newError(C.nc_inq_dimid(C.int(ds), cname, &id))
+	d = Dim{ds: ds, id: id}
 	return
 }

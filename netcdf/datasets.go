@@ -28,48 +28,48 @@ func (e Error) Error() string {
 	return C.GoString(C.nc_strerror(C.int(e)))
 }
 
-// File represents an open netCDF file.
-type File C.int
+// Dataset represents a netCDF dataset.
+type Dataset C.int
 
 // Create creates a new netCDF dataset.
 // Mode is a bitwise-or of FileMode values.
-func Create(path string, mode FileMode) (f File, err error) {
+func Create(path string, mode FileMode) (ds Dataset, err error) {
 	cpath := C.CString(path)
 	defer C.free(unsafe.Pointer(cpath))
 	var id C.int
 	err = newError(C.nc_create(cpath, C.int(mode), &id))
-	f = File(id)
+	ds = Dataset(id)
 	return
 }
 
 // OpenFile opens an existing nefCDF dataset file at path.
 // Mode is a bitwise-or of FileMode values.
-func OpenFile(path string, mode FileMode) (f File, err error) {
+func OpenFile(path string, mode FileMode) (ds Dataset, err error) {
 	cpath := C.CString(path)
 	defer C.free(unsafe.Pointer(cpath))
 	var id C.int
 	err = newError(C.nc_open(cpath, C.int(mode), &id))
-	f = File(id)
+	ds = Dataset(id)
 	return
 }
 
 // Close closes an open netCDF dataset.
-func (f File) Close() (err error) {
-	return newError(C.nc_close(C.int(f)))
+func (ds Dataset) Close() (err error) {
+	return newError(C.nc_close(C.int(ds)))
 }
 
 // NVars returns the number of variables defined for dataset f.
-func (f File) NVars() (n int, err error) {
+func (ds Dataset) NVars() (n int, err error) {
 	var cn C.int
-	err = newError(C.nc_inq_nvars(C.int(f), &cn))
+	err = newError(C.nc_inq_nvars(C.int(ds), &cn))
 	n = int(cn)
 	return
 }
 
 // NAttrs returns the number of global attributes defined for dataset f.
-func (f File) NAttrs() (n int, err error) {
+func (ds Dataset) NAttrs() (n int, err error) {
 	var cn C.int
-	err = newError(C.nc_inq_natts(C.int(f), &cn))
+	err = newError(C.nc_inq_natts(C.int(ds), &cn))
 	n = int(cn)
 	return
 }

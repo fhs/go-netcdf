@@ -55,11 +55,11 @@ func (v Var) AttrN(n int) (a Attr, err error) {
 }
 
 // Attr returns global attribute named name.
-func (f File) Attr(name string) (a Attr) {
-	return Var{f, _NC_GLOBAL}.Attr(name)
+func (ds Dataset) Attr(name string) (a Attr) {
+	return Var{ds, _NC_GLOBAL}.Attr(name)
 }
 
 // AttrN returns global attribute for attribute number n.
-func (f File) AttrN(n int) (a Attr, err error) {
-	return Var{f, _NC_GLOBAL}.AttrN(n)
+func (ds Dataset) AttrN(n int) (a Attr, err error) {
+	return Var{ds, _NC_GLOBAL}.AttrN(n)
 }
