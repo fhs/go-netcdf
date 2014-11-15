@@ -252,7 +252,7 @@ func createFile(t *testing.T, filename string, ft *FileTest) {
 }
 
 func readFile(t *testing.T, filename string, ft *FileTest) {
-	f, err := Open(filename, NC_NOWRITE)
+	f, err := OpenFile(filename, NC_NOWRITE)
 	if err != nil {
 		t.Fatalf("Open failed: %v\n", err)
 	}
@@ -321,7 +321,7 @@ func readFile(t *testing.T, filename string, ft *FileTest) {
 }
 
 func TestError(t *testing.T) {
-	_, err := Open("/non-existant.nc", NC_NOWRITE)
+	_, err := OpenFile("/non-existant.nc", NC_NOWRITE)
 	if err == nil {
 		t.Fatalf("Opened non-existant file\n")
 	}

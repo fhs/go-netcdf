@@ -42,9 +42,9 @@ func Create(path string, mode FileMode) (f File, err error) {
 	return
 }
 
-// Open opens an existing nefCDF dataset file at path.
+// OpenFile opens an existing nefCDF dataset file at path.
 // Mode is a bitwise-or of FileMode values.
-func Open(path string, mode FileMode) (f File, err error) {
+func OpenFile(path string, mode FileMode) (f File, err error) {
 	cpath := C.CString(path)
 	defer C.free(unsafe.Pointer(cpath))
 	var id C.int
