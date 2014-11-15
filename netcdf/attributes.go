@@ -47,7 +47,7 @@ func (v Var) Attr(name string) (a Attr) {
 
 // AttrN returns attribute for attribute number n.
 func (v Var) AttrN(n int) (a Attr, err error) {
-	buf := C.CString(string(make([]byte, _NC_MAX_NAME+1)))
+	buf := C.CString(string(make([]byte, C.NC_MAX_NAME+1)))
 	defer C.free(unsafe.Pointer(buf))
 	err = newError(C.nc_inq_attname(C.int(v.ds), C.int(v.id), C.int(n), buf))
 	a = Attr{v: v, name: C.GoString(buf)}
@@ -56,10 +56,10 @@ func (v Var) AttrN(n int) (a Attr, err error) {
 
 // Attr returns global attribute named name.
 func (ds Dataset) Attr(name string) (a Attr) {
-	return Var{ds, _NC_GLOBAL}.Attr(name)
+	return Var{ds, C.NC_GLOBAL}.Attr(name)
 }
 
 // AttrN returns global attribute for attribute number n.
 func (ds Dataset) AttrN(n int) (a Attr, err error) {
-	return Var{ds, _NC_GLOBAL}.AttrN(n)
+	return Var{ds, C.NC_GLOBAL}.AttrN(n)
 }

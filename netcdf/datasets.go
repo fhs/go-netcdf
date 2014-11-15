@@ -17,7 +17,7 @@ import (
 type Error C.int
 
 func newError(n C.int) error {
-	if n == _NC_NOERR {
+	if n == C.NC_NOERR {
 		return nil
 	}
 	return Error(n)
