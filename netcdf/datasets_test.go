@@ -7,6 +7,7 @@ package netcdf
 import (
 	"io/ioutil"
 	"os"
+	"reflect"
 	"testing"
 )
 
@@ -15,7 +16,7 @@ type FileTest struct {
 	DimNames []string
 	DimLens  []uint64
 	DataType Type
-	Attr     map[string]string
+	Attr     map[string]interface{}
 }
 
 func genData(i int) float64 {
@@ -67,8 +68,36 @@ func (ft *FileTest) getFloat(t *testing.T, v Var, n uint64) {
 }
 
 func (ft *FileTest) putAttrs(t *testing.T, v Var) {
-	for key, val := range ft.Attr {
-		if err := v.Attr(key).WriteChar([]byte(val)); err != nil {
+	var err error
+	for key, value := range ft.Attr {
+		a := v.Attr(key)
+		switch val := value.(type) {
+		default:
+			t.Fatalf("unexpected type %T\n", val)
+		case []uint64:
+			err = a.WriteUint64(val)
+		case []int64:
+			err = a.WriteInt64(val)
+		case []float64:
+			err = a.WriteDouble(val)
+		case []uint32:
+			err = a.WriteUint(val)
+		case []int32:
+			err = a.WriteInt(val)
+		case []float32:
+			err = a.WriteFloat(val)
+		case []uint16:
+			err = a.WriteUshort(val)
+		case []int16:
+			err = a.WriteShort(val)
+		case []uint8:
+			err = a.WriteUbyte(val)
+		case []int8:
+			err = a.WriteByte(val)
+		case string:
+			err = a.WriteChar([]byte(val))
+		}
+		if err != nil {
 			t.Fatalf("writing attribute %s failed: %v\n", key, err)
 		}
 	}
@@ -81,17 +110,40 @@ func (ft *FileTest) getAttrs(t *testing.T, v Var) {
 		if err != nil {
 			t.Fatalf("getting data type of attribute %s failed: %v\n", key, err)
 		}
+		var q interface{}
 		switch typ {
-		case NC_CHAR:
-			b, err := GetChar(a)
-			if err != nil {
-				t.Fatalf("read attribute %s failed: %v\n", key, err)
-			}
-			if string(b) != val {
-				t.Errorf("attribute %s is %s; expected %s\n", key, string(b), val)
-			}
 		default:
 			t.Errorf("unexpected attribute type %s\n", typeNames[typ])
+		case NC_UINT64:
+			q, err = GetUint64(a)
+		case NC_INT64:
+			q, err = GetInt64(a)
+		case NC_DOUBLE:
+			q, err = GetDouble(a)
+		case NC_UINT:
+			q, err = GetUint(a)
+		case NC_INT:
+			q, err = GetInt(a)
+		case NC_FLOAT:
+			q, err = GetFloat(a)
+		case NC_USHORT:
+			q, err = GetUshort(a)
+		case NC_SHORT:
+			q, err = GetShort(a)
+		case NC_UBYTE:
+			q, err = GetUbyte(a)
+		case NC_BYTE:
+			q, err = GetByte(a)
+		case NC_CHAR:
+			var b []byte
+			b, err = GetChar(a)
+			q = string(b)
+		}
+		if err != nil {
+			t.Fatalf("reading attribute %s failed: %v\n", key, err)
+		}
+		if !reflect.DeepEqual(q, val) {
+			t.Errorf("attribute %s is %v; expected %v\n", key, q, val)
 		}
 	}
 }
@@ -102,14 +154,25 @@ var fileTests = []FileTest{
 		DimNames: []string{"time", "growth"},
 		DimLens:  []uint64{7, 3},
 		DataType: NC_INT,
-		Attr:     map[string]string{"birthday": "2009-11-10"},
+		Attr: map[string]interface{}{
+			"uint64_test": []uint64{0xFABCFABCFABCFABC, 999, 0, 222},
+			"int64_test":  []int64{0x7ABC7ABC7ABC7ABC, -999, 0, 222},
+			"double_test": []float64{3.14, 1.23, -5.7, 0, 7},
+			"uint_test":   []uint32{2, 1, 600, 7},
+			"int_test":    []int32{2, 1, -5, 7},
+			"float_test":  []float32{3.14, 1.23, -5.7, 0, 7},
+			"ushort_test": []uint16{2, 1, 600, 7},
+			"short_test":  []int16{2, 1, -5, 7},
+			"ubyte_test":  []uint8{2, 1, 255, 0, 7},
+			"byte_test":   []int8{2, 100, -128, 127, -17},
+			"birthday":    "2009-11-10",
+		},
 	},
 	{
 		VarName:  "golang",
 		DimNames: []string{"time", "growth"},
 		DimLens:  []uint64{7, 3},
 		DataType: NC_FLOAT,
-		Attr:     map[string]string{"birthday": "2009-11-10"},
 	},
 }
 
@@ -149,12 +212,12 @@ func createFile(t *testing.T, filename string, ft *FileTest) {
 		t.Fatalf("Var.Len failed: %v\n", err)
 	}
 	switch ft.DataType {
+	default:
+		t.Fatalf("unexpected type %s\n", typeNames[ft.DataType])
 	case NC_INT:
 		ft.putInt(t, v, n)
 	case NC_FLOAT:
 		ft.putFloat(t, v, n)
-	default:
-		t.Fatalf("unexpected type %s\n", typeNames[ft.DataType])
 	}
 	if err := f.Close(); err != nil {
 		t.Fatalf("Close failed: %v\n", err)
@@ -197,12 +260,12 @@ func readFile(t *testing.T, filename string, ft *FileTest) {
 		t.Fatalf("Var.Len failed: %v\n", err)
 	}
 	switch ft.DataType {
+	default:
+		t.Fatalf("unexpected type %s\n", typeNames[ft.DataType])
 	case NC_INT:
 		ft.getInt(t, v, n)
 	case NC_FLOAT:
 		ft.getFloat(t, v, n)
-	default:
-		t.Fatalf("unexpected type %s\n", typeNames[ft.DataType])
 	}
 	if err := f.Close(); err != nil {
 		t.Fatalf("Close failed: %v\n", err)

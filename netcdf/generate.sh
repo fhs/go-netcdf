@@ -1,20 +1,6 @@
 #!/bin/sh
 
 cat nc_double.go |
-	gofmt -r 'float64 -> float32' |
-	gofmt -r 'C.double -> C.float' |
-	gofmt -r 'NC_DOUBLE -> NC_FLOAT' |
-	gofmt -r 'C.nc_put_var_double -> C.nc_put_var_float' |
-	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_float' |
-	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_float' |
-	gofmt -r 'C.nc_get_att_double -> C.nc_get_att_float' |
-	sed 's/DoubleReader/FloatReader/' |
-	sed 's/GetDouble/GetFloat/' |
-	sed 's/WriteDouble/WriteFloat/' |
-	sed 's/ReadDouble/ReadFloat/' \
-	> nc_float.go
-
-cat nc_double.go |
 	gofmt -r 'float64 -> uint64' |
 	gofmt -r 'C.double -> C.ulonglong' |
 	gofmt -r 'NC_DOUBLE -> NC_UINT64' |
@@ -69,6 +55,20 @@ cat nc_double.go |
 	sed 's/WriteDouble/WriteInt/' |
 	sed 's/ReadDouble/ReadInt/' \
 	> nc_int.go
+
+cat nc_double.go |
+	gofmt -r 'float64 -> float32' |
+	gofmt -r 'C.double -> C.float' |
+	gofmt -r 'NC_DOUBLE -> NC_FLOAT' |
+	gofmt -r 'C.nc_put_var_double -> C.nc_put_var_float' |
+	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_float' |
+	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_float' |
+	gofmt -r 'C.nc_get_att_double -> C.nc_get_att_float' |
+	sed 's/DoubleReader/FloatReader/' |
+	sed 's/GetDouble/GetFloat/' |
+	sed 's/WriteDouble/WriteFloat/' |
+	sed 's/ReadDouble/ReadFloat/' \
+	> nc_float.go
 
 cat nc_double.go |
 	gofmt -r 'float64 -> uint16' |
