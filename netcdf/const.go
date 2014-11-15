@@ -4,6 +4,7 @@
 
 package netcdf
 
+// #include <netcdf.h>
 import "C"
 
 const (
@@ -38,7 +39,7 @@ const (
 )
 
 // Type is a netCDF external data type.
-type Type C.int
+type Type C.nc_type
 
 const (
 	NC_BYTE   Type = 1      // signed 1 byte integer
