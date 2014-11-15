@@ -7,6 +7,7 @@
 package netcdf
 
 import (
+	"fmt"
 	"unsafe"
 )
 
@@ -68,4 +69,30 @@ func GetFloat(r FloatReader) (data []float32, err error) {
 	data = make([]float32, n)
 	err = r.ReadFloat(data)
 	return
+}
+
+// TestWriteFloat writes somes data to v. N is v.Len().
+// This function is only used for testing.
+func testWriteFloat(v Var, n uint64) error {
+	data := make([]float32, n)
+	for i := 0; i < int(n); i++ {
+		data[i] = float32(i + 10)
+	}
+	return v.WriteFloat(data)
+}
+
+// TestReadFloat reads data from v and checks that it's the same as what
+// was written by testWriteFloat. N is v.Len().
+// This function is only used for testing.
+func testReadFloat(v Var, n uint64) error {
+	data := make([]float32, n)
+	if err := v.ReadFloat(data); err != nil {
+		return err
+	}
+	for i := 0; i < int(n); i++ {
+		if val := float32(i + 10); data[i] != val {
+			return fmt.Errorf("data at position %d is %f; expected %f\n", i, data[i], val)
+		}
+	}
+	return nil
 }

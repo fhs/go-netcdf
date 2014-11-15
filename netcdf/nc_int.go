@@ -7,6 +7,7 @@
 package netcdf
 
 import (
+	"fmt"
 	"unsafe"
 )
 
@@ -68,4 +69,30 @@ func GetInt(r IntReader) (data []int32, err error) {
 	data = make([]int32, n)
 	err = r.ReadInt(data)
 	return
+}
+
+// TestWriteInt writes somes data to v. N is v.Len().
+// This function is only used for testing.
+func testWriteInt(v Var, n uint64) error {
+	data := make([]int32, n)
+	for i := 0; i < int(n); i++ {
+		data[i] = int32(i + 10)
+	}
+	return v.WriteInt(data)
+}
+
+// TestReadInt reads data from v and checks that it's the same as what
+// was written by testWriteInt. N is v.Len().
+// This function is only used for testing.
+func testReadInt(v Var, n uint64) error {
+	data := make([]int32, n)
+	if err := v.ReadInt(data); err != nil {
+		return err
+	}
+	for i := 0; i < int(n); i++ {
+		if val := int32(i + 10); data[i] != val {
+			return fmt.Errorf("data at position %d is %f; expected %f\n", i, data[i], val)
+		}
+	}
+	return nil
 }

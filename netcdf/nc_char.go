@@ -7,6 +7,7 @@
 package netcdf
 
 import (
+	"fmt"
 	"unsafe"
 )
 
@@ -68,4 +69,30 @@ func GetChar(r CharReader) (data []byte, err error) {
 	data = make([]byte, n)
 	err = r.ReadChar(data)
 	return
+}
+
+// TestWriteChar writes somes data to v. N is v.Len().
+// This function is only used for testing.
+func testWriteChar(v Var, n uint64) error {
+	data := make([]byte, n)
+	for i := 0; i < int(n); i++ {
+		data[i] = byte(i + 10)
+	}
+	return v.WriteChar(data)
+}
+
+// TestReadChar reads data from v and checks that it's the same as what
+// was written by testWriteChar. N is v.Len().
+// This function is only used for testing.
+func testReadChar(v Var, n uint64) error {
+	data := make([]byte, n)
+	if err := v.ReadChar(data); err != nil {
+		return err
+	}
+	for i := 0; i < int(n); i++ {
+		if val := byte(i + 10); data[i] != val {
+			return fmt.Errorf("data at position %d is %f; expected %f\n", i, data[i], val)
+		}
+	}
+	return nil
 }

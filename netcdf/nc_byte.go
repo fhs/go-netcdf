@@ -7,6 +7,7 @@
 package netcdf
 
 import (
+	"fmt"
 	"unsafe"
 )
 
@@ -68,4 +69,30 @@ func GetByte(r ByteReader) (data []int8, err error) {
 	data = make([]int8, n)
 	err = r.ReadByte(data)
 	return
+}
+
+// TestWriteByte writes somes data to v. N is v.Len().
+// This function is only used for testing.
+func testWriteByte(v Var, n uint64) error {
+	data := make([]int8, n)
+	for i := 0; i < int(n); i++ {
+		data[i] = int8(i + 10)
+	}
+	return v.WriteByte(data)
+}
+
+// TestReadByte reads data from v and checks that it's the same as what
+// was written by testWriteByte. N is v.Len().
+// This function is only used for testing.
+func testReadByte(v Var, n uint64) error {
+	data := make([]int8, n)
+	if err := v.ReadByte(data); err != nil {
+		return err
+	}
+	for i := 0; i < int(n); i++ {
+		if val := int8(i + 10); data[i] != val {
+			return fmt.Errorf("data at position %d is %f; expected %f\n", i, data[i], val)
+		}
+	}
+	return nil
 }

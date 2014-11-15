@@ -7,6 +7,7 @@
 package netcdf
 
 import (
+	"fmt"
 	"unsafe"
 )
 
@@ -68,4 +69,30 @@ func GetUshort(r UshortReader) (data []uint16, err error) {
 	data = make([]uint16, n)
 	err = r.ReadUshort(data)
 	return
+}
+
+// TestWriteUshort writes somes data to v. N is v.Len().
+// This function is only used for testing.
+func testWriteUshort(v Var, n uint64) error {
+	data := make([]uint16, n)
+	for i := 0; i < int(n); i++ {
+		data[i] = uint16(i + 10)
+	}
+	return v.WriteUshort(data)
+}
+
+// TestReadUshort reads data from v and checks that it's the same as what
+// was written by testWriteUshort. N is v.Len().
+// This function is only used for testing.
+func testReadUshort(v Var, n uint64) error {
+	data := make([]uint16, n)
+	if err := v.ReadUshort(data); err != nil {
+		return err
+	}
+	for i := 0; i < int(n); i++ {
+		if val := uint16(i + 10); data[i] != val {
+			return fmt.Errorf("data at position %d is %f; expected %f\n", i, data[i], val)
+		}
+	}
+	return nil
 }

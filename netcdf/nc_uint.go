@@ -7,6 +7,7 @@
 package netcdf
 
 import (
+	"fmt"
 	"unsafe"
 )
 
@@ -68,4 +69,30 @@ func GetUint(r UintReader) (data []uint32, err error) {
 	data = make([]uint32, n)
 	err = r.ReadUint(data)
 	return
+}
+
+// TestWriteUint writes somes data to v. N is v.Len().
+// This function is only used for testing.
+func testWriteUint(v Var, n uint64) error {
+	data := make([]uint32, n)
+	for i := 0; i < int(n); i++ {
+		data[i] = uint32(i + 10)
+	}
+	return v.WriteUint(data)
+}
+
+// TestReadUint reads data from v and checks that it's the same as what
+// was written by testWriteUint. N is v.Len().
+// This function is only used for testing.
+func testReadUint(v Var, n uint64) error {
+	data := make([]uint32, n)
+	if err := v.ReadUint(data); err != nil {
+		return err
+	}
+	for i := 0; i < int(n); i++ {
+		if val := uint32(i + 10); data[i] != val {
+			return fmt.Errorf("data at position %d is %f; expected %f\n", i, data[i], val)
+		}
+	}
+	return nil
 }

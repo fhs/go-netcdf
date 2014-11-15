@@ -19,54 +19,6 @@ type FileTest struct {
 	Attr     map[string]interface{}
 }
 
-func genData(i int) float64 {
-	return float64(i - 10)
-}
-
-func (ft *FileTest) putInt(t *testing.T, v Var, n uint64) {
-	data := make([]int32, n)
-	for i := 0; i < int(n); i++ {
-		data[i] = int32(genData(i))
-	}
-	if err := v.WriteInt(data); err != nil {
-		t.Fatalf("WriteInt failed: %v\n", err)
-	}
-}
-
-func (ft *FileTest) putFloat(t *testing.T, v Var, n uint64) {
-	data := make([]float32, n)
-	for i := 0; i < int(n); i++ {
-		data[i] = float32(genData(i))
-	}
-	if err := v.WriteFloat(data); err != nil {
-		t.Fatalf("WriteFloat failed: %v\n", err)
-	}
-}
-
-func (ft *FileTest) getInt(t *testing.T, v Var, n uint64) {
-	data := make([]int32, n)
-	if err := v.ReadInt(data); err != nil {
-		t.Fatalf("ReadInt failed: %v\n", err)
-	}
-	for i := 0; i < int(n); i++ {
-		if val := int32(genData(i)); data[i] != val {
-			t.Errorf("data at position %d is %d; expected %d\n", i, data[i], val)
-		}
-	}
-}
-
-func (ft *FileTest) getFloat(t *testing.T, v Var, n uint64) {
-	data := make([]float32, n)
-	if err := v.ReadFloat(data); err != nil {
-		t.Fatalf("ReadFloat failed: %v\n", err)
-	}
-	for i := 0; i < int(n); i++ {
-		if val := float32(genData(i)); data[i] != val {
-			t.Errorf("data at position %d is %f; expected %f\n", i, data[i], val)
-		}
-	}
-}
-
 func (ft *FileTest) putAttrs(t *testing.T, v Var) {
 	var err error
 	for key, value := range ft.Attr {
@@ -150,8 +102,32 @@ func (ft *FileTest) getAttrs(t *testing.T, v Var) {
 
 var fileTests = []FileTest{
 	{
-		VarName:  "golang",
-		DimNames: []string{"time", "growth"},
+		VarName:  "gopher",
+		DimNames: []string{"height", "width"},
+		DimLens:  []uint64{7, 3},
+		DataType: NC_UINT64,
+	},
+	{
+		VarName:  "gopher",
+		DimNames: []string{"height", "width"},
+		DimLens:  []uint64{7, 3},
+		DataType: NC_INT64,
+	},
+	{
+		VarName:  "gopher",
+		DimNames: []string{"height", "width"},
+		DimLens:  []uint64{7, 3},
+		DataType: NC_DOUBLE,
+	},
+	{
+		VarName:  "gopher",
+		DimNames: []string{"height", "width"},
+		DimLens:  []uint64{7, 3},
+		DataType: NC_UINT,
+	},
+	{
+		VarName:  "gopher",
+		DimNames: []string{"height", "width"},
 		DimLens:  []uint64{7, 3},
 		DataType: NC_INT,
 		Attr: map[string]interface{}{
@@ -169,10 +145,40 @@ var fileTests = []FileTest{
 		},
 	},
 	{
-		VarName:  "golang",
-		DimNames: []string{"time", "growth"},
+		VarName:  "gopher",
+		DimNames: []string{"height", "width"},
 		DimLens:  []uint64{7, 3},
 		DataType: NC_FLOAT,
+	},
+	{
+		VarName:  "gopher",
+		DimNames: []string{"height", "width"},
+		DimLens:  []uint64{7, 3},
+		DataType: NC_USHORT,
+	},
+	{
+		VarName:  "gopher",
+		DimNames: []string{"height", "width"},
+		DimLens:  []uint64{7, 3},
+		DataType: NC_SHORT,
+	},
+	{
+		VarName:  "gopher",
+		DimNames: []string{"height", "width"},
+		DimLens:  []uint64{7, 3},
+		DataType: NC_UBYTE,
+	},
+	{
+		VarName:  "gopher",
+		DimNames: []string{"height", "width"},
+		DimLens:  []uint64{7, 3},
+		DataType: NC_BYTE,
+	},
+	{
+		VarName:  "gopher",
+		DimNames: []string{"height", "width"},
+		DimLens:  []uint64{7, 3},
+		DataType: NC_CHAR,
 	},
 }
 
@@ -214,10 +220,31 @@ func createFile(t *testing.T, filename string, ft *FileTest) {
 	switch ft.DataType {
 	default:
 		t.Fatalf("unexpected type %s\n", typeNames[ft.DataType])
+	case NC_UINT64:
+		err = testWriteUint64(v, n)
+	case NC_INT64:
+		err = testWriteInt64(v, n)
+	case NC_DOUBLE:
+		err = testWriteDouble(v, n)
+	case NC_UINT:
+		err = testWriteUint(v, n)
 	case NC_INT:
-		ft.putInt(t, v, n)
+		err = testWriteInt(v, n)
 	case NC_FLOAT:
-		ft.putFloat(t, v, n)
+		err = testWriteFloat(v, n)
+	case NC_USHORT:
+		err = testWriteUshort(v, n)
+	case NC_SHORT:
+		err = testWriteShort(v, n)
+	case NC_UBYTE:
+		err = testWriteUbyte(v, n)
+	case NC_BYTE:
+		err = testWriteByte(v, n)
+	case NC_CHAR:
+		err = testWriteChar(v, n)
+	}
+	if err != nil {
+		t.Errorf("writing data failed: %v\n", err)
 	}
 	if err := f.Close(); err != nil {
 		t.Fatalf("Close failed: %v\n", err)
@@ -262,10 +289,31 @@ func readFile(t *testing.T, filename string, ft *FileTest) {
 	switch ft.DataType {
 	default:
 		t.Fatalf("unexpected type %s\n", typeNames[ft.DataType])
+	case NC_UINT64:
+		err = testReadUint64(v, n)
+	case NC_INT64:
+		err = testReadInt64(v, n)
+	case NC_DOUBLE:
+		err = testReadDouble(v, n)
+	case NC_UINT:
+		err = testReadUint(v, n)
 	case NC_INT:
-		ft.getInt(t, v, n)
+		err = testReadInt(v, n)
 	case NC_FLOAT:
-		ft.getFloat(t, v, n)
+		err = testReadFloat(v, n)
+	case NC_USHORT:
+		err = testReadUshort(v, n)
+	case NC_SHORT:
+		err = testReadShort(v, n)
+	case NC_UBYTE:
+		err = testReadUbyte(v, n)
+	case NC_BYTE:
+		err = testReadByte(v, n)
+	case NC_CHAR:
+		err = testReadChar(v, n)
+	}
+	if err != nil {
+		t.Fatalf("reading data failed: %v\n", err)
 	}
 	if err := f.Close(); err != nil {
 		t.Fatalf("Close failed: %v\n", err)

@@ -7,6 +7,7 @@
 package netcdf
 
 import (
+	"fmt"
 	"unsafe"
 )
 
@@ -68,4 +69,30 @@ func GetDouble(r DoubleReader) (data []float64, err error) {
 	data = make([]float64, n)
 	err = r.ReadDouble(data)
 	return
+}
+
+// TestWriteDouble writes somes data to v. N is v.Len().
+// This function is only used for testing.
+func testWriteDouble(v Var, n uint64) error {
+	data := make([]float64, n)
+	for i := 0; i < int(n); i++ {
+		data[i] = float64(i + 10)
+	}
+	return v.WriteDouble(data)
+}
+
+// TestReadDouble reads data from v and checks that it's the same as what
+// was written by testWriteDouble. N is v.Len().
+// This function is only used for testing.
+func testReadDouble(v Var, n uint64) error {
+	data := make([]float64, n)
+	if err := v.ReadDouble(data); err != nil {
+		return err
+	}
+	for i := 0; i < int(n); i++ {
+		if val := float64(i + 10); data[i] != val {
+			return fmt.Errorf("data at position %d is %f; expected %f\n", i, data[i], val)
+		}
+	}
+	return nil
 }

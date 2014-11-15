@@ -7,6 +7,7 @@
 package netcdf
 
 import (
+	"fmt"
 	"unsafe"
 )
 
@@ -68,4 +69,30 @@ func GetUbyte(r UbyteReader) (data []uint8, err error) {
 	data = make([]uint8, n)
 	err = r.ReadUbyte(data)
 	return
+}
+
+// TestWriteUbyte writes somes data to v. N is v.Len().
+// This function is only used for testing.
+func testWriteUbyte(v Var, n uint64) error {
+	data := make([]uint8, n)
+	for i := 0; i < int(n); i++ {
+		data[i] = uint8(i + 10)
+	}
+	return v.WriteUbyte(data)
+}
+
+// TestReadUbyte reads data from v and checks that it's the same as what
+// was written by testWriteUbyte. N is v.Len().
+// This function is only used for testing.
+func testReadUbyte(v Var, n uint64) error {
+	data := make([]uint8, n)
+	if err := v.ReadUbyte(data); err != nil {
+		return err
+	}
+	for i := 0; i < int(n); i++ {
+		if val := uint8(i + 10); data[i] != val {
+			return fmt.Errorf("data at position %d is %f; expected %f\n", i, data[i], val)
+		}
+	}
+	return nil
 }

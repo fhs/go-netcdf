@@ -7,6 +7,7 @@
 package netcdf
 
 import (
+	"fmt"
 	"unsafe"
 )
 
@@ -68,4 +69,30 @@ func GetInt64(r Int64Reader) (data []int64, err error) {
 	data = make([]int64, n)
 	err = r.ReadInt64(data)
 	return
+}
+
+// TestWriteInt64 writes somes data to v. N is v.Len().
+// This function is only used for testing.
+func testWriteInt64(v Var, n uint64) error {
+	data := make([]int64, n)
+	for i := 0; i < int(n); i++ {
+		data[i] = int64(i + 10)
+	}
+	return v.WriteInt64(data)
+}
+
+// TestReadInt64 reads data from v and checks that it's the same as what
+// was written by testWriteInt64. N is v.Len().
+// This function is only used for testing.
+func testReadInt64(v Var, n uint64) error {
+	data := make([]int64, n)
+	if err := v.ReadInt64(data); err != nil {
+		return err
+	}
+	for i := 0; i < int(n); i++ {
+		if val := int64(i + 10); data[i] != val {
+			return fmt.Errorf("data at position %d is %f; expected %f\n", i, data[i], val)
+		}
+	}
+	return nil
 }
