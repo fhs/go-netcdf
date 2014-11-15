@@ -32,7 +32,7 @@ func (v Var) Dims() (dims []Dim, err error) {
 	}
 	dims = make([]Dim, ndims)
 	for i, id := range dimids {
-		dims[i] = Dim{ds: v.ds, id: id}
+		dims[i] = Dim{v.ds, id}
 	}
 	return
 }
@@ -82,7 +82,7 @@ func (ds Dataset) AddVar(name string, t Type, dims []Dim) (v Var, err error) {
 	}
 	err = newError(C.nc_def_var(C.int(ds), cname, C.nc_type(t),
 		C.int(len(dimids)), &dimids[0], &varid))
-	v = Var{ds: ds, id: varid}
+	v = Var{ds, varid}
 	return
 }
 

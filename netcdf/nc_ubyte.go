@@ -91,7 +91,7 @@ func testReadUbyte(v Var, n uint64) error {
 	}
 	for i := 0; i < int(n); i++ {
 		if val := uint8(i + 10); data[i] != val {
-			return fmt.Errorf("data at position %d is %f; expected %f\n", i, data[i], val)
+			return fmt.Errorf("data at position %d is %v; expected %v\n", i, data[i], val)
 		}
 	}
 	return nil

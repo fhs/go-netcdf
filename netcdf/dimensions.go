@@ -42,7 +42,7 @@ func (ds Dataset) AddDim(name string, len uint64) (d Dim, err error) {
 	defer C.free(unsafe.Pointer(cname))
 	var dimid C.int
 	err = newError(C.nc_def_dim(C.int(ds), cname, C.size_t(len), &dimid))
-	d = Dim{ds: ds, id: dimid}
+	d = Dim{ds, dimid}
 	return
 }
 
@@ -52,6 +52,6 @@ func (ds Dataset) Dim(name string) (d Dim, err error) {
 	defer C.free(unsafe.Pointer(cname))
 	var id C.int
 	err = newError(C.nc_inq_dimid(C.int(ds), cname, &id))
-	d = Dim{ds: ds, id: id}
+	d = Dim{ds, id}
 	return
 }
