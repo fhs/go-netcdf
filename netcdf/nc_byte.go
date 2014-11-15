@@ -20,7 +20,7 @@ func (v Var) WriteByte(data []int8) error {
 	if err := okData(v, NC_BYTE, len(data)); err != nil {
 		return err
 	}
-	return newError(C.nc_put_var_schar(C.int(v.f), C.int(v.id), (*C.schar)(unsafe.Pointer(&data[0]))))
+	return newError(C.nc_put_var_schar(C.int(v.ds), C.int(v.id), (*C.schar)(unsafe.Pointer(&data[0]))))
 }
 
 // ReadByte reads the entire variable v into data, which must have enough
@@ -29,7 +29,7 @@ func (v Var) ReadByte(data []int8) error {
 	if err := okData(v, NC_BYTE, len(data)); err != nil {
 		return err
 	}
-	return newError(C.nc_get_var_schar(C.int(v.f), C.int(v.id), (*C.schar)(unsafe.Pointer(&data[0]))))
+	return newError(C.nc_get_var_schar(C.int(v.ds), C.int(v.id), (*C.schar)(unsafe.Pointer(&data[0]))))
 }
 
 // WriteByte sets the value of attribute a to val.
@@ -38,7 +38,7 @@ func (a Attr) WriteByte(val []int8) error {
 	// the length or type of the attribute yet.
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
-	return newError(C.nc_put_att_schar(C.int(a.v.f), C.int(a.v.id), cname,
+	return newError(C.nc_put_att_schar(C.int(a.v.ds), C.int(a.v.id), cname,
 		C.nc_type(NC_BYTE), C.size_t(len(val)), (*C.schar)(unsafe.Pointer(&val[0]))))
 }
 
@@ -49,7 +49,7 @@ func (a Attr) ReadByte(val []int8) (err error) {
 	}
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
-	err = newError(C.nc_get_att_schar(C.int(a.v.f), C.int(a.v.id), cname,
+	err = newError(C.nc_get_att_schar(C.int(a.v.ds), C.int(a.v.id), cname,
 		(*C.schar)(unsafe.Pointer(&val[0]))))
 	return
 }

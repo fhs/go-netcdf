@@ -20,7 +20,7 @@ func (v Var) WriteUint64(data []uint64) error {
 	if err := okData(v, NC_UINT64, len(data)); err != nil {
 		return err
 	}
-	return newError(C.nc_put_var_ulonglong(C.int(v.f), C.int(v.id), (*C.ulonglong)(unsafe.Pointer(&data[0]))))
+	return newError(C.nc_put_var_ulonglong(C.int(v.ds), C.int(v.id), (*C.ulonglong)(unsafe.Pointer(&data[0]))))
 }
 
 // ReadUint64 reads the entire variable v into data, which must have enough
@@ -29,7 +29,7 @@ func (v Var) ReadUint64(data []uint64) error {
 	if err := okData(v, NC_UINT64, len(data)); err != nil {
 		return err
 	}
-	return newError(C.nc_get_var_ulonglong(C.int(v.f), C.int(v.id), (*C.ulonglong)(unsafe.Pointer(&data[0]))))
+	return newError(C.nc_get_var_ulonglong(C.int(v.ds), C.int(v.id), (*C.ulonglong)(unsafe.Pointer(&data[0]))))
 }
 
 // WriteUint64 sets the value of attribute a to val.
@@ -38,7 +38,7 @@ func (a Attr) WriteUint64(val []uint64) error {
 	// the length or type of the attribute yet.
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
-	return newError(C.nc_put_att_ulonglong(C.int(a.v.f), C.int(a.v.id), cname,
+	return newError(C.nc_put_att_ulonglong(C.int(a.v.ds), C.int(a.v.id), cname,
 		C.nc_type(NC_UINT64), C.size_t(len(val)), (*C.ulonglong)(unsafe.Pointer(&val[0]))))
 }
 
@@ -49,7 +49,7 @@ func (a Attr) ReadUint64(val []uint64) (err error) {
 	}
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
-	err = newError(C.nc_get_att_ulonglong(C.int(a.v.f), C.int(a.v.id), cname,
+	err = newError(C.nc_get_att_ulonglong(C.int(a.v.ds), C.int(a.v.id), cname,
 		(*C.ulonglong)(unsafe.Pointer(&val[0]))))
 	return
 }

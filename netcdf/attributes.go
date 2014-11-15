@@ -25,7 +25,7 @@ func (a Attr) Type() (t Type, err error) {
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
 	var ct C.nc_type
-	err = newError(C.nc_inq_atttype(C.int(a.v.f), C.int(a.v.id), cname, &ct))
+	err = newError(C.nc_inq_atttype(C.int(a.v.ds), C.int(a.v.id), cname, &ct))
 	t = Type(ct)
 	return
 }
@@ -35,7 +35,7 @@ func (a Attr) Len() (n uint64, err error) {
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
 	var cn C.size_t
-	err = newError(C.nc_inq_attlen(C.int(a.v.f), C.int(a.v.id), cname, &cn))
+	err = newError(C.nc_inq_attlen(C.int(a.v.ds), C.int(a.v.id), cname, &cn))
 	n = uint64(cn)
 	return
 }
@@ -49,7 +49,7 @@ func (v Var) Attr(name string) (a Attr) {
 func (v Var) AttrN(n int) (a Attr, err error) {
 	buf := C.CString(string(make([]byte, _NC_MAX_NAME+1)))
 	defer C.free(unsafe.Pointer(buf))
-	err = newError(C.nc_inq_attname(C.int(v.f), C.int(v.id), C.int(n), buf))
+	err = newError(C.nc_inq_attname(C.int(v.ds), C.int(v.id), C.int(n), buf))
 	a = Attr{v: v, name: C.GoString(buf)}
 	return
 }

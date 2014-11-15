@@ -20,7 +20,7 @@ func (v Var) WriteFloat(data []float32) error {
 	if err := okData(v, NC_FLOAT, len(data)); err != nil {
 		return err
 	}
-	return newError(C.nc_put_var_float(C.int(v.f), C.int(v.id), (*C.float)(unsafe.Pointer(&data[0]))))
+	return newError(C.nc_put_var_float(C.int(v.ds), C.int(v.id), (*C.float)(unsafe.Pointer(&data[0]))))
 }
 
 // ReadFloat reads the entire variable v into data, which must have enough
@@ -29,7 +29,7 @@ func (v Var) ReadFloat(data []float32) error {
 	if err := okData(v, NC_FLOAT, len(data)); err != nil {
 		return err
 	}
-	return newError(C.nc_get_var_float(C.int(v.f), C.int(v.id), (*C.float)(unsafe.Pointer(&data[0]))))
+	return newError(C.nc_get_var_float(C.int(v.ds), C.int(v.id), (*C.float)(unsafe.Pointer(&data[0]))))
 }
 
 // WriteFloat sets the value of attribute a to val.
@@ -38,7 +38,7 @@ func (a Attr) WriteFloat(val []float32) error {
 	// the length or type of the attribute yet.
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
-	return newError(C.nc_put_att_float(C.int(a.v.f), C.int(a.v.id), cname,
+	return newError(C.nc_put_att_float(C.int(a.v.ds), C.int(a.v.id), cname,
 		C.nc_type(NC_FLOAT), C.size_t(len(val)), (*C.float)(unsafe.Pointer(&val[0]))))
 }
 
@@ -49,7 +49,7 @@ func (a Attr) ReadFloat(val []float32) (err error) {
 	}
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
-	err = newError(C.nc_get_att_float(C.int(a.v.f), C.int(a.v.id), cname,
+	err = newError(C.nc_get_att_float(C.int(a.v.ds), C.int(a.v.id), cname,
 		(*C.float)(unsafe.Pointer(&val[0]))))
 	return
 }

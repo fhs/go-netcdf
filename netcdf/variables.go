@@ -14,25 +14,25 @@ import (
 
 // Var represents a variable.
 type Var struct {
-	f  Dataset
+	ds Dataset
 	id C.int
 }
 
 // Dims returns the dimensions of variable v.
 func (v Var) Dims() (dims []Dim, err error) {
 	var ndims C.int
-	err = newError(C.nc_inq_varndims(C.int(v.f), C.int(v.id), &ndims))
+	err = newError(C.nc_inq_varndims(C.int(v.ds), C.int(v.id), &ndims))
 	if err != nil {
 		return
 	}
 	dimids := make([]C.int, ndims)
-	err = newError(C.nc_inq_vardimid(C.int(v.f), C.int(v.id), &dimids[0]))
+	err = newError(C.nc_inq_vardimid(C.int(v.ds), C.int(v.id), &dimids[0]))
 	if err != nil {
 		return
 	}
 	dims = make([]Dim, ndims)
 	for i, id := range dimids {
-		dims[i] = Dim{ds: v.f, id: id}
+		dims[i] = Dim{ds: v.ds, id: id}
 	}
 	return
 }
@@ -40,7 +40,7 @@ func (v Var) Dims() (dims []Dim, err error) {
 // Type returns the data type of variable v.
 func (v Var) Type() (t Type, err error) {
 	var typ C.nc_type
-	err = newError(C.nc_inq_vartype(C.int(v.f), C.int(v.id), &typ))
+	err = newError(C.nc_inq_vartype(C.int(v.ds), C.int(v.id), &typ))
 	t = Type(typ)
 	return
 }
@@ -65,7 +65,7 @@ func (v Var) Len() (uint64, error) {
 // NAttrs returns the number of attributes assigned to variable v.
 func (v Var) NAttrs() (n int, err error) {
 	var cn C.int
-	err = newError(C.nc_inq_natts(C.int(v.f), &cn))
+	err = newError(C.nc_inq_natts(C.int(v.ds), &cn))
 	n = int(cn)
 	return
 }
@@ -82,7 +82,7 @@ func (ds Dataset) AddVar(name string, t Type, dims []Dim) (v Var, err error) {
 	}
 	err = newError(C.nc_def_var(C.int(ds), cname, C.nc_type(t),
 		C.int(len(dimids)), &dimids[0], &varid))
-	v = Var{f: ds, id: varid}
+	v = Var{ds: ds, id: varid}
 	return
 }
 
