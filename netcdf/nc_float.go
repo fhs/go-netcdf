@@ -41,7 +41,7 @@ func (a Attr) WriteFloat(val []float32) error {
 		C.nc_type(NC_FLOAT), C.size_t(len(val)), (*C.float)(unsafe.Pointer(&val[0]))))
 }
 
-// ReadFloat returns the attribute value.
+// ReadFloat reads the entire attribute value into val.
 func (a Attr) ReadFloat(val []float32) (err error) {
 	if err := okData(a, NC_FLOAT, len(val)); err != nil {
 		return err
@@ -50,5 +50,22 @@ func (a Attr) ReadFloat(val []float32) (err error) {
 	defer C.free(unsafe.Pointer(cname))
 	err = newError(C.nc_get_att_float(C.int(a.v.f), C.int(a.v.id), cname,
 		(*C.float)(unsafe.Pointer(&val[0]))))
+	return
+}
+
+// FloatReader is a interface that allows reading a sequence of values of fixed length.
+type FloatReader interface {
+	Len() (n uint64, err error)
+	ReadFloat(val []float32) (err error)
+}
+
+// GetFloat reads the entire data in r and returns it.
+func GetFloat(r FloatReader) (data []float32, err error) {
+	n, err := r.Len()
+	if err != nil {
+		return
+	}
+	data = make([]float32, n)
+	err = r.ReadFloat(data)
 	return
 }

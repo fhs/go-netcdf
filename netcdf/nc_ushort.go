@@ -41,7 +41,7 @@ func (a Attr) WriteUshort(val []uint16) error {
 		C.nc_type(NC_USHORT), C.size_t(len(val)), (*C.ushort)(unsafe.Pointer(&val[0]))))
 }
 
-// ReadUshort returns the attribute value.
+// ReadUshort reads the entire attribute value into val.
 func (a Attr) ReadUshort(val []uint16) (err error) {
 	if err := okData(a, NC_USHORT, len(val)); err != nil {
 		return err
@@ -50,5 +50,22 @@ func (a Attr) ReadUshort(val []uint16) (err error) {
 	defer C.free(unsafe.Pointer(cname))
 	err = newError(C.nc_get_att_ushort(C.int(a.v.f), C.int(a.v.id), cname,
 		(*C.ushort)(unsafe.Pointer(&val[0]))))
+	return
+}
+
+// UshortReader is a interface that allows reading a sequence of values of fixed length.
+type UshortReader interface {
+	Len() (n uint64, err error)
+	ReadUshort(val []uint16) (err error)
+}
+
+// GetUshort reads the entire data in r and returns it.
+func GetUshort(r UshortReader) (data []uint16, err error) {
+	n, err := r.Len()
+	if err != nil {
+		return
+	}
+	data = make([]uint16, n)
+	err = r.ReadUshort(data)
 	return
 }

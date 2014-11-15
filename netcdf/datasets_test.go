@@ -83,12 +83,7 @@ func (ft *FileTest) getAttrs(t *testing.T, v Var) {
 		}
 		switch typ {
 		case NC_CHAR:
-			n, err := a.Len()
-			if err != nil {
-				t.Fatalf("Attr.Len failed: %v\n", err)
-			}
-			b := make([]byte, n)
-			err = a.ReadChar(b)
+			b, err := GetChar(a)
 			if err != nil {
 				t.Fatalf("read attribute %s failed: %v\n", key, err)
 			}

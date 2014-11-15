@@ -41,7 +41,7 @@ func (a Attr) WriteUint(val []uint32) error {
 		C.nc_type(NC_UINT), C.size_t(len(val)), (*C.uint)(unsafe.Pointer(&val[0]))))
 }
 
-// ReadUint returns the attribute value.
+// ReadUint reads the entire attribute value into val.
 func (a Attr) ReadUint(val []uint32) (err error) {
 	if err := okData(a, NC_UINT, len(val)); err != nil {
 		return err
@@ -50,5 +50,22 @@ func (a Attr) ReadUint(val []uint32) (err error) {
 	defer C.free(unsafe.Pointer(cname))
 	err = newError(C.nc_get_att_uint(C.int(a.v.f), C.int(a.v.id), cname,
 		(*C.uint)(unsafe.Pointer(&val[0]))))
+	return
+}
+
+// UintReader is a interface that allows reading a sequence of values of fixed length.
+type UintReader interface {
+	Len() (n uint64, err error)
+	ReadUint(val []uint32) (err error)
+}
+
+// GetUint reads the entire data in r and returns it.
+func GetUint(r UintReader) (data []uint32, err error) {
+	n, err := r.Len()
+	if err != nil {
+		return
+	}
+	data = make([]uint32, n)
+	err = r.ReadUint(data)
 	return
 }

@@ -41,7 +41,7 @@ func (a Attr) WriteByte(val []int8) error {
 		C.nc_type(NC_BYTE), C.size_t(len(val)), (*C.schar)(unsafe.Pointer(&val[0]))))
 }
 
-// ReadByte returns the attribute value.
+// ReadByte reads the entire attribute value into val.
 func (a Attr) ReadByte(val []int8) (err error) {
 	if err := okData(a, NC_BYTE, len(val)); err != nil {
 		return err
@@ -50,5 +50,22 @@ func (a Attr) ReadByte(val []int8) (err error) {
 	defer C.free(unsafe.Pointer(cname))
 	err = newError(C.nc_get_att_schar(C.int(a.v.f), C.int(a.v.id), cname,
 		(*C.schar)(unsafe.Pointer(&val[0]))))
+	return
+}
+
+// ByteReader is a interface that allows reading a sequence of values of fixed length.
+type ByteReader interface {
+	Len() (n uint64, err error)
+	ReadByte(val []int8) (err error)
+}
+
+// GetByte reads the entire data in r and returns it.
+func GetByte(r ByteReader) (data []int8, err error) {
+	n, err := r.Len()
+	if err != nil {
+		return
+	}
+	data = make([]int8, n)
+	err = r.ReadByte(data)
 	return
 }

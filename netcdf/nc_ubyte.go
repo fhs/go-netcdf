@@ -41,7 +41,7 @@ func (a Attr) WriteUbyte(val []uint8) error {
 		C.nc_type(NC_UBYTE), C.size_t(len(val)), (*C.uchar)(unsafe.Pointer(&val[0]))))
 }
 
-// ReadUbyte returns the attribute value.
+// ReadUbyte reads the entire attribute value into val.
 func (a Attr) ReadUbyte(val []uint8) (err error) {
 	if err := okData(a, NC_UBYTE, len(val)); err != nil {
 		return err
@@ -50,5 +50,22 @@ func (a Attr) ReadUbyte(val []uint8) (err error) {
 	defer C.free(unsafe.Pointer(cname))
 	err = newError(C.nc_get_att_uchar(C.int(a.v.f), C.int(a.v.id), cname,
 		(*C.uchar)(unsafe.Pointer(&val[0]))))
+	return
+}
+
+// UbyteReader is a interface that allows reading a sequence of values of fixed length.
+type UbyteReader interface {
+	Len() (n uint64, err error)
+	ReadUbyte(val []uint8) (err error)
+}
+
+// GetUbyte reads the entire data in r and returns it.
+func GetUbyte(r UbyteReader) (data []uint8, err error) {
+	n, err := r.Len()
+	if err != nil {
+		return
+	}
+	data = make([]uint8, n)
+	err = r.ReadUbyte(data)
 	return
 }

@@ -41,7 +41,7 @@ func (a Attr) WriteChar(val []byte) error {
 		C.size_t(len(val)), (*C.char)(unsafe.Pointer(&val[0]))))
 }
 
-// ReadChar returns the attribute value.
+// ReadChar reads the entire attribute value into val.
 func (a Attr) ReadChar(val []byte) (err error) {
 	if err := okData(a, NC_CHAR, len(val)); err != nil {
 		return err
@@ -50,5 +50,22 @@ func (a Attr) ReadChar(val []byte) (err error) {
 	defer C.free(unsafe.Pointer(cname))
 	err = newError(C.nc_get_att_text(C.int(a.v.f), C.int(a.v.id), cname,
 		(*C.char)(unsafe.Pointer(&val[0]))))
+	return
+}
+
+// CharReader is a interface that allows reading a sequence of values of fixed length.
+type CharReader interface {
+	Len() (n uint64, err error)
+	ReadChar(val []byte) (err error)
+}
+
+// GetChar reads the entire data in r and returns it.
+func GetChar(r CharReader) (data []byte, err error) {
+	n, err := r.Len()
+	if err != nil {
+		return
+	}
+	data = make([]byte, n)
+	err = r.ReadChar(data)
 	return
 }

@@ -41,7 +41,7 @@ func (a Attr) WriteInt(val []int32) error {
 		C.nc_type(NC_INT), C.size_t(len(val)), (*C.int)(unsafe.Pointer(&val[0]))))
 }
 
-// ReadInt returns the attribute value.
+// ReadInt reads the entire attribute value into val.
 func (a Attr) ReadInt(val []int32) (err error) {
 	if err := okData(a, NC_INT, len(val)); err != nil {
 		return err
@@ -50,5 +50,22 @@ func (a Attr) ReadInt(val []int32) (err error) {
 	defer C.free(unsafe.Pointer(cname))
 	err = newError(C.nc_get_att_int(C.int(a.v.f), C.int(a.v.id), cname,
 		(*C.int)(unsafe.Pointer(&val[0]))))
+	return
+}
+
+// IntReader is a interface that allows reading a sequence of values of fixed length.
+type IntReader interface {
+	Len() (n uint64, err error)
+	ReadInt(val []int32) (err error)
+}
+
+// GetInt reads the entire data in r and returns it.
+func GetInt(r IntReader) (data []int32, err error) {
+	n, err := r.Len()
+	if err != nil {
+		return
+	}
+	data = make([]int32, n)
+	err = r.ReadInt(data)
 	return
 }

@@ -41,7 +41,7 @@ func (a Attr) WriteInt64(val []int64) error {
 		C.nc_type(NC_INT64), C.size_t(len(val)), (*C.longlong)(unsafe.Pointer(&val[0]))))
 }
 
-// ReadInt64 returns the attribute value.
+// ReadInt64 reads the entire attribute value into val.
 func (a Attr) ReadInt64(val []int64) (err error) {
 	if err := okData(a, NC_INT64, len(val)); err != nil {
 		return err
@@ -50,5 +50,22 @@ func (a Attr) ReadInt64(val []int64) (err error) {
 	defer C.free(unsafe.Pointer(cname))
 	err = newError(C.nc_get_att_longlong(C.int(a.v.f), C.int(a.v.id), cname,
 		(*C.longlong)(unsafe.Pointer(&val[0]))))
+	return
+}
+
+// Int64Reader is a interface that allows reading a sequence of values of fixed length.
+type Int64Reader interface {
+	Len() (n uint64, err error)
+	ReadInt64(val []int64) (err error)
+}
+
+// GetInt64 reads the entire data in r and returns it.
+func GetInt64(r Int64Reader) (data []int64, err error) {
+	n, err := r.Len()
+	if err != nil {
+		return
+	}
+	data = make([]int64, n)
+	err = r.ReadInt64(data)
 	return
 }

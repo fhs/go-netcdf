@@ -41,7 +41,7 @@ func (a Attr) WriteDouble(val []float64) error {
 		C.nc_type(NC_DOUBLE), C.size_t(len(val)), (*C.double)(unsafe.Pointer(&val[0]))))
 }
 
-// ReadDouble returns the attribute value.
+// ReadDouble reads the entire attribute value into val.
 func (a Attr) ReadDouble(val []float64) (err error) {
 	if err := okData(a, NC_DOUBLE, len(val)); err != nil {
 		return err
@@ -50,5 +50,22 @@ func (a Attr) ReadDouble(val []float64) (err error) {
 	defer C.free(unsafe.Pointer(cname))
 	err = newError(C.nc_get_att_double(C.int(a.v.f), C.int(a.v.id), cname,
 		(*C.double)(unsafe.Pointer(&val[0]))))
+	return
+}
+
+// DoubleReader is a interface that allows reading a sequence of values of fixed length.
+type DoubleReader interface {
+	Len() (n uint64, err error)
+	ReadDouble(val []float64) (err error)
+}
+
+// GetDouble reads the entire data in r and returns it.
+func GetDouble(r DoubleReader) (data []float64, err error) {
+	n, err := r.Len()
+	if err != nil {
+		return
+	}
+	data = make([]float64, n)
+	err = r.ReadDouble(data)
 	return
 }

@@ -41,7 +41,7 @@ func (a Attr) WriteShort(val []int16) error {
 		C.nc_type(NC_SHORT), C.size_t(len(val)), (*C.short)(unsafe.Pointer(&val[0]))))
 }
 
-// ReadShort returns the attribute value.
+// ReadShort reads the entire attribute value into val.
 func (a Attr) ReadShort(val []int16) (err error) {
 	if err := okData(a, NC_SHORT, len(val)); err != nil {
 		return err
@@ -50,5 +50,22 @@ func (a Attr) ReadShort(val []int16) (err error) {
 	defer C.free(unsafe.Pointer(cname))
 	err = newError(C.nc_get_att_short(C.int(a.v.f), C.int(a.v.id), cname,
 		(*C.short)(unsafe.Pointer(&val[0]))))
+	return
+}
+
+// ShortReader is a interface that allows reading a sequence of values of fixed length.
+type ShortReader interface {
+	Len() (n uint64, err error)
+	ReadShort(val []int16) (err error)
+}
+
+// GetShort reads the entire data in r and returns it.
+func GetShort(r ShortReader) (data []int16, err error) {
+	n, err := r.Len()
+	if err != nil {
+		return
+	}
+	data = make([]int16, n)
+	err = r.ReadShort(data)
 	return
 }
