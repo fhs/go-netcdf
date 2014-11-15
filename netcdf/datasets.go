@@ -57,3 +57,19 @@ func Open(path string, mode FileMode) (f File, err error) {
 func (f File) Close() (err error) {
 	return newError(C.nc_close(C.int(f)))
 }
+
+// NVars returns the number of variables defined for dataset f.
+func (f File) NVars() (n int, err error) {
+	var cn C.int
+	err = newError(C.nc_inq_nvars(C.int(f), &cn))
+	n = int(cn)
+	return
+}
+
+// NAttrs returns the number of global attributes defined for dataset f.
+func (f File) NAttrs() (n int, err error) {
+	var cn C.int
+	err = newError(C.nc_inq_natts(C.int(f), &cn))
+	n = int(cn)
+	return
+}

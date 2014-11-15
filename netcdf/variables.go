@@ -62,6 +62,14 @@ func (v Var) Len() (uint64, error) {
 	return n, nil
 }
 
+// NAttrs returns the number of attributes assigned to variable v.
+func (v Var) NAttrs() (n int, err error) {
+	var cn C.int
+	err = newError(C.nc_inq_natts(C.int(v.f), &cn))
+	n = int(cn)
+	return
+}
+
 // AddVar adds a new a variable named name of type t and dimensions dims.
 // The new variable v is returned.
 func (f File) AddVar(name string, t Type, dims []Dim) (v Var, err error) {
