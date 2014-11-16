@@ -17,7 +17,7 @@ import "C"
 
 // WriteFloat32s writes data as the entire data for variable v.
 func (v Var) WriteFloat32s(data []float32) error {
-	if err := okData(v, NC_FLOAT, len(data)); err != nil {
+	if err := okData(v, FLOAT, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_float(C.int(v.ds), C.int(v.id), (*C.float)(unsafe.Pointer(&data[0]))))
@@ -26,7 +26,7 @@ func (v Var) WriteFloat32s(data []float32) error {
 // ReadFloat32s reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
 func (v Var) ReadFloat32s(data []float32) error {
-	if err := okData(v, NC_FLOAT, len(data)); err != nil {
+	if err := okData(v, FLOAT, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_float(C.int(v.ds), C.int(v.id), (*C.float)(unsafe.Pointer(&data[0]))))
@@ -39,12 +39,12 @@ func (a Attr) WriteFloat32s(val []float32) error {
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
 	return newError(C.nc_put_att_float(C.int(a.v.ds), C.int(a.v.id), cname,
-		C.nc_type(NC_FLOAT), C.size_t(len(val)), (*C.float)(unsafe.Pointer(&val[0]))))
+		C.nc_type(FLOAT), C.size_t(len(val)), (*C.float)(unsafe.Pointer(&val[0]))))
 }
 
 // ReadFloat32s reads the entire attribute value into val.
 func (a Attr) ReadFloat32s(val []float32) (err error) {
-	if err := okData(a, NC_FLOAT, len(val)); err != nil {
+	if err := okData(a, FLOAT, len(val)); err != nil {
 		return err
 	}
 	cname := C.CString(a.name)

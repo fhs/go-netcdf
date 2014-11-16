@@ -17,7 +17,7 @@ import "C"
 
 // WriteUint64s writes data as the entire data for variable v.
 func (v Var) WriteUint64s(data []uint64) error {
-	if err := okData(v, NC_UINT64, len(data)); err != nil {
+	if err := okData(v, UINT64, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_ulonglong(C.int(v.ds), C.int(v.id), (*C.ulonglong)(unsafe.Pointer(&data[0]))))
@@ -26,7 +26,7 @@ func (v Var) WriteUint64s(data []uint64) error {
 // ReadUint64s reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
 func (v Var) ReadUint64s(data []uint64) error {
-	if err := okData(v, NC_UINT64, len(data)); err != nil {
+	if err := okData(v, UINT64, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_ulonglong(C.int(v.ds), C.int(v.id), (*C.ulonglong)(unsafe.Pointer(&data[0]))))
@@ -39,12 +39,12 @@ func (a Attr) WriteUint64s(val []uint64) error {
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
 	return newError(C.nc_put_att_ulonglong(C.int(a.v.ds), C.int(a.v.id), cname,
-		C.nc_type(NC_UINT64), C.size_t(len(val)), (*C.ulonglong)(unsafe.Pointer(&val[0]))))
+		C.nc_type(UINT64), C.size_t(len(val)), (*C.ulonglong)(unsafe.Pointer(&val[0]))))
 }
 
 // ReadUint64s reads the entire attribute value into val.
 func (a Attr) ReadUint64s(val []uint64) (err error) {
-	if err := okData(a, NC_UINT64, len(val)); err != nil {
+	if err := okData(a, UINT64, len(val)); err != nil {
 		return err
 	}
 	cname := C.CString(a.name)

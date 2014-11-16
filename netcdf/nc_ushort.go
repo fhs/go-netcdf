@@ -17,7 +17,7 @@ import "C"
 
 // WriteUint16s writes data as the entire data for variable v.
 func (v Var) WriteUint16s(data []uint16) error {
-	if err := okData(v, NC_USHORT, len(data)); err != nil {
+	if err := okData(v, USHORT, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_ushort(C.int(v.ds), C.int(v.id), (*C.ushort)(unsafe.Pointer(&data[0]))))
@@ -26,7 +26,7 @@ func (v Var) WriteUint16s(data []uint16) error {
 // ReadUint16s reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
 func (v Var) ReadUint16s(data []uint16) error {
-	if err := okData(v, NC_USHORT, len(data)); err != nil {
+	if err := okData(v, USHORT, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_ushort(C.int(v.ds), C.int(v.id), (*C.ushort)(unsafe.Pointer(&data[0]))))
@@ -39,12 +39,12 @@ func (a Attr) WriteUint16s(val []uint16) error {
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
 	return newError(C.nc_put_att_ushort(C.int(a.v.ds), C.int(a.v.id), cname,
-		C.nc_type(NC_USHORT), C.size_t(len(val)), (*C.ushort)(unsafe.Pointer(&val[0]))))
+		C.nc_type(USHORT), C.size_t(len(val)), (*C.ushort)(unsafe.Pointer(&val[0]))))
 }
 
 // ReadUint16s reads the entire attribute value into val.
 func (a Attr) ReadUint16s(val []uint16) (err error) {
-	if err := okData(a, NC_USHORT, len(val)); err != nil {
+	if err := okData(a, USHORT, len(val)); err != nil {
 		return err
 	}
 	cname := C.CString(a.name)

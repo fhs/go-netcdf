@@ -10,7 +10,7 @@ import (
 // CreateExampleFile creates an example NetCDF file containing only one variable.
 func CreateExampleFile(filename string) error {
 	// Create a new NetCDF 4 file. The dataset is returned.
-	ds, err := netcdf.Create("gopher.nc", netcdf.NC_CLOBBER|netcdf.NC_NETCDF4)
+	ds, err := netcdf.Create("gopher.nc", netcdf.CLOBBER|netcdf.NETCDF4)
 	if err != nil {
 		return err
 	}
@@ -29,7 +29,7 @@ func CreateExampleFile(filename string) error {
 	}
 
 	// Add the variable to the dataset that will store our data
-	v, err := ds.AddVar("gopher", netcdf.NC_UBYTE, dims)
+	v, err := ds.AddVar("gopher", netcdf.UBYTE, dims)
 	if err != nil {
 		return err
 	}
@@ -49,7 +49,7 @@ func CreateExampleFile(filename string) error {
 // ReadExampleFile reads the data in NetCDF file at filename and prints it out.
 func ReadExampleFile(filename string) error {
 	// Open example file in read-only mode. The dataset is returned.
-	ds, err := netcdf.OpenFile(filename, netcdf.NC_NOWRITE)
+	ds, err := netcdf.OpenFile(filename, netcdf.NOWRITE)
 	if err != nil {
 		return err
 	}

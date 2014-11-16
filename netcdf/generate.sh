@@ -3,7 +3,7 @@
 cat nc_double.go |
 	gofmt -r 'float64 -> uint64' |
 	gofmt -r 'C.double -> C.ulonglong' |
-	gofmt -r 'NC_DOUBLE -> NC_UINT64' |
+	gofmt -r 'DOUBLE -> UINT64' |
 	gofmt -r 'C.nc_put_var_double -> C.nc_put_var_ulonglong' |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_ulonglong' |
 	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_ulonglong' |
@@ -17,7 +17,7 @@ cat nc_double.go |
 cat nc_double.go |
 	gofmt -r 'float64 -> int64' |
 	gofmt -r 'C.double -> C.longlong' |
-	gofmt -r 'NC_DOUBLE -> NC_INT64' |
+	gofmt -r 'DOUBLE -> INT64' |
 	gofmt -r 'C.nc_put_var_double -> C.nc_put_var_longlong' |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_longlong' |
 	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_longlong' |
@@ -31,7 +31,7 @@ cat nc_double.go |
 cat nc_double.go |
 	gofmt -r 'float64 -> uint32' |
 	gofmt -r 'C.double -> C.uint' |
-	gofmt -r 'NC_DOUBLE -> NC_UINT' |
+	gofmt -r 'DOUBLE -> UINT' |
 	gofmt -r 'C.nc_put_var_double -> C.nc_put_var_uint' |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_uint' |
 	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_uint' |
@@ -45,7 +45,7 @@ cat nc_double.go |
 cat nc_double.go |
 	gofmt -r 'float64 -> int32' |
 	gofmt -r 'C.double -> C.int' |
-	gofmt -r 'NC_DOUBLE -> NC_INT' |
+	gofmt -r 'DOUBLE -> INT' |
 	gofmt -r 'C.nc_put_var_double -> C.nc_put_var_int' |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_int' |
 	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_int' |
@@ -59,7 +59,7 @@ cat nc_double.go |
 cat nc_double.go |
 	gofmt -r 'float64 -> float32' |
 	gofmt -r 'C.double -> C.float' |
-	gofmt -r 'NC_DOUBLE -> NC_FLOAT' |
+	gofmt -r 'DOUBLE -> FLOAT' |
 	gofmt -r 'C.nc_put_var_double -> C.nc_put_var_float' |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_float' |
 	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_float' |
@@ -73,7 +73,7 @@ cat nc_double.go |
 cat nc_double.go |
 	gofmt -r 'float64 -> uint16' |
 	gofmt -r 'C.double -> C.ushort' |
-	gofmt -r 'NC_DOUBLE -> NC_USHORT' |
+	gofmt -r 'DOUBLE -> USHORT' |
 	gofmt -r 'C.nc_put_var_double -> C.nc_put_var_ushort' |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_ushort' |
 	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_ushort' |
@@ -87,7 +87,7 @@ cat nc_double.go |
 cat nc_double.go |
 	gofmt -r 'float64 -> int16' |
 	gofmt -r 'C.double -> C.short' |
-	gofmt -r 'NC_DOUBLE -> NC_SHORT' |
+	gofmt -r 'DOUBLE -> SHORT' |
 	gofmt -r 'C.nc_put_var_double -> C.nc_put_var_short' |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_short' |
 	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_short' |
@@ -101,7 +101,7 @@ cat nc_double.go |
 cat nc_double.go |
 	gofmt -r 'float64 -> uint8' |
 	gofmt -r 'C.double -> C.uchar' |
-	gofmt -r 'NC_DOUBLE -> NC_UBYTE' |
+	gofmt -r 'DOUBLE -> UBYTE' |
 	gofmt -r 'C.nc_put_var_double -> C.nc_put_var_uchar' |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_uchar' |
 	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_uchar' |
@@ -115,7 +115,7 @@ cat nc_double.go |
 cat nc_double.go |
 	gofmt -r 'float64 -> int8' |
 	gofmt -r 'C.double -> C.schar' |
-	gofmt -r 'NC_DOUBLE -> NC_BYTE' |
+	gofmt -r 'DOUBLE -> BYTE' |
 	gofmt -r 'C.nc_put_var_double -> C.nc_put_var_schar' |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_schar' |
 	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_schar' |
@@ -127,7 +127,7 @@ cat nc_double.go |
 	> nc_byte.go
 
 
-# We return []byte (i.e. []uint8) for NC_CHAR Type because:
+# We return []byte (i.e. []uint8) for CHAR Type because:
 #	- Returning string would not be very flexible, since '\0' characters
 #	  may or may not require trimming.
 #	- Returning []rune (i.e. []int32) takes up more space and we know
@@ -137,7 +137,7 @@ cat nc_double.go |
 cat nc_double.go |
 	gofmt -r 'float64 -> byte' |
 	gofmt -r 'C.double -> C.char' |
-	gofmt -r 'NC_DOUBLE -> NC_CHAR' |
+	gofmt -r 'DOUBLE -> CHAR' |
 	gofmt -r 'C.nc_put_var_double -> C.nc_put_var_text' |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_text' |
 	gofmt -r 'C.nc_put_att_double(a, b, c, d, e, f) -> C.nc_put_att_text(a, b, c, e, f)' |

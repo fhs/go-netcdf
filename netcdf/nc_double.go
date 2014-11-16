@@ -17,7 +17,7 @@ import "C"
 
 // WriteFloat64s writes data as the entire data for variable v.
 func (v Var) WriteFloat64s(data []float64) error {
-	if err := okData(v, NC_DOUBLE, len(data)); err != nil {
+	if err := okData(v, DOUBLE, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_double(C.int(v.ds), C.int(v.id), (*C.double)(unsafe.Pointer(&data[0]))))
@@ -26,7 +26,7 @@ func (v Var) WriteFloat64s(data []float64) error {
 // ReadFloat64s reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
 func (v Var) ReadFloat64s(data []float64) error {
-	if err := okData(v, NC_DOUBLE, len(data)); err != nil {
+	if err := okData(v, DOUBLE, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_double(C.int(v.ds), C.int(v.id), (*C.double)(unsafe.Pointer(&data[0]))))
@@ -39,12 +39,12 @@ func (a Attr) WriteFloat64s(val []float64) error {
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
 	return newError(C.nc_put_att_double(C.int(a.v.ds), C.int(a.v.id), cname,
-		C.nc_type(NC_DOUBLE), C.size_t(len(val)), (*C.double)(unsafe.Pointer(&val[0]))))
+		C.nc_type(DOUBLE), C.size_t(len(val)), (*C.double)(unsafe.Pointer(&val[0]))))
 }
 
 // ReadFloat64s reads the entire attribute value into val.
 func (a Attr) ReadFloat64s(val []float64) (err error) {
-	if err := okData(a, NC_DOUBLE, len(val)); err != nil {
+	if err := okData(a, DOUBLE, len(val)); err != nil {
 		return err
 	}
 	cname := C.CString(a.name)

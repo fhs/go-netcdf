@@ -66,27 +66,27 @@ func (ft *FileTest) getAttrs(t *testing.T, v Var) {
 		switch typ {
 		default:
 			t.Errorf("unexpected attribute type %s\n", typeNames[typ])
-		case NC_UINT64:
+		case UINT64:
 			q, err = GetUint64s(a)
-		case NC_INT64:
+		case INT64:
 			q, err = GetInt64s(a)
-		case NC_DOUBLE:
+		case DOUBLE:
 			q, err = GetFloat64s(a)
-		case NC_UINT:
+		case UINT:
 			q, err = GetUint32s(a)
-		case NC_INT:
+		case INT:
 			q, err = GetInt32s(a)
-		case NC_FLOAT:
+		case FLOAT:
 			q, err = GetFloat32s(a)
-		case NC_USHORT:
+		case USHORT:
 			q, err = GetUint16s(a)
-		case NC_SHORT:
+		case SHORT:
 			q, err = GetInt16s(a)
-		case NC_UBYTE:
+		case UBYTE:
 			q, err = GetUint8s(a)
-		case NC_BYTE:
+		case BYTE:
 			q, err = GetInt8s(a)
-		case NC_CHAR:
+		case CHAR:
 			var b []byte
 			b, err = GetBytes(a)
 			q = string(b)
@@ -105,31 +105,31 @@ var fileTests = []FileTest{
 		VarName:  "gopher",
 		DimNames: []string{"height", "width"},
 		DimLens:  []uint64{7, 3},
-		DataType: NC_UINT64,
+		DataType: UINT64,
 	},
 	{
 		VarName:  "gopher",
 		DimNames: []string{"height", "width"},
 		DimLens:  []uint64{7, 3},
-		DataType: NC_INT64,
+		DataType: INT64,
 	},
 	{
 		VarName:  "gopher",
 		DimNames: []string{"height", "width"},
 		DimLens:  []uint64{7, 3},
-		DataType: NC_DOUBLE,
+		DataType: DOUBLE,
 	},
 	{
 		VarName:  "gopher",
 		DimNames: []string{"height", "width"},
 		DimLens:  []uint64{7, 3},
-		DataType: NC_UINT,
+		DataType: UINT,
 	},
 	{
 		VarName:  "gopher",
 		DimNames: []string{"height", "width"},
 		DimLens:  []uint64{7, 3},
-		DataType: NC_INT,
+		DataType: INT,
 		Attr: map[string]interface{}{
 			"uint64_test": []uint64{0xFABCFABCFABCFABC, 999, 0, 222},
 			"int64_test":  []int64{0x7ABC7ABC7ABC7ABC, -999, 0, 222},
@@ -148,37 +148,37 @@ var fileTests = []FileTest{
 		VarName:  "gopher",
 		DimNames: []string{"height", "width"},
 		DimLens:  []uint64{7, 3},
-		DataType: NC_FLOAT,
+		DataType: FLOAT,
 	},
 	{
 		VarName:  "gopher",
 		DimNames: []string{"height", "width"},
 		DimLens:  []uint64{7, 3},
-		DataType: NC_USHORT,
+		DataType: USHORT,
 	},
 	{
 		VarName:  "gopher",
 		DimNames: []string{"height", "width"},
 		DimLens:  []uint64{7, 3},
-		DataType: NC_SHORT,
+		DataType: SHORT,
 	},
 	{
 		VarName:  "gopher",
 		DimNames: []string{"height", "width"},
 		DimLens:  []uint64{7, 3},
-		DataType: NC_UBYTE,
+		DataType: UBYTE,
 	},
 	{
 		VarName:  "gopher",
 		DimNames: []string{"height", "width"},
 		DimLens:  []uint64{7, 3},
-		DataType: NC_BYTE,
+		DataType: BYTE,
 	},
 	{
 		VarName:  "gopher",
 		DimNames: []string{"height", "width"},
 		DimLens:  []uint64{7, 3},
-		DataType: NC_CHAR,
+		DataType: CHAR,
 	},
 }
 
@@ -197,7 +197,7 @@ func TestCreate(t *testing.T) {
 }
 
 func createFile(t *testing.T, filename string, ft *FileTest) {
-	f, err := Create(filename, NC_CLOBBER|NC_NETCDF4)
+	f, err := Create(filename, CLOBBER|NETCDF4)
 	if err != nil {
 		t.Fatalf("Create failed: %v\n", err)
 	}
@@ -220,27 +220,27 @@ func createFile(t *testing.T, filename string, ft *FileTest) {
 	switch ft.DataType {
 	default:
 		t.Fatalf("unexpected type %s\n", typeNames[ft.DataType])
-	case NC_UINT64:
+	case UINT64:
 		err = testWriteUint64s(v, n)
-	case NC_INT64:
+	case INT64:
 		err = testWriteInt64s(v, n)
-	case NC_DOUBLE:
+	case DOUBLE:
 		err = testWriteFloat64s(v, n)
-	case NC_UINT:
+	case UINT:
 		err = testWriteUint32s(v, n)
-	case NC_INT:
+	case INT:
 		err = testWriteInt32s(v, n)
-	case NC_FLOAT:
+	case FLOAT:
 		err = testWriteFloat32s(v, n)
-	case NC_USHORT:
+	case USHORT:
 		err = testWriteUint16s(v, n)
-	case NC_SHORT:
+	case SHORT:
 		err = testWriteInt16s(v, n)
-	case NC_UBYTE:
+	case UBYTE:
 		err = testWriteUint8s(v, n)
-	case NC_BYTE:
+	case BYTE:
 		err = testWriteInt8s(v, n)
-	case NC_CHAR:
+	case CHAR:
 		err = testWriteBytes(v, n)
 	}
 	if err != nil {
@@ -252,7 +252,7 @@ func createFile(t *testing.T, filename string, ft *FileTest) {
 }
 
 func readFile(t *testing.T, filename string, ft *FileTest) {
-	f, err := OpenFile(filename, NC_NOWRITE)
+	f, err := OpenFile(filename, NOWRITE)
 	if err != nil {
 		t.Fatalf("Open failed: %v\n", err)
 	}
@@ -289,27 +289,27 @@ func readFile(t *testing.T, filename string, ft *FileTest) {
 	switch ft.DataType {
 	default:
 		t.Fatalf("unexpected type %s\n", typeNames[ft.DataType])
-	case NC_UINT64:
+	case UINT64:
 		err = testReadUint64s(v, n)
-	case NC_INT64:
+	case INT64:
 		err = testReadInt64s(v, n)
-	case NC_DOUBLE:
+	case DOUBLE:
 		err = testReadFloat64s(v, n)
-	case NC_UINT:
+	case UINT:
 		err = testReadUint32s(v, n)
-	case NC_INT:
+	case INT:
 		err = testReadInt32s(v, n)
-	case NC_FLOAT:
+	case FLOAT:
 		err = testReadFloat32s(v, n)
-	case NC_USHORT:
+	case USHORT:
 		err = testReadUint16s(v, n)
-	case NC_SHORT:
+	case SHORT:
 		err = testReadInt16s(v, n)
-	case NC_UBYTE:
+	case UBYTE:
 		err = testReadUint8s(v, n)
-	case NC_BYTE:
+	case BYTE:
 		err = testReadInt8s(v, n)
-	case NC_CHAR:
+	case CHAR:
 		err = testReadBytes(v, n)
 	}
 	if err != nil {
@@ -321,7 +321,7 @@ func readFile(t *testing.T, filename string, ft *FileTest) {
 }
 
 func TestError(t *testing.T) {
-	_, err := OpenFile("/non-existant.nc", NC_NOWRITE)
+	_, err := OpenFile("/non-existant.nc", NOWRITE)
 	if err == nil {
 		t.Fatalf("Opened non-existant file\n")
 	}

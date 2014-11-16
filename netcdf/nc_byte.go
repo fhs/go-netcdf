@@ -17,7 +17,7 @@ import "C"
 
 // WriteInt8s writes data as the entire data for variable v.
 func (v Var) WriteInt8s(data []int8) error {
-	if err := okData(v, NC_BYTE, len(data)); err != nil {
+	if err := okData(v, BYTE, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_schar(C.int(v.ds), C.int(v.id), (*C.schar)(unsafe.Pointer(&data[0]))))
@@ -26,7 +26,7 @@ func (v Var) WriteInt8s(data []int8) error {
 // ReadInt8s reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
 func (v Var) ReadInt8s(data []int8) error {
-	if err := okData(v, NC_BYTE, len(data)); err != nil {
+	if err := okData(v, BYTE, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_schar(C.int(v.ds), C.int(v.id), (*C.schar)(unsafe.Pointer(&data[0]))))
@@ -39,12 +39,12 @@ func (a Attr) WriteInt8s(val []int8) error {
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
 	return newError(C.nc_put_att_schar(C.int(a.v.ds), C.int(a.v.id), cname,
-		C.nc_type(NC_BYTE), C.size_t(len(val)), (*C.schar)(unsafe.Pointer(&val[0]))))
+		C.nc_type(BYTE), C.size_t(len(val)), (*C.schar)(unsafe.Pointer(&val[0]))))
 }
 
 // ReadInt8s reads the entire attribute value into val.
 func (a Attr) ReadInt8s(val []int8) (err error) {
-	if err := okData(a, NC_BYTE, len(val)); err != nil {
+	if err := okData(a, BYTE, len(val)); err != nil {
 		return err
 	}
 	cname := C.CString(a.name)

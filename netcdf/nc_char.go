@@ -17,7 +17,7 @@ import "C"
 
 // WriteBytes writes data as the entire data for variable v.
 func (v Var) WriteBytes(data []byte) error {
-	if err := okData(v, NC_CHAR, len(data)); err != nil {
+	if err := okData(v, CHAR, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_text(C.int(v.ds), C.int(v.id), (*C.char)(unsafe.Pointer(&data[0]))))
@@ -26,7 +26,7 @@ func (v Var) WriteBytes(data []byte) error {
 // ReadBytes reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
 func (v Var) ReadBytes(data []byte) error {
-	if err := okData(v, NC_CHAR, len(data)); err != nil {
+	if err := okData(v, CHAR, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_text(C.int(v.ds), C.int(v.id), (*C.char)(unsafe.Pointer(&data[0]))))
@@ -44,7 +44,7 @@ func (a Attr) WriteBytes(val []byte) error {
 
 // ReadBytes reads the entire attribute value into val.
 func (a Attr) ReadBytes(val []byte) (err error) {
-	if err := okData(a, NC_CHAR, len(val)); err != nil {
+	if err := okData(a, CHAR, len(val)); err != nil {
 		return err
 	}
 	cname := C.CString(a.name)

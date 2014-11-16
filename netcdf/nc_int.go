@@ -17,7 +17,7 @@ import "C"
 
 // WriteInt32s writes data as the entire data for variable v.
 func (v Var) WriteInt32s(data []int32) error {
-	if err := okData(v, NC_INT, len(data)); err != nil {
+	if err := okData(v, INT, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_int(C.int(v.ds), C.int(v.id), (*C.int)(unsafe.Pointer(&data[0]))))
@@ -26,7 +26,7 @@ func (v Var) WriteInt32s(data []int32) error {
 // ReadInt32s reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
 func (v Var) ReadInt32s(data []int32) error {
-	if err := okData(v, NC_INT, len(data)); err != nil {
+	if err := okData(v, INT, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_int(C.int(v.ds), C.int(v.id), (*C.int)(unsafe.Pointer(&data[0]))))
@@ -39,12 +39,12 @@ func (a Attr) WriteInt32s(val []int32) error {
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
 	return newError(C.nc_put_att_int(C.int(a.v.ds), C.int(a.v.id), cname,
-		C.nc_type(NC_INT), C.size_t(len(val)), (*C.int)(unsafe.Pointer(&val[0]))))
+		C.nc_type(INT), C.size_t(len(val)), (*C.int)(unsafe.Pointer(&val[0]))))
 }
 
 // ReadInt32s reads the entire attribute value into val.
 func (a Attr) ReadInt32s(val []int32) (err error) {
-	if err := okData(a, NC_INT, len(val)); err != nil {
+	if err := okData(a, INT, len(val)); err != nil {
 		return err
 	}
 	cname := C.CString(a.name)
