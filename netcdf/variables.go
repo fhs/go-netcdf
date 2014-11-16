@@ -62,6 +62,22 @@ func (v Var) Len() (uint64, error) {
 	return n, nil
 }
 
+// LenDims returns the length of the dimensions of variable v.
+func (v Var) LenDims() ([]uint64, error) {
+	dims, err := v.Dims()
+	if err != nil {
+		return nil, err
+	}
+	ls := make([]uint64, len(dims))
+	for i, d := range dims {
+		ls[i], err = d.Len()
+		if err != nil {
+			return nil, err
+		}
+	}
+	return ls, nil
+}
+
 // NAttrs returns the number of attributes assigned to variable v.
 func (v Var) NAttrs() (n int, err error) {
 	var cn C.int
