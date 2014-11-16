@@ -108,11 +108,11 @@ func (ds Dataset) VarN(id int) Var {
 }
 
 // Var returns the Var for the variable named name.
-func (ds Dataset) Var(name string) (d Var, err error) {
+func (ds Dataset) Var(name string) (v Var, err error) {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 	var id C.int
 	err = newError(C.nc_inq_varid(C.int(ds), cname, &id))
-	d = Var{ds, id}
+	v = Var{ds, id}
 	return
 }
