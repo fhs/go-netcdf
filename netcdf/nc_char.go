@@ -15,25 +15,25 @@ import (
 // #include <netcdf.h>
 import "C"
 
-// WriteChar writes data as the entire data for variable v.
-func (v Var) WriteChar(data []byte) error {
+// WriteBytes writes data as the entire data for variable v.
+func (v Var) WriteBytes(data []byte) error {
 	if err := okData(v, NC_CHAR, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_text(C.int(v.ds), C.int(v.id), (*C.char)(unsafe.Pointer(&data[0]))))
 }
 
-// ReadChar reads the entire variable v into data, which must have enough
+// ReadBytes reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
-func (v Var) ReadChar(data []byte) error {
+func (v Var) ReadBytes(data []byte) error {
 	if err := okData(v, NC_CHAR, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_text(C.int(v.ds), C.int(v.id), (*C.char)(unsafe.Pointer(&data[0]))))
 }
 
-// WriteChar sets the value of attribute a to val.
-func (a Attr) WriteChar(val []byte) error {
+// WriteBytes sets the value of attribute a to val.
+func (a Attr) WriteBytes(val []byte) error {
 	// We don't need okData here because netcdf library doesn't know
 	// the length or type of the attribute yet.
 	cname := C.CString(a.name)
@@ -42,8 +42,8 @@ func (a Attr) WriteChar(val []byte) error {
 		C.size_t(len(val)), (*C.char)(unsafe.Pointer(&val[0]))))
 }
 
-// ReadChar reads the entire attribute value into val.
-func (a Attr) ReadChar(val []byte) (err error) {
+// ReadBytes reads the entire attribute value into val.
+func (a Attr) ReadBytes(val []byte) (err error) {
 	if err := okData(a, NC_CHAR, len(val)); err != nil {
 		return err
 	}
@@ -54,39 +54,39 @@ func (a Attr) ReadChar(val []byte) (err error) {
 	return
 }
 
-// CharReader is a interface that allows reading a sequence of values of fixed length.
-type CharReader interface {
+// BytesReader is a interface that allows reading a sequence of values of fixed length.
+type BytesReader interface {
 	Len() (n uint64, err error)
-	ReadChar(val []byte) (err error)
+	ReadBytes(val []byte) (err error)
 }
 
-// GetChar reads the entire data in r and returns it.
-func GetChar(r CharReader) (data []byte, err error) {
+// GetBytes reads the entire data in r and returns it.
+func GetBytes(r BytesReader) (data []byte, err error) {
 	n, err := r.Len()
 	if err != nil {
 		return
 	}
 	data = make([]byte, n)
-	err = r.ReadChar(data)
+	err = r.ReadBytes(data)
 	return
 }
 
-// TestWriteChar writes somes data to v. N is v.Len().
+// TestReadBytes writes somes data to v. N is v.Len().
 // This function is only used for testing.
-func testWriteChar(v Var, n uint64) error {
+func testWriteBytes(v Var, n uint64) error {
 	data := make([]byte, n)
 	for i := 0; i < int(n); i++ {
 		data[i] = byte(i + 10)
 	}
-	return v.WriteChar(data)
+	return v.WriteBytes(data)
 }
 
-// TestReadChar reads data from v and checks that it's the same as what
-// was written by testWriteChar. N is v.Len().
+// TestReadBytes reads data from v and checks that it's the same as what
+// was written by testWriteDouble. N is v.Len().
 // This function is only used for testing.
-func testReadChar(v Var, n uint64) error {
+func testReadBytes(v Var, n uint64) error {
 	data := make([]byte, n)
-	if err := v.ReadChar(data); err != nil {
+	if err := v.ReadBytes(data); err != nil {
 		return err
 	}
 	for i := 0; i < int(n); i++ {

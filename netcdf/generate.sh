@@ -8,10 +8,10 @@ cat nc_double.go |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_ulonglong' |
 	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_ulonglong' |
 	gofmt -r 'C.nc_get_att_double -> C.nc_get_att_ulonglong' |
-	sed 's/DoubleReader/Uint64Reader/' |
-	sed 's/GetDouble/GetUint64/' |
-	sed 's/WriteDouble/WriteUint64/' |
-	sed 's/ReadDouble/ReadUint64/' \
+	sed 's/Float64sReader/Uint64sReader/' |
+	sed 's/GetFloat64s/GetUint64s/' |
+	sed 's/WriteFloat64s/WriteUint64s/' |
+	sed 's/ReadFloat64s/ReadUint64s/' \
 	> nc_uint64.go
 
 cat nc_double.go |
@@ -22,10 +22,10 @@ cat nc_double.go |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_longlong' |
 	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_longlong' |
 	gofmt -r 'C.nc_get_att_double -> C.nc_get_att_longlong' |
-	sed 's/DoubleReader/Int64Reader/' |
-	sed 's/GetDouble/GetInt64/' |
-	sed 's/WriteDouble/WriteInt64/' |
-	sed 's/ReadDouble/ReadInt64/' \
+	sed 's/Float64sReader/Int64sReader/' |
+	sed 's/GetFloat64s/GetInt64s/' |
+	sed 's/WriteFloat64s/WriteInt64s/' |
+	sed 's/ReadFloat64s/ReadInt64s/' \
 	> nc_int64.go
 
 cat nc_double.go |
@@ -36,10 +36,10 @@ cat nc_double.go |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_uint' |
 	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_uint' |
 	gofmt -r 'C.nc_get_att_double -> C.nc_get_att_uint' |
-	sed 's/DoubleReader/UintReader/' |
-	sed 's/GetDouble/GetUint/' |
-	sed 's/WriteDouble/WriteUint/' |
-	sed 's/ReadDouble/ReadUint/' \
+	sed 's/Float64sReader/Uint32sReader/' |
+	sed 's/GetFloat64s/GetUint32s/' |
+	sed 's/WriteFloat64s/WriteUint32s/' |
+	sed 's/ReadFloat64s/ReadUint32s/' \
 	> nc_uint.go
 
 cat nc_double.go |
@@ -50,10 +50,10 @@ cat nc_double.go |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_int' |
 	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_int' |
 	gofmt -r 'C.nc_get_att_double -> C.nc_get_att_int' |
-	sed 's/DoubleReader/IntReader/' |
-	sed 's/GetDouble/GetInt/' |
-	sed 's/WriteDouble/WriteInt/' |
-	sed 's/ReadDouble/ReadInt/' \
+	sed 's/Float64sReader/Int32sReader/' |
+	sed 's/GetFloat64s/GetInt32s/' |
+	sed 's/WriteFloat64s/WriteInt32s/' |
+	sed 's/ReadFloat64s/ReadInt32s/' \
 	> nc_int.go
 
 cat nc_double.go |
@@ -64,10 +64,10 @@ cat nc_double.go |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_float' |
 	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_float' |
 	gofmt -r 'C.nc_get_att_double -> C.nc_get_att_float' |
-	sed 's/DoubleReader/FloatReader/' |
-	sed 's/GetDouble/GetFloat/' |
-	sed 's/WriteDouble/WriteFloat/' |
-	sed 's/ReadDouble/ReadFloat/' \
+	sed 's/Float64sReader/Float32sReader/' |
+	sed 's/GetFloat64s/GetFloat32s/' |
+	sed 's/WriteFloat64s/WriteFloat32s/' |
+	sed 's/ReadFloat64s/ReadFloat32s/' \
 	> nc_float.go
 
 cat nc_double.go |
@@ -78,10 +78,10 @@ cat nc_double.go |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_ushort' |
 	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_ushort' |
 	gofmt -r 'C.nc_get_att_double -> C.nc_get_att_ushort' |
-	sed 's/DoubleReader/UshortReader/' |
-	sed 's/GetDouble/GetUshort/' |
-	sed 's/WriteDouble/WriteUshort/' |
-	sed 's/ReadDouble/ReadUshort/' \
+	sed 's/Float64sReader/Uint16sReader/' |
+	sed 's/GetFloat64s/GetUint16s/' |
+	sed 's/WriteFloat64s/WriteUint16s/' |
+	sed 's/ReadFloat64s/ReadUint16s/' \
 	> nc_ushort.go
 
 cat nc_double.go |
@@ -92,10 +92,10 @@ cat nc_double.go |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_short' |
 	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_short' |
 	gofmt -r 'C.nc_get_att_double -> C.nc_get_att_short' |
-	sed 's/DoubleReader/ShortReader/' |
-	sed 's/GetDouble/GetShort/' |
-	sed 's/WriteDouble/WriteShort/' |
-	sed 's/ReadDouble/ReadShort/' \
+	sed 's/Float64sReader/Int16sReader/' |
+	sed 's/GetFloat64s/GetInt16s/' |
+	sed 's/WriteFloat64s/WriteInt16s/' |
+	sed 's/ReadFloat64s/ReadInt16s/' \
 	> nc_short.go
 
 cat nc_double.go |
@@ -106,10 +106,10 @@ cat nc_double.go |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_uchar' |
 	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_uchar' |
 	gofmt -r 'C.nc_get_att_double -> C.nc_get_att_uchar' |
-	sed 's/DoubleReader/UbyteReader/' |
-	sed 's/GetDouble/GetUbyte/' |
-	sed 's/WriteDouble/WriteUbyte/' |
-	sed 's/ReadDouble/ReadUbyte/' \
+	sed 's/Float64sReader/Uint8sReader/' |
+	sed 's/GetFloat64s/GetUint8s/' |
+	sed 's/WriteFloat64s/WriteUint8s/' |
+	sed 's/ReadFloat64s/ReadUint8s/' \
 	> nc_ubyte.go
 
 cat nc_double.go |
@@ -120,10 +120,10 @@ cat nc_double.go |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_schar' |
 	gofmt -r 'C.nc_put_att_double -> C.nc_put_att_schar' |
 	gofmt -r 'C.nc_get_att_double -> C.nc_get_att_schar' |
-	sed 's/DoubleReader/ByteReader/' |
-	sed 's/GetDouble/GetByte/' |
-	sed 's/WriteDouble/WriteByte/' |
-	sed 's/ReadDouble/ReadByte/' \
+	sed 's/Float64sReader/Int8sReader/' |
+	sed 's/GetFloat64s/GetInt8s/' |
+	sed 's/WriteFloat64s/WriteInt8s/' |
+	sed 's/ReadFloat64s/ReadInt8s/' \
 	> nc_byte.go
 
 
@@ -142,8 +142,8 @@ cat nc_double.go |
 	gofmt -r 'C.nc_get_var_double -> C.nc_get_var_text' |
 	gofmt -r 'C.nc_put_att_double(a, b, c, d, e, f) -> C.nc_put_att_text(a, b, c, e, f)' |
 	gofmt -r 'C.nc_get_att_double -> C.nc_get_att_text' |
-	sed 's/DoubleReader/CharReader/' |
-	sed 's/GetDouble/GetChar/' |
-	sed 's/WriteDouble/WriteChar/' |
-	sed 's/ReadDouble/ReadChar/' \
+	sed 's/Float64sReader/BytesReader/' |
+	sed 's/GetFloat64s/GetBytes/' |
+	sed 's/WriteFloat64s/WriteBytes/' |
+	sed 's/ReadFloat64s/ReadBytes/' \
 	> nc_char.go

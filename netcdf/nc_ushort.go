@@ -15,25 +15,25 @@ import (
 // #include <netcdf.h>
 import "C"
 
-// WriteUshort writes data as the entire data for variable v.
-func (v Var) WriteUshort(data []uint16) error {
+// WriteUint16s writes data as the entire data for variable v.
+func (v Var) WriteUint16s(data []uint16) error {
 	if err := okData(v, NC_USHORT, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_ushort(C.int(v.ds), C.int(v.id), (*C.ushort)(unsafe.Pointer(&data[0]))))
 }
 
-// ReadUshort reads the entire variable v into data, which must have enough
+// ReadUint16s reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
-func (v Var) ReadUshort(data []uint16) error {
+func (v Var) ReadUint16s(data []uint16) error {
 	if err := okData(v, NC_USHORT, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_ushort(C.int(v.ds), C.int(v.id), (*C.ushort)(unsafe.Pointer(&data[0]))))
 }
 
-// WriteUshort sets the value of attribute a to val.
-func (a Attr) WriteUshort(val []uint16) error {
+// WriteUint16s sets the value of attribute a to val.
+func (a Attr) WriteUint16s(val []uint16) error {
 	// We don't need okData here because netcdf library doesn't know
 	// the length or type of the attribute yet.
 	cname := C.CString(a.name)
@@ -42,8 +42,8 @@ func (a Attr) WriteUshort(val []uint16) error {
 		C.nc_type(NC_USHORT), C.size_t(len(val)), (*C.ushort)(unsafe.Pointer(&val[0]))))
 }
 
-// ReadUshort reads the entire attribute value into val.
-func (a Attr) ReadUshort(val []uint16) (err error) {
+// ReadUint16s reads the entire attribute value into val.
+func (a Attr) ReadUint16s(val []uint16) (err error) {
 	if err := okData(a, NC_USHORT, len(val)); err != nil {
 		return err
 	}
@@ -54,39 +54,39 @@ func (a Attr) ReadUshort(val []uint16) (err error) {
 	return
 }
 
-// UshortReader is a interface that allows reading a sequence of values of fixed length.
-type UshortReader interface {
+// Uint16sReader is a interface that allows reading a sequence of values of fixed length.
+type Uint16sReader interface {
 	Len() (n uint64, err error)
-	ReadUshort(val []uint16) (err error)
+	ReadUint16s(val []uint16) (err error)
 }
 
-// GetUshort reads the entire data in r and returns it.
-func GetUshort(r UshortReader) (data []uint16, err error) {
+// GetUint16s reads the entire data in r and returns it.
+func GetUint16s(r Uint16sReader) (data []uint16, err error) {
 	n, err := r.Len()
 	if err != nil {
 		return
 	}
 	data = make([]uint16, n)
-	err = r.ReadUshort(data)
+	err = r.ReadUint16s(data)
 	return
 }
 
-// TestWriteUshort writes somes data to v. N is v.Len().
+// TestReadUint16s writes somes data to v. N is v.Len().
 // This function is only used for testing.
-func testWriteUshort(v Var, n uint64) error {
+func testWriteUint16s(v Var, n uint64) error {
 	data := make([]uint16, n)
 	for i := 0; i < int(n); i++ {
 		data[i] = uint16(i + 10)
 	}
-	return v.WriteUshort(data)
+	return v.WriteUint16s(data)
 }
 
-// TestReadUshort reads data from v and checks that it's the same as what
-// was written by testWriteUshort. N is v.Len().
+// TestReadUint16s reads data from v and checks that it's the same as what
+// was written by testWriteDouble. N is v.Len().
 // This function is only used for testing.
-func testReadUshort(v Var, n uint64) error {
+func testReadUint16s(v Var, n uint64) error {
 	data := make([]uint16, n)
-	if err := v.ReadUshort(data); err != nil {
+	if err := v.ReadUint16s(data); err != nil {
 		return err
 	}
 	for i := 0; i < int(n); i++ {

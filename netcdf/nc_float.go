@@ -15,25 +15,25 @@ import (
 // #include <netcdf.h>
 import "C"
 
-// WriteFloat writes data as the entire data for variable v.
-func (v Var) WriteFloat(data []float32) error {
+// WriteFloat32s writes data as the entire data for variable v.
+func (v Var) WriteFloat32s(data []float32) error {
 	if err := okData(v, NC_FLOAT, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_float(C.int(v.ds), C.int(v.id), (*C.float)(unsafe.Pointer(&data[0]))))
 }
 
-// ReadFloat reads the entire variable v into data, which must have enough
+// ReadFloat32s reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
-func (v Var) ReadFloat(data []float32) error {
+func (v Var) ReadFloat32s(data []float32) error {
 	if err := okData(v, NC_FLOAT, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_float(C.int(v.ds), C.int(v.id), (*C.float)(unsafe.Pointer(&data[0]))))
 }
 
-// WriteFloat sets the value of attribute a to val.
-func (a Attr) WriteFloat(val []float32) error {
+// WriteFloat32s sets the value of attribute a to val.
+func (a Attr) WriteFloat32s(val []float32) error {
 	// We don't need okData here because netcdf library doesn't know
 	// the length or type of the attribute yet.
 	cname := C.CString(a.name)
@@ -42,8 +42,8 @@ func (a Attr) WriteFloat(val []float32) error {
 		C.nc_type(NC_FLOAT), C.size_t(len(val)), (*C.float)(unsafe.Pointer(&val[0]))))
 }
 
-// ReadFloat reads the entire attribute value into val.
-func (a Attr) ReadFloat(val []float32) (err error) {
+// ReadFloat32s reads the entire attribute value into val.
+func (a Attr) ReadFloat32s(val []float32) (err error) {
 	if err := okData(a, NC_FLOAT, len(val)); err != nil {
 		return err
 	}
@@ -54,39 +54,39 @@ func (a Attr) ReadFloat(val []float32) (err error) {
 	return
 }
 
-// FloatReader is a interface that allows reading a sequence of values of fixed length.
-type FloatReader interface {
+// Float32sReader is a interface that allows reading a sequence of values of fixed length.
+type Float32sReader interface {
 	Len() (n uint64, err error)
-	ReadFloat(val []float32) (err error)
+	ReadFloat32s(val []float32) (err error)
 }
 
-// GetFloat reads the entire data in r and returns it.
-func GetFloat(r FloatReader) (data []float32, err error) {
+// GetFloat32s reads the entire data in r and returns it.
+func GetFloat32s(r Float32sReader) (data []float32, err error) {
 	n, err := r.Len()
 	if err != nil {
 		return
 	}
 	data = make([]float32, n)
-	err = r.ReadFloat(data)
+	err = r.ReadFloat32s(data)
 	return
 }
 
-// TestWriteFloat writes somes data to v. N is v.Len().
+// TestReadFloat32s writes somes data to v. N is v.Len().
 // This function is only used for testing.
-func testWriteFloat(v Var, n uint64) error {
+func testWriteFloat32s(v Var, n uint64) error {
 	data := make([]float32, n)
 	for i := 0; i < int(n); i++ {
 		data[i] = float32(i + 10)
 	}
-	return v.WriteFloat(data)
+	return v.WriteFloat32s(data)
 }
 
-// TestReadFloat reads data from v and checks that it's the same as what
-// was written by testWriteFloat. N is v.Len().
+// TestReadFloat32s reads data from v and checks that it's the same as what
+// was written by testWriteDouble. N is v.Len().
 // This function is only used for testing.
-func testReadFloat(v Var, n uint64) error {
+func testReadFloat32s(v Var, n uint64) error {
 	data := make([]float32, n)
-	if err := v.ReadFloat(data); err != nil {
+	if err := v.ReadFloat32s(data); err != nil {
 		return err
 	}
 	for i := 0; i < int(n); i++ {

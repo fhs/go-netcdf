@@ -15,25 +15,25 @@ import (
 // #include <netcdf.h>
 import "C"
 
-// WriteDouble writes data as the entire data for variable v.
-func (v Var) WriteDouble(data []float64) error {
+// WriteFloat64s writes data as the entire data for variable v.
+func (v Var) WriteFloat64s(data []float64) error {
 	if err := okData(v, NC_DOUBLE, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_double(C.int(v.ds), C.int(v.id), (*C.double)(unsafe.Pointer(&data[0]))))
 }
 
-// ReadDouble reads the entire variable v into data, which must have enough
+// ReadFloat64s reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
-func (v Var) ReadDouble(data []float64) error {
+func (v Var) ReadFloat64s(data []float64) error {
 	if err := okData(v, NC_DOUBLE, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_double(C.int(v.ds), C.int(v.id), (*C.double)(unsafe.Pointer(&data[0]))))
 }
 
-// WriteDouble sets the value of attribute a to val.
-func (a Attr) WriteDouble(val []float64) error {
+// WriteFloat64s sets the value of attribute a to val.
+func (a Attr) WriteFloat64s(val []float64) error {
 	// We don't need okData here because netcdf library doesn't know
 	// the length or type of the attribute yet.
 	cname := C.CString(a.name)
@@ -42,8 +42,8 @@ func (a Attr) WriteDouble(val []float64) error {
 		C.nc_type(NC_DOUBLE), C.size_t(len(val)), (*C.double)(unsafe.Pointer(&val[0]))))
 }
 
-// ReadDouble reads the entire attribute value into val.
-func (a Attr) ReadDouble(val []float64) (err error) {
+// ReadFloat64s reads the entire attribute value into val.
+func (a Attr) ReadFloat64s(val []float64) (err error) {
 	if err := okData(a, NC_DOUBLE, len(val)); err != nil {
 		return err
 	}
@@ -54,39 +54,39 @@ func (a Attr) ReadDouble(val []float64) (err error) {
 	return
 }
 
-// DoubleReader is a interface that allows reading a sequence of values of fixed length.
-type DoubleReader interface {
+// Float64sReader is a interface that allows reading a sequence of values of fixed length.
+type Float64sReader interface {
 	Len() (n uint64, err error)
-	ReadDouble(val []float64) (err error)
+	ReadFloat64s(val []float64) (err error)
 }
 
-// GetDouble reads the entire data in r and returns it.
-func GetDouble(r DoubleReader) (data []float64, err error) {
+// GetFloat64s reads the entire data in r and returns it.
+func GetFloat64s(r Float64sReader) (data []float64, err error) {
 	n, err := r.Len()
 	if err != nil {
 		return
 	}
 	data = make([]float64, n)
-	err = r.ReadDouble(data)
+	err = r.ReadFloat64s(data)
 	return
 }
 
-// TestWriteDouble writes somes data to v. N is v.Len().
+// TestReadFloat64s writes somes data to v. N is v.Len().
 // This function is only used for testing.
-func testWriteDouble(v Var, n uint64) error {
+func testWriteFloat64s(v Var, n uint64) error {
 	data := make([]float64, n)
 	for i := 0; i < int(n); i++ {
 		data[i] = float64(i + 10)
 	}
-	return v.WriteDouble(data)
+	return v.WriteFloat64s(data)
 }
 
-// TestReadDouble reads data from v and checks that it's the same as what
+// TestReadFloat64s reads data from v and checks that it's the same as what
 // was written by testWriteDouble. N is v.Len().
 // This function is only used for testing.
-func testReadDouble(v Var, n uint64) error {
+func testReadFloat64s(v Var, n uint64) error {
 	data := make([]float64, n)
-	if err := v.ReadDouble(data); err != nil {
+	if err := v.ReadFloat64s(data); err != nil {
 		return err
 	}
 	for i := 0; i < int(n); i++ {

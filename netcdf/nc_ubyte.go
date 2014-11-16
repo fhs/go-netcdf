@@ -15,25 +15,25 @@ import (
 // #include <netcdf.h>
 import "C"
 
-// WriteUbyte writes data as the entire data for variable v.
-func (v Var) WriteUbyte(data []uint8) error {
+// WriteUint8s writes data as the entire data for variable v.
+func (v Var) WriteUint8s(data []uint8) error {
 	if err := okData(v, NC_UBYTE, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_uchar(C.int(v.ds), C.int(v.id), (*C.uchar)(unsafe.Pointer(&data[0]))))
 }
 
-// ReadUbyte reads the entire variable v into data, which must have enough
+// ReadUint8s reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
-func (v Var) ReadUbyte(data []uint8) error {
+func (v Var) ReadUint8s(data []uint8) error {
 	if err := okData(v, NC_UBYTE, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_uchar(C.int(v.ds), C.int(v.id), (*C.uchar)(unsafe.Pointer(&data[0]))))
 }
 
-// WriteUbyte sets the value of attribute a to val.
-func (a Attr) WriteUbyte(val []uint8) error {
+// WriteUint8s sets the value of attribute a to val.
+func (a Attr) WriteUint8s(val []uint8) error {
 	// We don't need okData here because netcdf library doesn't know
 	// the length or type of the attribute yet.
 	cname := C.CString(a.name)
@@ -42,8 +42,8 @@ func (a Attr) WriteUbyte(val []uint8) error {
 		C.nc_type(NC_UBYTE), C.size_t(len(val)), (*C.uchar)(unsafe.Pointer(&val[0]))))
 }
 
-// ReadUbyte reads the entire attribute value into val.
-func (a Attr) ReadUbyte(val []uint8) (err error) {
+// ReadUint8s reads the entire attribute value into val.
+func (a Attr) ReadUint8s(val []uint8) (err error) {
 	if err := okData(a, NC_UBYTE, len(val)); err != nil {
 		return err
 	}
@@ -54,39 +54,39 @@ func (a Attr) ReadUbyte(val []uint8) (err error) {
 	return
 }
 
-// UbyteReader is a interface that allows reading a sequence of values of fixed length.
-type UbyteReader interface {
+// Uint8sReader is a interface that allows reading a sequence of values of fixed length.
+type Uint8sReader interface {
 	Len() (n uint64, err error)
-	ReadUbyte(val []uint8) (err error)
+	ReadUint8s(val []uint8) (err error)
 }
 
-// GetUbyte reads the entire data in r and returns it.
-func GetUbyte(r UbyteReader) (data []uint8, err error) {
+// GetUint8s reads the entire data in r and returns it.
+func GetUint8s(r Uint8sReader) (data []uint8, err error) {
 	n, err := r.Len()
 	if err != nil {
 		return
 	}
 	data = make([]uint8, n)
-	err = r.ReadUbyte(data)
+	err = r.ReadUint8s(data)
 	return
 }
 
-// TestWriteUbyte writes somes data to v. N is v.Len().
+// TestReadUint8s writes somes data to v. N is v.Len().
 // This function is only used for testing.
-func testWriteUbyte(v Var, n uint64) error {
+func testWriteUint8s(v Var, n uint64) error {
 	data := make([]uint8, n)
 	for i := 0; i < int(n); i++ {
 		data[i] = uint8(i + 10)
 	}
-	return v.WriteUbyte(data)
+	return v.WriteUint8s(data)
 }
 
-// TestReadUbyte reads data from v and checks that it's the same as what
-// was written by testWriteUbyte. N is v.Len().
+// TestReadUint8s reads data from v and checks that it's the same as what
+// was written by testWriteDouble. N is v.Len().
 // This function is only used for testing.
-func testReadUbyte(v Var, n uint64) error {
+func testReadUint8s(v Var, n uint64) error {
 	data := make([]uint8, n)
-	if err := v.ReadUbyte(data); err != nil {
+	if err := v.ReadUint8s(data); err != nil {
 		return err
 	}
 	for i := 0; i < int(n); i++ {

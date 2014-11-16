@@ -15,25 +15,25 @@ import (
 // #include <netcdf.h>
 import "C"
 
-// WriteInt writes data as the entire data for variable v.
-func (v Var) WriteInt(data []int32) error {
+// WriteInt32s writes data as the entire data for variable v.
+func (v Var) WriteInt32s(data []int32) error {
 	if err := okData(v, NC_INT, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_int(C.int(v.ds), C.int(v.id), (*C.int)(unsafe.Pointer(&data[0]))))
 }
 
-// ReadInt reads the entire variable v into data, which must have enough
+// ReadInt32s reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
-func (v Var) ReadInt(data []int32) error {
+func (v Var) ReadInt32s(data []int32) error {
 	if err := okData(v, NC_INT, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_int(C.int(v.ds), C.int(v.id), (*C.int)(unsafe.Pointer(&data[0]))))
 }
 
-// WriteInt sets the value of attribute a to val.
-func (a Attr) WriteInt(val []int32) error {
+// WriteInt32s sets the value of attribute a to val.
+func (a Attr) WriteInt32s(val []int32) error {
 	// We don't need okData here because netcdf library doesn't know
 	// the length or type of the attribute yet.
 	cname := C.CString(a.name)
@@ -42,8 +42,8 @@ func (a Attr) WriteInt(val []int32) error {
 		C.nc_type(NC_INT), C.size_t(len(val)), (*C.int)(unsafe.Pointer(&val[0]))))
 }
 
-// ReadInt reads the entire attribute value into val.
-func (a Attr) ReadInt(val []int32) (err error) {
+// ReadInt32s reads the entire attribute value into val.
+func (a Attr) ReadInt32s(val []int32) (err error) {
 	if err := okData(a, NC_INT, len(val)); err != nil {
 		return err
 	}
@@ -54,39 +54,39 @@ func (a Attr) ReadInt(val []int32) (err error) {
 	return
 }
 
-// IntReader is a interface that allows reading a sequence of values of fixed length.
-type IntReader interface {
+// Int32sReader is a interface that allows reading a sequence of values of fixed length.
+type Int32sReader interface {
 	Len() (n uint64, err error)
-	ReadInt(val []int32) (err error)
+	ReadInt32s(val []int32) (err error)
 }
 
-// GetInt reads the entire data in r and returns it.
-func GetInt(r IntReader) (data []int32, err error) {
+// GetInt32s reads the entire data in r and returns it.
+func GetInt32s(r Int32sReader) (data []int32, err error) {
 	n, err := r.Len()
 	if err != nil {
 		return
 	}
 	data = make([]int32, n)
-	err = r.ReadInt(data)
+	err = r.ReadInt32s(data)
 	return
 }
 
-// TestWriteInt writes somes data to v. N is v.Len().
+// TestReadInt32s writes somes data to v. N is v.Len().
 // This function is only used for testing.
-func testWriteInt(v Var, n uint64) error {
+func testWriteInt32s(v Var, n uint64) error {
 	data := make([]int32, n)
 	for i := 0; i < int(n); i++ {
 		data[i] = int32(i + 10)
 	}
-	return v.WriteInt(data)
+	return v.WriteInt32s(data)
 }
 
-// TestReadInt reads data from v and checks that it's the same as what
-// was written by testWriteInt. N is v.Len().
+// TestReadInt32s reads data from v and checks that it's the same as what
+// was written by testWriteDouble. N is v.Len().
 // This function is only used for testing.
-func testReadInt(v Var, n uint64) error {
+func testReadInt32s(v Var, n uint64) error {
 	data := make([]int32, n)
-	if err := v.ReadInt(data); err != nil {
+	if err := v.ReadInt32s(data); err != nil {
 		return err
 	}
 	for i := 0; i < int(n); i++ {

@@ -27,27 +27,27 @@ func (ft *FileTest) putAttrs(t *testing.T, v Var) {
 		default:
 			t.Fatalf("unexpected type %T\n", val)
 		case []uint64:
-			err = a.WriteUint64(val)
+			err = a.WriteUint64s(val)
 		case []int64:
-			err = a.WriteInt64(val)
+			err = a.WriteInt64s(val)
 		case []float64:
-			err = a.WriteDouble(val)
+			err = a.WriteFloat64s(val)
 		case []uint32:
-			err = a.WriteUint(val)
+			err = a.WriteUint32s(val)
 		case []int32:
-			err = a.WriteInt(val)
+			err = a.WriteInt32s(val)
 		case []float32:
-			err = a.WriteFloat(val)
+			err = a.WriteFloat32s(val)
 		case []uint16:
-			err = a.WriteUshort(val)
+			err = a.WriteUint16s(val)
 		case []int16:
-			err = a.WriteShort(val)
+			err = a.WriteInt16s(val)
 		case []uint8:
-			err = a.WriteUbyte(val)
+			err = a.WriteUint8s(val)
 		case []int8:
-			err = a.WriteByte(val)
+			err = a.WriteInt8s(val)
 		case string:
-			err = a.WriteChar([]byte(val))
+			err = a.WriteBytes([]byte(val))
 		}
 		if err != nil {
 			t.Fatalf("writing attribute %s failed: %v\n", key, err)
@@ -67,28 +67,28 @@ func (ft *FileTest) getAttrs(t *testing.T, v Var) {
 		default:
 			t.Errorf("unexpected attribute type %s\n", typeNames[typ])
 		case NC_UINT64:
-			q, err = GetUint64(a)
+			q, err = GetUint64s(a)
 		case NC_INT64:
-			q, err = GetInt64(a)
+			q, err = GetInt64s(a)
 		case NC_DOUBLE:
-			q, err = GetDouble(a)
+			q, err = GetFloat64s(a)
 		case NC_UINT:
-			q, err = GetUint(a)
+			q, err = GetUint32s(a)
 		case NC_INT:
-			q, err = GetInt(a)
+			q, err = GetInt32s(a)
 		case NC_FLOAT:
-			q, err = GetFloat(a)
+			q, err = GetFloat32s(a)
 		case NC_USHORT:
-			q, err = GetUshort(a)
+			q, err = GetUint16s(a)
 		case NC_SHORT:
-			q, err = GetShort(a)
+			q, err = GetInt16s(a)
 		case NC_UBYTE:
-			q, err = GetUbyte(a)
+			q, err = GetUint8s(a)
 		case NC_BYTE:
-			q, err = GetByte(a)
+			q, err = GetInt8s(a)
 		case NC_CHAR:
 			var b []byte
-			b, err = GetChar(a)
+			b, err = GetBytes(a)
 			q = string(b)
 		}
 		if err != nil {
@@ -221,27 +221,27 @@ func createFile(t *testing.T, filename string, ft *FileTest) {
 	default:
 		t.Fatalf("unexpected type %s\n", typeNames[ft.DataType])
 	case NC_UINT64:
-		err = testWriteUint64(v, n)
+		err = testWriteUint64s(v, n)
 	case NC_INT64:
-		err = testWriteInt64(v, n)
+		err = testWriteInt64s(v, n)
 	case NC_DOUBLE:
-		err = testWriteDouble(v, n)
+		err = testWriteFloat64s(v, n)
 	case NC_UINT:
-		err = testWriteUint(v, n)
+		err = testWriteUint32s(v, n)
 	case NC_INT:
-		err = testWriteInt(v, n)
+		err = testWriteInt32s(v, n)
 	case NC_FLOAT:
-		err = testWriteFloat(v, n)
+		err = testWriteFloat32s(v, n)
 	case NC_USHORT:
-		err = testWriteUshort(v, n)
+		err = testWriteUint16s(v, n)
 	case NC_SHORT:
-		err = testWriteShort(v, n)
+		err = testWriteInt16s(v, n)
 	case NC_UBYTE:
-		err = testWriteUbyte(v, n)
+		err = testWriteUint8s(v, n)
 	case NC_BYTE:
-		err = testWriteByte(v, n)
+		err = testWriteInt8s(v, n)
 	case NC_CHAR:
-		err = testWriteChar(v, n)
+		err = testWriteBytes(v, n)
 	}
 	if err != nil {
 		t.Errorf("writing data failed: %v\n", err)
@@ -290,27 +290,27 @@ func readFile(t *testing.T, filename string, ft *FileTest) {
 	default:
 		t.Fatalf("unexpected type %s\n", typeNames[ft.DataType])
 	case NC_UINT64:
-		err = testReadUint64(v, n)
+		err = testReadUint64s(v, n)
 	case NC_INT64:
-		err = testReadInt64(v, n)
+		err = testReadInt64s(v, n)
 	case NC_DOUBLE:
-		err = testReadDouble(v, n)
+		err = testReadFloat64s(v, n)
 	case NC_UINT:
-		err = testReadUint(v, n)
+		err = testReadUint32s(v, n)
 	case NC_INT:
-		err = testReadInt(v, n)
+		err = testReadInt32s(v, n)
 	case NC_FLOAT:
-		err = testReadFloat(v, n)
+		err = testReadFloat32s(v, n)
 	case NC_USHORT:
-		err = testReadUshort(v, n)
+		err = testReadUint16s(v, n)
 	case NC_SHORT:
-		err = testReadShort(v, n)
+		err = testReadInt16s(v, n)
 	case NC_UBYTE:
-		err = testReadUbyte(v, n)
+		err = testReadUint8s(v, n)
 	case NC_BYTE:
-		err = testReadByte(v, n)
+		err = testReadInt8s(v, n)
 	case NC_CHAR:
-		err = testReadChar(v, n)
+		err = testReadBytes(v, n)
 	}
 	if err != nil {
 		t.Fatalf("reading data failed: %v\n", err)

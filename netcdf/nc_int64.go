@@ -15,25 +15,25 @@ import (
 // #include <netcdf.h>
 import "C"
 
-// WriteInt64 writes data as the entire data for variable v.
-func (v Var) WriteInt64(data []int64) error {
+// WriteInt64s writes data as the entire data for variable v.
+func (v Var) WriteInt64s(data []int64) error {
 	if err := okData(v, NC_INT64, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_put_var_longlong(C.int(v.ds), C.int(v.id), (*C.longlong)(unsafe.Pointer(&data[0]))))
 }
 
-// ReadInt64 reads the entire variable v into data, which must have enough
+// ReadInt64s reads the entire variable v into data, which must have enough
 // space for all the values (i.e. len(data) must be at least v.Len()).
-func (v Var) ReadInt64(data []int64) error {
+func (v Var) ReadInt64s(data []int64) error {
 	if err := okData(v, NC_INT64, len(data)); err != nil {
 		return err
 	}
 	return newError(C.nc_get_var_longlong(C.int(v.ds), C.int(v.id), (*C.longlong)(unsafe.Pointer(&data[0]))))
 }
 
-// WriteInt64 sets the value of attribute a to val.
-func (a Attr) WriteInt64(val []int64) error {
+// WriteInt64s sets the value of attribute a to val.
+func (a Attr) WriteInt64s(val []int64) error {
 	// We don't need okData here because netcdf library doesn't know
 	// the length or type of the attribute yet.
 	cname := C.CString(a.name)
@@ -42,8 +42,8 @@ func (a Attr) WriteInt64(val []int64) error {
 		C.nc_type(NC_INT64), C.size_t(len(val)), (*C.longlong)(unsafe.Pointer(&val[0]))))
 }
 
-// ReadInt64 reads the entire attribute value into val.
-func (a Attr) ReadInt64(val []int64) (err error) {
+// ReadInt64s reads the entire attribute value into val.
+func (a Attr) ReadInt64s(val []int64) (err error) {
 	if err := okData(a, NC_INT64, len(val)); err != nil {
 		return err
 	}
@@ -54,39 +54,39 @@ func (a Attr) ReadInt64(val []int64) (err error) {
 	return
 }
 
-// Int64Reader is a interface that allows reading a sequence of values of fixed length.
-type Int64Reader interface {
+// Int64sReader is a interface that allows reading a sequence of values of fixed length.
+type Int64sReader interface {
 	Len() (n uint64, err error)
-	ReadInt64(val []int64) (err error)
+	ReadInt64s(val []int64) (err error)
 }
 
-// GetInt64 reads the entire data in r and returns it.
-func GetInt64(r Int64Reader) (data []int64, err error) {
+// GetInt64s reads the entire data in r and returns it.
+func GetInt64s(r Int64sReader) (data []int64, err error) {
 	n, err := r.Len()
 	if err != nil {
 		return
 	}
 	data = make([]int64, n)
-	err = r.ReadInt64(data)
+	err = r.ReadInt64s(data)
 	return
 }
 
-// TestWriteInt64 writes somes data to v. N is v.Len().
+// TestReadInt64s writes somes data to v. N is v.Len().
 // This function is only used for testing.
-func testWriteInt64(v Var, n uint64) error {
+func testWriteInt64s(v Var, n uint64) error {
 	data := make([]int64, n)
 	for i := 0; i < int(n); i++ {
 		data[i] = int64(i + 10)
 	}
-	return v.WriteInt64(data)
+	return v.WriteInt64s(data)
 }
 
-// TestReadInt64 reads data from v and checks that it's the same as what
-// was written by testWriteInt64. N is v.Len().
+// TestReadInt64s reads data from v and checks that it's the same as what
+// was written by testWriteDouble. N is v.Len().
 // This function is only used for testing.
-func testReadInt64(v Var, n uint64) error {
+func testReadInt64s(v Var, n uint64) error {
 	data := make([]int64, n)
-	if err := v.ReadInt64(data); err != nil {
+	if err := v.ReadInt64s(data); err != nil {
 		return err
 	}
 	for i := 0; i < int(n); i++ {
