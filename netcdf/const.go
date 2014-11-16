@@ -12,9 +12,7 @@ type FileMode C.int
 
 // File modes for Open or Create
 const (
-	NC_DISKLESS FileMode = C.NC_DISKLESS // use diskless file
-	NC_MMAP     FileMode = C.NC_MMAP     // use diskless file with mmap
-	NC_SHARE    FileMode = C.NC_SHARE    // share updates, limit cacheing
+	NC_SHARE FileMode = C.NC_SHARE // share updates, limit cacheing
 )
 
 // File modes for Open
