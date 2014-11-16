@@ -49,7 +49,7 @@ const (
 	STRING Type = C.NC_STRING // string
 )
 
-var typeNames map[Type]string = map[Type]string{
+var typeNames = map[Type]string{
 	BYTE:   "BYTE",
 	CHAR:   "CHAR",
 	SHORT:  "SHORT",
