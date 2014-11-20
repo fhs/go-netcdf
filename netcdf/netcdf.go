@@ -2,6 +2,8 @@
 // Use of this source code is governed by the MIT
 // license that can be found in the LICENSE file.
 
+//go:generate go run generate.go
+
 // Package netcdf is a Go binding for the netCDF C library.
 //
 // This package supports netCDF version 3, and 4 if
