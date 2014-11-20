@@ -197,7 +197,7 @@ func TestCreate(t *testing.T) {
 }
 
 func createFile(t *testing.T, filename string, ft *FileTest) {
-	f, err := Create(filename, CLOBBER|NETCDF4)
+	f, err := CreateFile(filename, CLOBBER|NETCDF4)
 	if err != nil {
 		t.Fatalf("Create failed: %v\n", err)
 	}

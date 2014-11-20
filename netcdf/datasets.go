@@ -31,9 +31,9 @@ func (e Error) Error() string {
 // Dataset represents a netCDF dataset.
 type Dataset C.int
 
-// Create creates a new netCDF dataset.
+// CreateFile creates a new netCDF dataset.
 // Mode is a bitwise-or of FileMode values.
-func Create(path string, mode FileMode) (ds Dataset, err error) {
+func CreateFile(path string, mode FileMode) (ds Dataset, err error) {
 	cpath := C.CString(path)
 	defer C.free(unsafe.Pointer(cpath))
 	var id C.int

@@ -10,7 +10,7 @@ import (
 // CreateExampleFile creates an example NetCDF file containing only one variable.
 func CreateExampleFile(filename string) error {
 	// Create a new NetCDF 4 file. The dataset is returned.
-	ds, err := netcdf.Create("gopher.nc", netcdf.CLOBBER|netcdf.NETCDF4)
+	ds, err := netcdf.CreateFile("gopher.nc", netcdf.CLOBBER|netcdf.NETCDF4)
 	if err != nil {
 		return err
 	}
