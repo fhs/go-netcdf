@@ -186,7 +186,7 @@ func TestCreate(t *testing.T) {
 	for _, ft := range fileTests {
 		f, err := ioutil.TempFile("", "netcdf_test")
 		if err != nil {
-			t.Fatalf("createing temporary file failed: %v\n", err)
+			t.Fatalf("creating temporary file failed: %v\n", err)
 		}
 		createFile(t, f.Name(), &ft)
 		readFile(t, f.Name(), &ft)
@@ -327,5 +327,41 @@ func TestError(t *testing.T) {
 	}
 	if len(err.Error()) == 0 {
 		t.Errorf("empty error\n")
+	}
+}
+
+func TestEndDef(t *testing.T) {
+	f, err := ioutil.TempFile("", "netcdf_test")
+	if err != nil {
+		t.Fatalf("creating temporary file failed: %v\n", err)
+	}
+	defer func() {
+		if err := os.Remove(f.Name()); err != nil {
+			t.Errorf("removing temporary file failed: %v\n", err)
+		}
+	}()
+
+	// Create a new NetCDF 3 file.
+	ds, err := CreateFile(f.Name(), CLOBBER)
+	if err != nil {
+		t.Fatalf("creating file failed: %v\n", err)
+	}
+	defer ds.Close()
+
+	size, err := ds.AddDim("size", 5)
+	if err != nil {
+		t.Fatalf("adding dimension failed: %v\n", err)
+	}
+	v, err := ds.AddVar("gopher", INT, []Dim{size})
+	if err != nil {
+		t.Fatalf("adding variable failed: %v\n", err)
+	}
+
+	// writing data will fail unless we leave define mode
+	if err := ds.EndDef(); err != nil {
+		t.Fatalf("failed to end define mode: %v\n", err)
+	}
+	if err := v.WriteInt32s([]int32{1, 2, 3, 4, 5}); err != nil {
+		t.Fatalf("writing data failed: %v\n", err)
 	}
 }

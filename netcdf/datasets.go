@@ -58,6 +58,13 @@ func (ds Dataset) Close() (err error) {
 	return newError(C.nc_close(C.int(ds)))
 }
 
+// EndDef leaves define mode and enters data mode, so variable data
+// can be read or written. Calling this method is not required
+// for netCDF-4 files.
+func (ds Dataset) EndDef() (err error) {
+	return newError(C.nc_enddef(C.int(ds)))
+}
+
 // NVars returns the number of variables defined for dataset f.
 func (ds Dataset) NVars() (n int, err error) {
 	var cn C.int
