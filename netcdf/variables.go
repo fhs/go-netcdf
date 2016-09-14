@@ -86,6 +86,15 @@ func (v Var) NAttrs() (n int, err error) {
 	return
 }
 
+// Name returns the name of the variable.
+func (v Var) Name() (name string, err error) {
+	buf := C.CString(string(make([]byte, C.NC_MAX_NAME+1)))
+	defer C.free(unsafe.Pointer(buf))
+	err = newError(C.nc_inq_varname(C.int(v.ds), v.id, buf))
+	name = C.GoString(buf)
+	return
+}
+
 // AddVar adds a new a variable named name of type t and dimensions dims.
 // The new variable v is returned.
 func (ds Dataset) AddVar(name string, t Type, dims []Dim) (v Var, err error) {
