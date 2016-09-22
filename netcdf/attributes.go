@@ -18,6 +18,11 @@ type Attr struct {
 	name string
 }
 
+// Name returns the  name of attribute a.
+func (a Attr) Name() string {
+	return a.name
+}
+
 // Type returns the data type of attribute a.
 func (a Attr) Type() (t Type, err error) {
 	// TODO: convert a.name to CString only once instead of in
@@ -39,6 +44,22 @@ func (a Attr) Len() (n uint64, err error) {
 	n = uint64(cn)
 	return
 }
+
+// ValueString returns the value of the attribute value of type text.
+func (a Attr) ValueString() (val string, err error) {
+	l, err := a.Len()
+	if err != nil {
+		return
+	}
+
+	cname := C.CString(a.name)
+	defer C.free(unsafe.Pointer(cname))
+	buf := C.CString(string(make([]byte,l+1)))
+	err = newError(C.nc_get_att_text(C.int(a.v.ds), C.int(a.v.id), cname, buf))
+	val = C.GoString(buf)
+	return
+}
+
 
 // Attr returns attribute named name.
 func (v Var) Attr(name string) (a Attr) {

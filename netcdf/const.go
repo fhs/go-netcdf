@@ -63,3 +63,7 @@ var typeNames = map[Type]string{
 	UINT64: "UINT64",
 	STRING: "STRING",
 }
+
+func (t Type) Name() string {
+	return typeNames[t]
+}
