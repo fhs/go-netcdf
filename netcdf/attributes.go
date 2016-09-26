@@ -84,3 +84,16 @@ func (ds Dataset) Attr(name string) (a Attr) {
 func (ds Dataset) AttrN(n int) (a Attr, err error) {
 	return Var{ds, C.NC_GLOBAL}.AttrN(n)
 }
+
+// AddAttr adds a new a attribute named name and of value val.
+// The new attribute a is returned.
+func (v Var) AddAttrText(name string, val string) (err error) {
+	cname := C.CString(name)
+	defer C.free(unsafe.Pointer(cname))
+
+	cval := C.CString(val)
+	defer C.free(unsafe.Pointer(cval))
+
+	err = newError(C.nc_put_att_text(C.int(v.ds), C.int(v.id), cname, C.size_t(len(val)), cval))
+	return
+}

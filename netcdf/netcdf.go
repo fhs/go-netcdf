@@ -28,7 +28,7 @@ func okData(a typedArray, t Type, n int) error {
 		return err
 	}
 	if u != t {
-		return fmt.Errorf("wrong data type %s; expected %s", typeNames[u], typeNames[t])
+		return fmt.Errorf("wrong data type %s; expected %s", u, t)
 	}
 	m, err := a.Len()
 	if err != nil {

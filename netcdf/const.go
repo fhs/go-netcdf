@@ -64,6 +64,7 @@ var typeNames = map[Type]string{
 	STRING: "STRING",
 }
 
-func (t Type) Name() string {
+// Converts a type to its string representation
+func (t Type) String() string {
 	return typeNames[t]
 }

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/fhs/go-netcdf/netcdf"
+	"github.com/ronanj/go-netcdf/netcdf"
 )
 
 // CreateExampleFile creates an example NetCDF file containing only one variable.
@@ -15,6 +15,45 @@ func CreateExampleFile(filename string) error {
 		return err
 	}
 	defer ds.Close()
+
+
+
+
+	// Add the dimensions for our data to the dataset
+	nhours := uint64(96)
+	dimension, err := ds.AddDim("hour", nhours)
+	if err != nil {
+		return err
+	}
+
+	// Add the variable to the dataset that will store our data
+	v, err := ds.AddVar("time", netcdf.DOUBLE, []netcdf.Dim{dimension})
+	if err != nil {
+		return err
+	}
+
+	err = v.AddAttrText("units","hours since 2016-09-10")
+	if err != nil {
+		return err
+	}
+
+	err = v.AddAttrText("standard_name","time")
+	if err != nil {
+		return err
+	}
+
+	hours := make([]float64, nhours)
+	for h := uint64(0); h < nhours; h++ {
+		hours[h] = float64(h*3)
+	}
+	err = v.WriteFloat64s(hours)
+	if err != nil {
+		return err
+	}
+
+
+
+
 
 	// Add the dimensions for our data to the dataset
 	dims := make([]netcdf.Dim, 2)
@@ -29,7 +68,7 @@ func CreateExampleFile(filename string) error {
 	}
 
 	// Add the variable to the dataset that will store our data
-	v, err := ds.AddVar("gopher", netcdf.UBYTE, dims)
+	v, err = ds.AddVar("gopher", netcdf.UBYTE, dims)
 	if err != nil {
 		return err
 	}
@@ -83,6 +122,99 @@ func ReadExampleFile(filename string) error {
 	return nil
 }
 
+
+func DiscoverExampleFile(filename string) error {
+
+	// Open example file in read-only mode. The dataset is returned.
+	ds, err := netcdf.OpenFile(filename, netcdf.NOWRITE)
+	if err != nil {
+		return err
+	}
+	defer ds.Close()
+
+
+    nvars, err := ds.NVars()
+	if err != nil {
+		return err
+	}
+
+    for i:=0;i<nvars;i++ {
+
+        ncVar        := ds.VarN(i)
+
+        nvals,err    := ncVar.Len()
+		if err != nil {
+			return err
+		}
+
+        nattrs,err   := ncVar.NAttrs()
+		if err != nil {
+			return err
+		}
+
+        varname, err := ncVar.Name()
+		if err != nil {
+			return err
+		}
+
+        vartype, err := ncVar.Type()
+		if err != nil {
+			return err
+		}
+
+        fmt.Printf("Var %s [%s]\n",varname,vartype)
+
+        // discover available attributes
+        fmt.Printf("-- #attributes:%d\n",nattrs)
+        for i:=0;i<nattrs;i++ {
+            attr, err := ncVar.AttrN(i)
+			if err != nil {
+				return err
+			}
+
+            attrtype, err := attr.Type()
+			if err != nil {
+				return err
+			}
+
+            attrvalue, err := attr.ValueString()
+			if err != nil {
+				return err
+			}
+
+            fmt.Printf("-- |attribute %d: %s Type:%s Value:%s\n",i,attr.Name(),attrtype,attrvalue)
+        }
+
+        // discover available dimensions
+        dims, err := ncVar.Dims()
+		if err != nil {
+			return err
+		}
+
+        fmt.Printf("-- #dimensions: %d\n",len(dims))
+        for i, dim := range dims {
+            name, err := dim.Name()
+			if err != nil {
+				return err
+			}
+
+            dimlen, err := dim.Len() 
+			if err != nil {
+				return err
+			}
+
+            fmt.Printf("-- |dimension %d: %s (len %d)\n",i, name, dimlen)
+        }
+
+        // discover available values
+        fmt.Printf("-- #values:%d\n",nvals)
+
+    }
+    
+	return nil	
+
+}
+
 func Example() {
 	// Create example file
 	filename := "gopher.nc"
@@ -95,10 +227,30 @@ func Example() {
 		log.Fatalf("reading example file failed: %v\n", err)
 	}
 
+	// Example files for netCDF: http://www.unidata.ucar.edu/software/netcdf/examples/files.html
+	if err := DiscoverExampleFile(filename); err != nil {
+		log.Fatalf("discovering example file %s failed: %v\n", filename, err)
+	}
+
 	// Output:
 	//  0 1 2 3
 	//  1 2 3 4
 	//  2 3 4 5
 	//  3 4 5 6
 	//  4 5 6 7
+	// Var time [DOUBLE]
+	// -- #attributes:2
+	// -- |attribute 0: units Type:CHAR Value:hours since 2016-09-10
+	// -- |attribute 1: standard_name Type:CHAR Value:time
+	// -- #dimensions: 1
+	// -- |dimension 0: hour (len 96)
+	// -- #values:96
+	// Var gopher [UBYTE]
+	// -- #attributes:0
+	// -- #dimensions: 2
+	// -- |dimension 0: height (len 5)
+	// -- |dimension 1: width (len 4)
+	// -- #values:20
+
+	
 }
