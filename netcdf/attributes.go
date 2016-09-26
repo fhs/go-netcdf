@@ -54,12 +54,11 @@ func (a Attr) ValueString() (val string, err error) {
 
 	cname := C.CString(a.name)
 	defer C.free(unsafe.Pointer(cname))
-	buf := C.CString(string(make([]byte,l+1)))
+	buf := C.CString(string(make([]byte, l+1)))
 	err = newError(C.nc_get_att_text(C.int(a.v.ds), C.int(a.v.id), cname, buf))
 	val = C.GoString(buf)
 	return
 }
-
 
 // Attr returns attribute named name.
 func (v Var) Attr(name string) (a Attr) {

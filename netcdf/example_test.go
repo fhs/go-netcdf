@@ -16,9 +16,6 @@ func CreateExampleFile(filename string) error {
 	}
 	defer ds.Close()
 
-
-
-
 	// Add the dimensions for our data to the dataset
 	nhours := uint64(96)
 	dimension, err := ds.AddDim("hour", nhours)
@@ -32,28 +29,24 @@ func CreateExampleFile(filename string) error {
 		return err
 	}
 
-	err = v.AddAttrText("units","hours since 2016-09-10")
+	err = v.AddAttrText("units", "hours since 2016-09-10")
 	if err != nil {
 		return err
 	}
 
-	err = v.AddAttrText("standard_name","time")
+	err = v.AddAttrText("standard_name", "time")
 	if err != nil {
 		return err
 	}
 
 	hours := make([]float64, nhours)
 	for h := uint64(0); h < nhours; h++ {
-		hours[h] = float64(h*3)
+		hours[h] = float64(h * 3)
 	}
 	err = v.WriteFloat64s(hours)
 	if err != nil {
 		return err
 	}
-
-
-
-
 
 	// Add the dimensions for our data to the dataset
 	dims := make([]netcdf.Dim, 2)
@@ -122,7 +115,6 @@ func ReadExampleFile(filename string) error {
 	return nil
 }
 
-
 func DiscoverExampleFile(filename string) error {
 
 	// Open example file in read-only mode. The dataset is returned.
@@ -132,86 +124,85 @@ func DiscoverExampleFile(filename string) error {
 	}
 	defer ds.Close()
 
-
-    nvars, err := ds.NVars()
+	nvars, err := ds.NVars()
 	if err != nil {
 		return err
 	}
 
-    for i:=0;i<nvars;i++ {
+	for i := 0; i < nvars; i++ {
 
-        ncVar        := ds.VarN(i)
+		ncVar := ds.VarN(i)
 
-        nvals,err    := ncVar.Len()
+		nvals, err := ncVar.Len()
 		if err != nil {
 			return err
 		}
 
-        nattrs,err   := ncVar.NAttrs()
+		nattrs, err := ncVar.NAttrs()
 		if err != nil {
 			return err
 		}
 
-        varname, err := ncVar.Name()
+		varname, err := ncVar.Name()
 		if err != nil {
 			return err
 		}
 
-        vartype, err := ncVar.Type()
+		vartype, err := ncVar.Type()
 		if err != nil {
 			return err
 		}
 
-        fmt.Printf("Var %s [%s]\n",varname,vartype)
+		fmt.Printf("Var %s [%s]\n", varname, vartype)
 
-        // discover available attributes
-        fmt.Printf("-- #attributes:%d\n",nattrs)
-        for i:=0;i<nattrs;i++ {
-            attr, err := ncVar.AttrN(i)
+		// discover available attributes
+		fmt.Printf("-- #attributes:%d\n", nattrs)
+		for i := 0; i < nattrs; i++ {
+			attr, err := ncVar.AttrN(i)
 			if err != nil {
 				return err
 			}
 
-            attrtype, err := attr.Type()
+			attrtype, err := attr.Type()
 			if err != nil {
 				return err
 			}
 
-            attrvalue, err := attr.ValueString()
+			attrvalue, err := attr.ValueString()
 			if err != nil {
 				return err
 			}
 
-            fmt.Printf("-- |attribute %d: %s Type:%s Value:%s\n",i,attr.Name(),attrtype,attrvalue)
-        }
+			fmt.Printf("-- |attribute %d: %s Type:%s Value:%s\n", i, attr.Name(), attrtype, attrvalue)
+		}
 
-        // discover available dimensions
-        dims, err := ncVar.Dims()
+		// discover available dimensions
+		dims, err := ncVar.Dims()
 		if err != nil {
 			return err
 		}
 
-        fmt.Printf("-- #dimensions: %d\n",len(dims))
-        for i, dim := range dims {
-            name, err := dim.Name()
+		fmt.Printf("-- #dimensions: %d\n", len(dims))
+		for i, dim := range dims {
+			name, err := dim.Name()
 			if err != nil {
 				return err
 			}
 
-            dimlen, err := dim.Len() 
+			dimlen, err := dim.Len()
 			if err != nil {
 				return err
 			}
 
-            fmt.Printf("-- |dimension %d: %s (len %d)\n",i, name, dimlen)
-        }
+			fmt.Printf("-- |dimension %d: %s (len %d)\n", i, name, dimlen)
+		}
 
-        // discover available values
-        fmt.Printf("-- #values:%d\n",nvals)
+		// discover available values
+		fmt.Printf("-- #values:%d\n", nvals)
 
-    }
-    
-	return nil	
+	}
+
+	return nil
 
 }
 
@@ -252,5 +243,4 @@ func Example() {
 	// -- |dimension 1: width (len 4)
 	// -- #values:20
 
-	
 }
