@@ -48,11 +48,11 @@ func (a Attr) Len() (n uint64, err error) {
 // ValueString returns the value of the attribute value of type text.
 func (a Attr) ValueString() (val string, err error) {
 	b, err := GetBytes(a)
-    if err != nil {
-        return "", err
-    }
-    return string(b), nil
-    return
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
+	return
 }
 
 // Attr returns attribute named name.
