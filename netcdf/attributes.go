@@ -47,17 +47,12 @@ func (a Attr) Len() (n uint64, err error) {
 
 // ValueString returns the value of the attribute value of type text.
 func (a Attr) ValueString() (val string, err error) {
-	l, err := a.Len()
-	if err != nil {
-		return
-	}
-
-	cname := C.CString(a.name)
-	defer C.free(unsafe.Pointer(cname))
-	buf := C.CString(string(make([]byte, l+1)))
-	err = newError(C.nc_get_att_text(C.int(a.v.ds), C.int(a.v.id), cname, buf))
-	val = C.GoString(buf)
-	return
+	b, err := GetBytes(a)
+    if err != nil {
+        return "", err
+    }
+    return string(b), nil
+    return
 }
 
 // Attr returns attribute named name.
