@@ -17,5 +17,3 @@ http://godoc.org/github.com/fhs/go-netcdf/netcdf
 How to install:
 
 	$ go get github.com/fhs/go-netcdf/netcdf
-
-
