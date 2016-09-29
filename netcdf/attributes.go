@@ -45,16 +45,6 @@ func (a Attr) Len() (n uint64, err error) {
 	return
 }
 
-// ValueString returns the value of the attribute value of type text.
-func (a Attr) ValueString() (val string, err error) {
-	b, err := GetBytes(a)
-	if err != nil {
-		return "", err
-	}
-	return string(b), nil
-	return
-}
-
 // Attr returns attribute named name.
 func (v Var) Attr(name string) (a Attr) {
 	return Attr{v: v, name: name}
@@ -81,13 +71,12 @@ func (ds Dataset) AttrN(n int) (a Attr, err error) {
 
 // AddAttr adds a new a attribute named name and of value val.
 // The new attribute a is returned.
-func (v Var) AddAttrText(name string, val string) (err error) {
+func (v Var) AddAttr(name string) (a Attr, err error) {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 
-	cval := C.CString(val)
-	defer C.free(unsafe.Pointer(cval))
+	err = newError(C.nc_put_att_text(C.int(v.ds), C.int(v.id), cname, 0, nil))
+	a = Attr{v: v, name: name}
 
-	err = newError(C.nc_put_att_text(C.int(v.ds), C.int(v.id), cname, C.size_t(len(val)), cval))
 	return
 }

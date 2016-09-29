@@ -29,12 +29,20 @@ func CreateExampleFile(filename string) error {
 		return err
 	}
 
-	err = v.AddAttrText("units", "hours since 2016-09-10")
+	attr, err := v.AddAttr("units")
+	if err != nil {
+		return err
+	}
+	err = attr.WriteBytes([]byte("hours since 2016-09-10"))
 	if err != nil {
 		return err
 	}
 
-	err = v.AddAttrText("standard_name", "time")
+	attr, err = v.AddAttr("standard_name")
+	if err != nil {
+		return err
+	}
+	err = attr.WriteBytes([]byte("time"))
 	if err != nil {
 		return err
 	}
@@ -168,7 +176,7 @@ func DiscoverExampleFile(filename string) error {
 				return err
 			}
 
-			attrvalue, err := attr.ValueString()
+			attrvalue, err := attr.GetBytes()
 			if err != nil {
 				return err
 			}

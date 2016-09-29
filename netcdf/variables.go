@@ -81,9 +81,6 @@ func (v Var) LenDims() ([]uint64, error) {
 // NAttrs returns the number of attributes assigned to variable v.
 func (v Var) NAttrs() (n int, err error) {
 	var cn C.int
-	// nc_inq_natts return the number of global attributes
-	// for variable attributes, use nc_inq_varnatts instead
-	// err = newError(C.nc_inq_natts(C.int(v.ds), &cn))
 	err = newError(C.nc_inq_varnatts(C.int(v.ds), C.int(v.id), &cn))
 	n = int(cn)
 	return

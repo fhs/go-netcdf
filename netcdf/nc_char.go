@@ -97,3 +97,13 @@ func testReadBytes(v Var, n uint64) error {
 	}
 	return nil
 }
+
+// GetBytes reads the entire data in r and returns it.
+func (v Var) GetBytes() (data []byte, err error) {
+	return GetBytes(v)
+}
+
+// GetBytes reads the entire data in r and returns it.
+func (a Attr) GetBytes() (data []byte, err error) {
+	return GetBytes(a)
+}

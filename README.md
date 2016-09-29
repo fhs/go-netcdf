@@ -19,4 +19,3 @@ How to install:
 	$ go get github.com/fhs/go-netcdf/netcdf
 
 
-
