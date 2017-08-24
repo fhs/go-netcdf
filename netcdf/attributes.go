@@ -45,7 +45,8 @@ func (a Attr) Len() (n uint64, err error) {
 	return
 }
 
-// Attr returns attribute named name.
+// Attr returns attribute named name. If the attribute does not yet exist,
+// it'll be created once it's written.
 func (v Var) Attr(name string) (a Attr) {
 	return Attr{v: v, name: name}
 }
@@ -59,7 +60,8 @@ func (v Var) AttrN(n int) (a Attr, err error) {
 	return
 }
 
-// Attr returns global attribute named name.
+// Attr returns global attribute named name. If the attribute does not yet
+// exist, it'll be created once it's written.
 func (ds Dataset) Attr(name string) (a Attr) {
 	return Var{ds, C.NC_GLOBAL}.Attr(name)
 }
