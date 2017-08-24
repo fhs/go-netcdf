@@ -14,6 +14,8 @@ http://godoc.org/github.com/fhs/go-netcdf/netcdf
 
 ## Installation
 
-How to install:
+First, make sure you have the netCDF C library is installed. Most Linux distributions have a package for it: `libnetcdf-dev` in Ubuntu/Debian, `netcdf` in ArchLinux, etc. You can also download the source from [Unidata](https://www.unidata.ucar.edu/downloads/netcdf/index.jsp), compile and install it.
+
+Then, to install go-netcdf, run:
 
 	$ go get github.com/fhs/go-netcdf/netcdf
