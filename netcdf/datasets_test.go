@@ -23,6 +23,9 @@ func (ft *FileTest) putAttrs(t *testing.T, v Var) {
 	var err error
 	for key, value := range ft.Attr {
 		a := v.Attr(key)
+		if name := a.Name(); name != key {
+			t.Errorf("attribute name is %v; expected %v\n", name, key)
+		}
 		switch val := value.(type) {
 		default:
 			t.Fatalf("unexpected type %T\n", val)
@@ -58,6 +61,9 @@ func (ft *FileTest) putAttrs(t *testing.T, v Var) {
 func (ft *FileTest) getAttrs(t *testing.T, v Var) {
 	for key, val := range ft.Attr {
 		a := v.Attr(key)
+		if name := a.Name(); name != key {
+			t.Errorf("attribute name is %v; expected %v\n", name, key)
+		}
 		typ, err := a.Type()
 		if err != nil {
 			t.Fatalf("getting data type of attribute %s failed: %v\n", key, err)

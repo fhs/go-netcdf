@@ -18,6 +18,11 @@ type Attr struct {
 	name string
 }
 
+// Name returns the name of attribute a.
+func (a Attr) Name() string {
+	return a.name
+}
+
 // Type returns the data type of attribute a.
 func (a Attr) Type() (t Type, err error) {
 	// TODO: convert a.name to CString only once instead of in
