@@ -34,6 +34,11 @@ func CreateExampleFile(filename string) error {
 		return err
 	}
 
+	// Add an attribute to the variable
+	if err := v.Attr("year").WriteInt32s([]int32{2012}); err != nil {
+		return err
+	}
+
 	// Create the data with the above dimensions and write it to the file.
 	gopher := make([]uint8, ht*wd)
 	i := 0
@@ -60,6 +65,15 @@ func ReadExampleFile(filename string) error {
 	if err != nil {
 		return err
 	}
+
+	// Print variable attribute
+	year, err := netcdf.GetInt32s(v.Attr("year"))
+	if err != nil {
+		return err
+	}
+	fmt.Printf("year = %v\n", year[0])
+
+	// Read data from variable
 	gopher, err := netcdf.GetUint8s(v)
 	if err != nil {
 		return err
@@ -96,6 +110,7 @@ func Example() {
 	}
 
 	// Output:
+	//  year = 2012
 	//  0 1 2 3
 	//  1 2 3 4
 	//  2 3 4 5
