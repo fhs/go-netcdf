@@ -46,7 +46,7 @@ func CreateExampleFile(filename string) error {
 	if err := v.Attr("_FillValue").WriteUint8s(fillValue); err != nil {
 		return err
 	}
-	
+
 	// Add an attribute to the variable
 	if err := v.Attr("year").WriteInt32s([]int32{2012}); err != nil {
 		return err
