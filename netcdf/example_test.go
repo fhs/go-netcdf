@@ -41,9 +41,7 @@ func CreateExampleFile(filename string) error {
 	//   either classic or netCDF-4 files, a _FillValue attribute will be checked for validity,
 	//   to make sure it has only one value and that its type matches the type of the associated
 	//   variable.
-	fillValue := make([]uint8, 1)
-	fillValue[0] = 99
-	if err := v.Attr("_FillValue").WriteUint8s(fillValue); err != nil {
+	if err := v.Attr("_FillValue").WriteUint8s([]uint8{255}); err != nil {
 		return err
 	}
 
