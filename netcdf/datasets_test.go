@@ -59,6 +59,13 @@ func (ft *FileTest) putAttrs(t *testing.T, v Var) {
 }
 
 func (ft *FileTest) getAttrs(t *testing.T, v Var) {
+	n, err := v.NAttrs()
+	if err != nil {
+		t.Fatalf("NAttrs failed: %v\n", err)
+	}
+	if n != len(ft.Attr) {
+		t.Errorf("NAttrs is %v; expected %v\n", n, len(ft.Attr))
+	}
 	for key, val := range ft.Attr {
 		a := v.Attr(key)
 		if name := a.Name(); name != key {
