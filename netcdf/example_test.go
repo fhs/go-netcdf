@@ -34,6 +34,17 @@ func CreateExampleFile(filename string) error {
 		return err
 	}
 
+	// Add a _FillValue to the variable's attributes
+	// From C++ netCDF documentation:
+	//   With netCDF-4 files, nc_put_att will notice if you are writing a _FillValue attribute,
+	//   and will tell the HDF5 layer to use the specified fill value for that variable. With
+	//   either classic or netCDF-4 files, a _FillValue attribute will be checked for validity,
+	//   to make sure it has only one value and that its type matches the type of the associated
+	//   variable.
+	if err := v.Attr("_FillValue").WriteUint8s([]uint8{255}); err != nil {
+		return err
+	}
+
 	// Add an attribute to the variable
 	if err := v.Attr("year").WriteInt32s([]int32{2012}); err != nil {
 		return err
