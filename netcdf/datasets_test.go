@@ -78,7 +78,7 @@ func (ft *FileTest) getAttrs(t *testing.T, v Var) {
 		var q interface{}
 		switch typ {
 		default:
-			t.Errorf("unexpected attribute type %s\n", typeNames[typ])
+			t.Errorf("unexpected attribute type %v\n", typ)
 		case UINT64:
 			q, err = GetUint64s(a)
 		case INT64:
@@ -232,7 +232,7 @@ func createFile(t *testing.T, filename string, ft *FileTest) {
 	}
 	switch ft.DataType {
 	default:
-		t.Fatalf("unexpected type %s\n", typeNames[ft.DataType])
+		t.Fatalf("unexpected type %v\n", ft.DataType)
 	case UINT64:
 		err = testWriteUint64s(v, n)
 	case INT64:
@@ -301,7 +301,7 @@ func readFile(t *testing.T, filename string, ft *FileTest) {
 	}
 	switch ft.DataType {
 	default:
-		t.Fatalf("unexpected type %s\n", typeNames[ft.DataType])
+		t.Fatalf("unexpected type %v\n", ft.DataType)
 	case UINT64:
 		err = testReadUint64s(v, n)
 	case INT64:

@@ -63,3 +63,8 @@ var typeNames = map[Type]string{
 	UINT64: "UINT64",
 	STRING: "STRING",
 }
+
+// String converts a Type to its string representation.
+func (t Type) String() string {
+	return typeNames[t]
+}
