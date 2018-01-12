@@ -80,3 +80,9 @@ func (ds Dataset) NAttrs() (n int, err error) {
 	n = int(cn)
 	return
 }
+
+// Version returns a string identifying the version of the netCDF library,
+// and when it was built.
+func Version() string {
+	return C.GoString(C.nc_inq_libvers())
+}

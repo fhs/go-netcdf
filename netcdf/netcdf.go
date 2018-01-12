@@ -12,9 +12,7 @@
 // http://www.unidata.ucar.edu/software/netcdf/docs/netcdf-c/
 package netcdf
 
-import (
-	"fmt"
-)
+import "fmt"
 
 type typedArray interface {
 	Type() (Type, error)

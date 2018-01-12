@@ -378,3 +378,9 @@ func TestEndDef(t *testing.T) {
 		t.Fatalf("writing data failed: %v\n", err)
 	}
 }
+
+func TestVersion(t *testing.T) {
+	if ver := Version(); ver == "" {
+		t.Errorf("Bad Version %q\n", ver)
+	}
+}
