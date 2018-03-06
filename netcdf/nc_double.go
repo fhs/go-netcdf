@@ -111,3 +111,24 @@ func testReadFloat64s(v Var, n uint64) error {
 	}
 	return nil
 }
+
+func testReadIdx(v Var, n uint64) error {
+	data := make([]float64, n)
+	if err := v.ReadFloat64s(data); err != nil {
+		return err
+	}
+	for i := 0; i < int(n); i++ {
+		shape, _ := v.LenDims()
+		var shapeint = make([]int, len(shape))
+		for i, v := range shape {
+			shapeint[i] = int(v)
+		}
+		coords, _ := UnravelIndex(i, shapeint)
+		expected := float64(i + 10)
+		val, _ := v.ReadIdxFloat64(coords)
+		if val != data[i] {
+			return fmt.Errorf("data at position %v is %v; expected %v", i, val, expected)
+		}
+	}
+	return nil
+}
