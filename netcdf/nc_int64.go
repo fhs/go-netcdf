@@ -55,6 +55,20 @@ func (a Attr) ReadInt64s(val []int64) (err error) {
 	return
 }
 
+// ReadIdxInt64 returns a value via index position
+func (v Var) ReadIdxInt64(idx []int) (val int64, err error) {
+	err = newError(C.nc_get_var1_longlong(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.longlong)(unsafe.Pointer(&val))))
+	return
+}
+
+// WriteIdxInt64 sets a value via its index position
+func (v Var) WriteIdxInt64(idx []int, val int64) (err error) {
+	err = newError(C.nc_put_var1_longlong(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.longlong)(unsafe.Pointer(&val))))
+	return
+}
+
 // Int64sReader is a interface that allows reading a sequence of values of fixed length.
 type Int64sReader interface {
 	Len() (n uint64, err error)
@@ -92,7 +106,7 @@ func testReadInt64s(v Var, n uint64) error {
 	}
 	for i := 0; i < int(n); i++ {
 		if val := int64(i + 10); data[i] != val {
-			return fmt.Errorf("data at position %d is %v; expected %v\n", i, data[i], val)
+			return fmt.Errorf("data at position %d is %v; expected %v", i, data[i], val)
 		}
 	}
 	return nil

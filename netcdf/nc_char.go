@@ -55,6 +55,20 @@ func (a Attr) ReadBytes(val []byte) (err error) {
 	return
 }
 
+// ReadIdxBytes returns a value via index position
+func (v Var) ReadIdxBytes(idx []int) (val byte, err error) {
+	err = newError(C.nc_get_var1_text(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.char)(unsafe.Pointer(&val))))
+	return
+}
+
+// WriteIdxBytes sets a value via its index position
+func (v Var) WriteIdxBytes(idx []int, val byte) (err error) {
+	err = newError(C.nc_put_var1_text(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.char)(unsafe.Pointer(&val))))
+	return
+}
+
 // BytesReader is a interface that allows reading a sequence of values of fixed length.
 type BytesReader interface {
 	Len() (n uint64, err error)
@@ -92,7 +106,7 @@ func testReadBytes(v Var, n uint64) error {
 	}
 	for i := 0; i < int(n); i++ {
 		if val := byte(i + 10); data[i] != val {
-			return fmt.Errorf("data at position %d is %v; expected %v\n", i, data[i], val)
+			return fmt.Errorf("data at position %d is %v; expected %v", i, data[i], val)
 		}
 	}
 	return nil

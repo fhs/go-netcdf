@@ -55,6 +55,20 @@ func (a Attr) ReadInt32s(val []int32) (err error) {
 	return
 }
 
+// ReadIdxInt32 returns a value via index position
+func (v Var) ReadIdxInt32(idx []int) (val int32, err error) {
+	err = newError(C.nc_get_var1_int(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.int)(unsafe.Pointer(&val))))
+	return
+}
+
+// WriteIdxInt32 sets a value via its index position
+func (v Var) WriteIdxInt32(idx []int, val int32) (err error) {
+	err = newError(C.nc_put_var1_int(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.int)(unsafe.Pointer(&val))))
+	return
+}
+
 // Int32sReader is a interface that allows reading a sequence of values of fixed length.
 type Int32sReader interface {
 	Len() (n uint64, err error)
@@ -92,7 +106,7 @@ func testReadInt32s(v Var, n uint64) error {
 	}
 	for i := 0; i < int(n); i++ {
 		if val := int32(i + 10); data[i] != val {
-			return fmt.Errorf("data at position %d is %v; expected %v\n", i, data[i], val)
+			return fmt.Errorf("data at position %d is %v; expected %v", i, data[i], val)
 		}
 	}
 	return nil

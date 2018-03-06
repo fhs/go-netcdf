@@ -55,6 +55,20 @@ func (a Attr) ReadUint16s(val []uint16) (err error) {
 	return
 }
 
+// ReadIdxUint16 returns a value via index position
+func (v Var) ReadIdxUint16(idx []int) (val uint16, err error) {
+	err = newError(C.nc_get_var1_ushort(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.ushort)(unsafe.Pointer(&val))))
+	return
+}
+
+// WriteIdxUint16 sets a value via its index position
+func (v Var) WriteIdxUint16(idx []int, val uint16) (err error) {
+	err = newError(C.nc_put_var1_ushort(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.ushort)(unsafe.Pointer(&val))))
+	return
+}
+
 // Uint16sReader is a interface that allows reading a sequence of values of fixed length.
 type Uint16sReader interface {
 	Len() (n uint64, err error)
@@ -92,7 +106,7 @@ func testReadUint16s(v Var, n uint64) error {
 	}
 	for i := 0; i < int(n); i++ {
 		if val := uint16(i + 10); data[i] != val {
-			return fmt.Errorf("data at position %d is %v; expected %v\n", i, data[i], val)
+			return fmt.Errorf("data at position %d is %v; expected %v", i, data[i], val)
 		}
 	}
 	return nil

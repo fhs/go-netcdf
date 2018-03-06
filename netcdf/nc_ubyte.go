@@ -55,6 +55,20 @@ func (a Attr) ReadUint8s(val []uint8) (err error) {
 	return
 }
 
+// ReadIdxUint8 returns a value via index position
+func (v Var) ReadIdxUint8(idx []int) (val uint8, err error) {
+	err = newError(C.nc_get_var1_uchar(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.uchar)(unsafe.Pointer(&val))))
+	return
+}
+
+// WriteIdxUint8 sets a value via its index position
+func (v Var) WriteIdxUint8(idx []int, val uint8) (err error) {
+	err = newError(C.nc_put_var1_uchar(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.uchar)(unsafe.Pointer(&val))))
+	return
+}
+
 // Uint8sReader is a interface that allows reading a sequence of values of fixed length.
 type Uint8sReader interface {
 	Len() (n uint64, err error)
@@ -92,7 +106,7 @@ func testReadUint8s(v Var, n uint64) error {
 	}
 	for i := 0; i < int(n); i++ {
 		if val := uint8(i + 10); data[i] != val {
-			return fmt.Errorf("data at position %d is %v; expected %v\n", i, data[i], val)
+			return fmt.Errorf("data at position %d is %v; expected %v", i, data[i], val)
 		}
 	}
 	return nil

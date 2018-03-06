@@ -40,8 +40,10 @@ var TheFile = File{
 		"C.double",
 		"C.nc_get_att_double",
 		"C.nc_get_var_double",
+		"C.nc_get_var1_double",
 		"C.nc_put_att_double",
 		"C.nc_put_var_double",
+		"C.nc_put_var1_double",
 	},
 	DocIdents: []string{
 		"testReadFloat64s",
@@ -50,8 +52,10 @@ var TheFile = File{
 		"GetFloat64s",
 		"ReadFloat64s",
 		"WriteFloat64s",
+		"ReadIdxFloat64",
+		"WriteIdxFloat64",
 	},
-	Keys: []string{"float64", "Float64s", "DOUBLE", "C.double", "_double"},
+	Keys: []string{"float64", "Float64s", "DOUBLE", "Float64", "C.double", "_double"},
 }
 
 // OutFiles are the files that needs to be generated from TheFile.
@@ -64,43 +68,43 @@ var TheFile = File{
 var OutFiles = []File{
 	{
 		Name: "nc_uint64.go",
-		Keys: []string{"uint64", "Uint64s", "UINT64", "C.ulonglong", "_ulonglong"},
+		Keys: []string{"uint64", "Uint64s", "UINT64", "Uint64", "C.ulonglong", "_ulonglong"},
 	},
 	{
 		Name: "nc_int64.go",
-		Keys: []string{"int64", "Int64s", "INT64", "C.longlong", "_longlong"},
+		Keys: []string{"int64", "Int64s", "INT64", "Int64", "C.longlong", "_longlong"},
 	},
 	{
 		Name: "nc_uint.go",
-		Keys: []string{"uint32", "Uint32s", "UINT", "C.uint", "_uint"},
+		Keys: []string{"uint32", "Uint32s", "UINT", "Uint32", "C.uint", "_uint"},
 	},
 	{
 		Name: "nc_int.go",
-		Keys: []string{"int32", "Int32s", "INT", "C.int", "_int"},
+		Keys: []string{"int32", "Int32s", "INT", "Int32", "C.int", "_int"},
 	},
 	{
 		Name: "nc_float.go",
-		Keys: []string{"float32", "Float32s", "FLOAT", "C.float", "_float"},
+		Keys: []string{"float32", "Float32s", "FLOAT", "Float32", "C.float", "_float"},
 	},
 	{
 		Name: "nc_ushort.go",
-		Keys: []string{"uint16", "Uint16s", "USHORT", "C.ushort", "_ushort"},
+		Keys: []string{"uint16", "Uint16s", "USHORT", "Uint16", "C.ushort", "_ushort"},
 	},
 	{
 		Name: "nc_short.go",
-		Keys: []string{"int16", "Int16s", "SHORT", "C.short", "_short"},
+		Keys: []string{"int16", "Int16s", "SHORT", "Int16", "C.short", "_short"},
 	},
 	{
 		Name: "nc_ubyte.go",
-		Keys: []string{"uint8", "Uint8s", "UBYTE", "C.uchar", "_uchar"},
+		Keys: []string{"uint8", "Uint8s", "UBYTE", "Uint8", "C.uchar", "_uchar"},
 	},
 	{
 		Name: "nc_byte.go",
-		Keys: []string{"int8", "Int8s", "BYTE", "C.schar", "_schar"},
+		Keys: []string{"int8", "Int8s", "BYTE", "Int8", "C.schar", "_schar"},
 	},
 	{
 		Name: "nc_char.go",
-		Keys: []string{"byte", "Bytes", "CHAR", "C.char", "_text"},
+		Keys: []string{"byte", "Bytes", "CHAR", "Bytes", "C.char", "_text"},
 	},
 }
 

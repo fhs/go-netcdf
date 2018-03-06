@@ -55,6 +55,20 @@ func (a Attr) ReadFloat32s(val []float32) (err error) {
 	return
 }
 
+// ReadIdxFloat32 returns a value via index position
+func (v Var) ReadIdxFloat32(idx []int) (val float32, err error) {
+	err = newError(C.nc_get_var1_float(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.float)(unsafe.Pointer(&val))))
+	return
+}
+
+// WriteIdxFloat32 sets a value via its index position
+func (v Var) WriteIdxFloat32(idx []int, val float32) (err error) {
+	err = newError(C.nc_put_var1_float(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.float)(unsafe.Pointer(&val))))
+	return
+}
+
 // Float32sReader is a interface that allows reading a sequence of values of fixed length.
 type Float32sReader interface {
 	Len() (n uint64, err error)
@@ -92,7 +106,7 @@ func testReadFloat32s(v Var, n uint64) error {
 	}
 	for i := 0; i < int(n); i++ {
 		if val := float32(i + 10); data[i] != val {
-			return fmt.Errorf("data at position %d is %v; expected %v\n", i, data[i], val)
+			return fmt.Errorf("data at position %d is %v; expected %v", i, data[i], val)
 		}
 	}
 	return nil
