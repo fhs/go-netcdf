@@ -111,3 +111,46 @@ func testReadBytes(v Var, n uint64) error {
 	}
 	return nil
 }
+
+func testReadBytesIdx(v Var, n uint64) error {
+	data := make([]byte, n)
+	if err := v.ReadBytes(data); err != nil {
+		return err
+	}
+	for i := 0; i < int(n); i++ {
+		shape, _ := v.LenDims()
+		var shapeint = make([]int, len(shape))
+		for i, v := range shape {
+			shapeint[i] = int(v)
+		}
+		coords, _ := UnravelIndex(i, shapeint)
+		expected := byte(i + 10)
+		val, _ := v.ReadIdxBytes(coords)
+		if val != data[i] {
+			return fmt.Errorf("data at position %v is %v; expected %v", i, val, expected)
+		}
+	}
+	return nil
+}
+
+func testWriteBytesIdx(v Var, n uint64) error {
+	shape, _ := v.LenDims()
+	ndim := len(shape)
+	coord := make([]int, ndim)
+	for i := 0; i < ndim; i++ {
+		for k := 0; k < ndim; k++ {
+			coord[k] = i
+		}
+		v.WriteIdxBytes(coord, byte(i))
+	}
+	for i := 0; i < ndim; i++ {
+		for k := 0; k < ndim; k++ {
+			coord[k] = i
+		}
+		val, _ := v.ReadIdxBytes(coord)
+		if val != byte(i) {
+			return fmt.Errorf("data at position %v is %v; expected %v", coord, val, int(i))
+		}
+	}
+	return nil
+}

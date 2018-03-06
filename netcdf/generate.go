@@ -48,6 +48,8 @@ var TheFile = File{
 	DocIdents: []string{
 		"testReadFloat64s",
 		"testWriteFloat64s",
+		"testWriteFloat64Idx",
+		"testReadFloat64Idx",
 		"Float64sReader",
 		"GetFloat64s",
 		"ReadFloat64s",

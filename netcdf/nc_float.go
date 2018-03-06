@@ -111,3 +111,46 @@ func testReadFloat32s(v Var, n uint64) error {
 	}
 	return nil
 }
+
+func testReadFloat32Idx(v Var, n uint64) error {
+	data := make([]float32, n)
+	if err := v.ReadFloat32s(data); err != nil {
+		return err
+	}
+	for i := 0; i < int(n); i++ {
+		shape, _ := v.LenDims()
+		var shapeint = make([]int, len(shape))
+		for i, v := range shape {
+			shapeint[i] = int(v)
+		}
+		coords, _ := UnravelIndex(i, shapeint)
+		expected := float32(i + 10)
+		val, _ := v.ReadIdxFloat32(coords)
+		if val != data[i] {
+			return fmt.Errorf("data at position %v is %v; expected %v", i, val, expected)
+		}
+	}
+	return nil
+}
+
+func testWriteFloat32Idx(v Var, n uint64) error {
+	shape, _ := v.LenDims()
+	ndim := len(shape)
+	coord := make([]int, ndim)
+	for i := 0; i < ndim; i++ {
+		for k := 0; k < ndim; k++ {
+			coord[k] = i
+		}
+		v.WriteIdxFloat32(coord, float32(i))
+	}
+	for i := 0; i < ndim; i++ {
+		for k := 0; k < ndim; k++ {
+			coord[k] = i
+		}
+		val, _ := v.ReadIdxFloat32(coord)
+		if val != float32(i) {
+			return fmt.Errorf("data at position %v is %v; expected %v", coord, val, int(i))
+		}
+	}
+	return nil
+}

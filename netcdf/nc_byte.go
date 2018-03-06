@@ -111,3 +111,46 @@ func testReadInt8s(v Var, n uint64) error {
 	}
 	return nil
 }
+
+func testReadInt8Idx(v Var, n uint64) error {
+	data := make([]int8, n)
+	if err := v.ReadInt8s(data); err != nil {
+		return err
+	}
+	for i := 0; i < int(n); i++ {
+		shape, _ := v.LenDims()
+		var shapeint = make([]int, len(shape))
+		for i, v := range shape {
+			shapeint[i] = int(v)
+		}
+		coords, _ := UnravelIndex(i, shapeint)
+		expected := int8(i + 10)
+		val, _ := v.ReadIdxInt8(coords)
+		if val != data[i] {
+			return fmt.Errorf("data at position %v is %v; expected %v", i, val, expected)
+		}
+	}
+	return nil
+}
+
+func testWriteInt8Idx(v Var, n uint64) error {
+	shape, _ := v.LenDims()
+	ndim := len(shape)
+	coord := make([]int, ndim)
+	for i := 0; i < ndim; i++ {
+		for k := 0; k < ndim; k++ {
+			coord[k] = i
+		}
+		v.WriteIdxInt8(coord, int8(i))
+	}
+	for i := 0; i < ndim; i++ {
+		for k := 0; k < ndim; k++ {
+			coord[k] = i
+		}
+		val, _ := v.ReadIdxInt8(coord)
+		if val != int8(i) {
+			return fmt.Errorf("data at position %v is %v; expected %v", coord, val, int(i))
+		}
+	}
+	return nil
+}
