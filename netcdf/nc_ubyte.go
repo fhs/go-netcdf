@@ -56,14 +56,14 @@ func (a Attr) ReadUint8s(val []uint8) (err error) {
 }
 
 // ReadIdxUint8 returns a value via index position
-func (v Var) ReadIdxUint8(idx []int) (val uint8, err error) {
+func (v Var) ReadIdxUint8(idx []uint64) (val uint8, err error) {
 	err = newError(C.nc_get_var1_uchar(C.int(v.ds), C.int(v.id),
 		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.uchar)(unsafe.Pointer(&val))))
 	return
 }
 
 // WriteIdxUint8 sets a value via its index position
-func (v Var) WriteIdxUint8(idx []int, val uint8) (err error) {
+func (v Var) WriteIdxUint8(idx []uint64, val uint8) (err error) {
 	err = newError(C.nc_put_var1_uchar(C.int(v.ds), C.int(v.id),
 		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.uchar)(unsafe.Pointer(&val))))
 	return
@@ -119,11 +119,7 @@ func testReadUint8Idx(v Var, n uint64) error {
 	}
 	for i := 0; i < int(n); i++ {
 		shape, _ := v.LenDims()
-		var shapeint = make([]int, len(shape))
-		for i, v := range shape {
-			shapeint[i] = int(v)
-		}
-		coords, _ := UnravelIndex(i, shapeint)
+		coords, _ := UnravelIndex(uint64(i), shape)
 		expected := uint8(i + 10)
 		val, _ := v.ReadIdxUint8(coords)
 		if val != data[i] {
@@ -136,16 +132,16 @@ func testReadUint8Idx(v Var, n uint64) error {
 func testWriteUint8Idx(v Var, n uint64) error {
 	shape, _ := v.LenDims()
 	ndim := len(shape)
-	coord := make([]int, ndim)
+	coord := make([]uint64, ndim)
 	for i := 0; i < ndim; i++ {
 		for k := 0; k < ndim; k++ {
-			coord[k] = i
+			coord[k] = uint64(i)
 		}
 		v.WriteIdxUint8(coord, uint8(i))
 	}
 	for i := 0; i < ndim; i++ {
 		for k := 0; k < ndim; k++ {
-			coord[k] = i
+			coord[k] = uint64(i)
 		}
 		val, _ := v.ReadIdxUint8(coord)
 		if val != uint8(i) {

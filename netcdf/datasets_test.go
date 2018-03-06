@@ -388,13 +388,12 @@ func TestVersion(t *testing.T) {
 
 func TestProduct(t *testing.T) {
 	results := []struct {
-		expected int
-		shape    []int
+		expected uint64
+		shape    []uint64
 	}{
-		{24, []int{4, 6}},
-		{0, []int{0, 2, 6}},
-		{8064, []int{4, 2, 4, 21, 12}},
-		{-9157104, []int{4, 123, 141, -22, 6}},
+		{24, []uint64{4, 6}},
+		{0, []uint64{0, 2, 6}},
+		{8064, []uint64{4, 2, 4, 21, 12}},
 	}
 
 	for _, test := range results {
@@ -408,16 +407,16 @@ func TestProduct(t *testing.T) {
 
 func TestValidUnravel(t *testing.T) {
 	tests := []struct {
-		idx      int
-		shape    []int
-		expected []int
+		idx      uint64
+		shape    []uint64
+		expected []uint64
 	}{
-		{4, []int{1, 5, 3}, []int{0, 1, 1}},
-		{1021, []int{12, 421, 25}, []int{0, 40, 21}},
-		{211, []int{24, 11, 5}, []int{3, 9, 1}},
-		{12, []int{12, 5}, []int{2, 2}},
-		{1412, []int{125231}, []int{1412}},
-		{122, []int{1321, 123, 12}, []int{0, 10, 2}},
+		{4, []uint64{1, 5, 3}, []uint64{0, 1, 1}},
+		{1021, []uint64{12, 421, 25}, []uint64{0, 40, 21}},
+		{211, []uint64{24, 11, 5}, []uint64{3, 9, 1}},
+		{12, []uint64{12, 5}, []uint64{2, 2}},
+		{1412, []uint64{125231}, []uint64{1412}},
+		{122, []uint64{1321, 123, 12}, []uint64{0, 10, 2}},
 	}
 
 	for _, test := range tests {
@@ -434,14 +433,14 @@ func TestValidUnravel(t *testing.T) {
 
 func TestUnravelErrors(t *testing.T) {
 	type IdxTests struct {
-		idx      int
-		shape    []int
-		expected []int
+		idx      uint64
+		shape    []uint64
+		expected []uint64
 	}
 
 	var zeros = []IdxTests{
-		{12, []int{3, 0}, nil},
-		{2, []int{0, 3}, nil},
+		{12, []uint64{3, 0}, nil},
+		{2, []uint64{0, 3}, nil},
 	}
 
 	for _, test := range zeros {
@@ -452,8 +451,8 @@ func TestUnravelErrors(t *testing.T) {
 	}
 
 	var tooBig = []IdxTests{
-		{241, []int{3, 5}, nil},
-		{221, []int{2, 3}, nil},
+		{241, []uint64{3, 5}, nil},
+		{221, []uint64{2, 3}, nil},
 	}
 
 	for _, test := range tooBig {

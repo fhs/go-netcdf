@@ -38,7 +38,7 @@ func okData(a typedArray, t Type, n int) error {
 	return nil
 }
 
-func product(nums []int) (prod int) {
+func product(nums []uint64) (prod uint64) {
 	prod = 1
 	for _, i := range nums {
 		prod *= i
@@ -47,10 +47,10 @@ func product(nums []int) (prod int) {
 }
 
 // UnravelIndex calculates coordinate position based on index
-func UnravelIndex(idx int, shape []int) ([]int, error) {
+func UnravelIndex(idx uint64, shape []uint64) ([]uint64, error) {
 	var maxval = product(shape)
 	var ndim = len(shape)
-	var coord = make([]int, ndim)
+	var coord = make([]uint64, ndim)
 
 	for _, v := range shape {
 		if v == 0 {
@@ -65,7 +65,7 @@ func UnravelIndex(idx int, shape []int) ([]int, error) {
 	for i := 0; i < ndim; i++ {
 		shape[i] = 1
 		maxval = product(shape)
-		coord[i] = int(idx / maxval)
+		coord[i] = uint64(idx / maxval)
 		idx -= coord[i] * maxval
 	}
 	return coord, nil
