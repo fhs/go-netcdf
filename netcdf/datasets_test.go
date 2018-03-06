@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -382,5 +383,83 @@ func TestEndDef(t *testing.T) {
 func TestVersion(t *testing.T) {
 	if ver := Version(); ver == "" {
 		t.Errorf("Bad Version %q\n", ver)
+	}
+}
+
+func TestProduct(t *testing.T) {
+	results := []struct {
+		expected int
+		shape    []int
+	}{
+		{24, []int{4, 6}},
+		{0, []int{0, 2, 6}},
+		{8064, []int{4, 2, 4, 21, 12}},
+		{-9157104, []int{4, 123, 141, -22, 6}},
+	}
+
+	for _, test := range results {
+		var result = product(test.shape)
+		if result != test.expected {
+			t.Errorf("Result of 'product(%v)' is %v, expected %v", test.shape, result, test.expected)
+		}
+	}
+
+}
+
+func TestValidUnravel(t *testing.T) {
+	tests := []struct {
+		idx      int
+		shape    []int
+		expected []int
+	}{
+		{4, []int{1, 5, 3}, []int{0, 1, 1}},
+		{1021, []int{12, 421, 25}, []int{0, 40, 21}},
+		{211, []int{24, 11, 5}, []int{3, 9, 1}},
+		{12, []int{12, 5}, []int{2, 2}},
+		{1412, []int{125231}, []int{1412}},
+		{122, []int{1321, 123, 12}, []int{0, 10, 2}},
+	}
+
+	for _, test := range tests {
+		var result, err = UnravelIndex(test.idx, test.shape)
+		if err != nil {
+			t.Errorf("Got error while reading valid test, got %v", err)
+		}
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Errorf("Result of 'UnravelIndex(%v, %v)' is %v, expected %v", test.idx, test.shape, result, test.expected)
+		}
+	}
+
+}
+
+func TestUnravelErrors(t *testing.T) {
+	type IdxTests struct {
+		idx      int
+		shape    []int
+		expected []int
+	}
+
+	var zeros = []IdxTests{
+		{12, []int{3, 0}, nil},
+		{2, []int{0, 3}, nil},
+	}
+
+	for _, test := range zeros {
+		var _, err = UnravelIndex(test.idx, test.shape)
+		if !strings.Contains(err.Error(), "0 encountered") {
+			t.Errorf("Expected '0' error, got %v", err)
+		}
+	}
+
+	var tooBig = []IdxTests{
+		{241, []int{3, 5}, nil},
+		{221, []int{2, 3}, nil},
+	}
+
+	for _, test := range tooBig {
+		var _, err = UnravelIndex(test.idx, test.shape)
+		if !strings.Contains(err.Error(), "> size") {
+			t.Errorf("Expected '0' error, got %v", err)
+		}
 	}
 }

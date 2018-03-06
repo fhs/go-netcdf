@@ -37,3 +37,36 @@ func okData(a typedArray, t Type, n int) error {
 	}
 	return nil
 }
+
+func product(nums []int) (prod int) {
+	prod = 1
+	for _, i := range nums {
+		prod *= i
+	}
+	return
+}
+
+// UnravelIndex calculates coordinate position based on index
+func UnravelIndex(idx int, shape []int) ([]int, error) {
+	var maxval = product(shape)
+	var ndim = len(shape)
+	var coord = make([]int, ndim)
+
+	for _, v := range shape {
+		if v == 0 {
+			return nil, fmt.Errorf("Invalid shape, 0 encountered in shape %v", shape)
+		}
+	}
+
+	if idx > product(shape) {
+		return nil, fmt.Errorf("Index %v > size %v of shape", idx, shape)
+	}
+
+	for i := 0; i < ndim; i++ {
+		shape[i] = 1
+		maxval = product(shape)
+		coord[i] = int(idx / maxval)
+		idx -= coord[i] * maxval
+	}
+	return coord, nil
+}
