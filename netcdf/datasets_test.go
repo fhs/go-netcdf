@@ -585,6 +585,7 @@ func testReadFileViaIdx(t *testing.T, filename string, ft *FileTest) {
 		t.Fatalf("Close failed: %v\n", err)
 	}
 }
+
 func TestAt(t *testing.T) {
 	for _, ft := range fileTests {
 		f, err := ioutil.TempFile("", "netcdf_test")
