@@ -42,7 +42,7 @@ func CreateFile(path string, mode FileMode) (ds Dataset, err error) {
 	return
 }
 
-// OpenFile opens an existing nefCDF dataset file at path.
+// OpenFile opens an existing netCDF dataset file at path.
 // Mode is a bitwise-or of FileMode values.
 func OpenFile(path string, mode FileMode) (ds Dataset, err error) {
 	cpath := C.CString(path)

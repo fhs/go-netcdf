@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -382,5 +383,219 @@ func TestEndDef(t *testing.T) {
 func TestVersion(t *testing.T) {
 	if ver := Version(); ver == "" {
 		t.Errorf("Bad Version %q\n", ver)
+	}
+}
+
+func TestProduct(t *testing.T) {
+	results := []struct {
+		expected uint64
+		shape    []uint64
+	}{
+		{24, []uint64{4, 6}},
+		{0, []uint64{0, 2, 6}},
+		{8064, []uint64{4, 2, 4, 21, 12}},
+	}
+
+	for _, test := range results {
+		if p := product(test.shape); p != test.expected {
+			t.Errorf("Result of 'product(%v)' is %v, expected %v", test.shape, p, test.expected)
+		}
+	}
+
+}
+
+func TestValidUnravel(t *testing.T) {
+	tests := []struct {
+		idx      uint64
+		shape    []uint64
+		expected []uint64
+	}{
+		{4, []uint64{1, 5, 3}, []uint64{0, 1, 1}},
+		{1021, []uint64{12, 421, 25}, []uint64{0, 40, 21}},
+		{211, []uint64{24, 11, 5}, []uint64{3, 9, 1}},
+		{12, []uint64{12, 5}, []uint64{2, 2}},
+		{1412, []uint64{125231}, []uint64{1412}},
+		{122, []uint64{1321, 123, 12}, []uint64{0, 10, 2}},
+	}
+
+	for _, test := range tests {
+		result, err := UnravelIndex(test.idx, test.shape)
+		if err != nil {
+			t.Errorf("Got error while reading valid test, got %v", err)
+		}
+		if !reflect.DeepEqual(result, test.expected) {
+			t.Errorf("Result of 'UnravelIndex(%v, %v)' is %v, expected %v", test.idx, test.shape, result, test.expected)
+		}
+	}
+
+}
+
+func TestUnravelErrors(t *testing.T) {
+	type IdxTests struct {
+		idx      uint64
+		shape    []uint64
+		expected []uint64
+	}
+
+	var zeros = []IdxTests{
+		{12, []uint64{3, 0}, nil},
+		{2, []uint64{0, 3}, nil},
+	}
+
+	for _, test := range zeros {
+		var _, err = UnravelIndex(test.idx, test.shape)
+		if !strings.Contains(err.Error(), "0 encountered") {
+			t.Errorf("Expected '0' error, got %v", err)
+		}
+	}
+
+	var tooBig = []IdxTests{
+		{241, []uint64{3, 5}, nil},
+		{221, []uint64{2, 3}, nil},
+	}
+
+	for _, test := range tooBig {
+		var _, err = UnravelIndex(test.idx, test.shape)
+		if !strings.Contains(err.Error(), "> size") {
+			t.Errorf("Expected '0' error, got %v", err)
+		}
+	}
+}
+
+func testWriteFileViaIdx(t *testing.T, filename string, ft *FileTest) {
+	f, err := CreateFile(filename, CLOBBER|NETCDF4)
+	if err != nil {
+		t.Fatalf("Create failed: %v\n", err)
+	}
+	dims := make([]Dim, 2)
+	for i, name := range ft.DimNames {
+		if dims[i], err = f.AddDim(name, ft.DimLens[i]); err != nil {
+			t.Fatalf("PutDim failed: %v\n", err)
+		}
+	}
+	v, err := f.AddVar(ft.VarName, ft.DataType, dims)
+	if err != nil {
+		t.Fatalf("PutVar failed: %v\n", err)
+	}
+	ft.putAttrs(t, v)
+
+	n, err := v.Len()
+	if err != nil {
+		t.Fatalf("Var.Len failed: %v\n", err)
+	}
+	switch ft.DataType {
+	default:
+		t.Fatalf("unexpected type %v\n", ft.DataType)
+	case UINT64:
+		err = testWriteUint64At(v, n)
+	case INT64:
+		err = testWriteInt64At(v, n)
+	case DOUBLE:
+		err = testWriteFloat64At(v, n)
+	case UINT:
+		err = testWriteUint32At(v, n)
+	case INT:
+		err = testWriteInt32At(v, n)
+	case FLOAT:
+		err = testWriteFloat32At(v, n)
+	case USHORT:
+		err = testWriteUint16At(v, n)
+	case SHORT:
+		err = testWriteInt16At(v, n)
+	case UBYTE:
+		err = testWriteUint8At(v, n)
+	case BYTE:
+		err = testWriteInt8At(v, n)
+	case CHAR:
+		err = testWriteBytesAt(v, n)
+	}
+	if err != nil {
+		t.Errorf("%v: writing data failed: %v\n", ft.DataType, err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatalf("Close failed: %v\n", err)
+	}
+}
+
+func testReadFileViaIdx(t *testing.T, filename string, ft *FileTest) {
+	f, err := OpenFile(filename, NOWRITE)
+	if err != nil {
+		t.Fatalf("Open failed: %v\n", err)
+	}
+	for i, name := range ft.DimNames {
+		d, err := f.Dim(name)
+		if err != nil {
+			t.Fatalf("GetDim failed: %v\n", err)
+		}
+		s, err := d.Name()
+		if err != nil {
+			t.Fatalf("Dim.Name failed: %v\n", err)
+		}
+		if err == nil && s != name {
+			t.Fatalf("Dim name is %q; expected %q\n", s, name)
+		}
+		n, err := d.Len()
+		if err != nil {
+			t.Fatalf("Dim.Len failed: %v\n", err)
+		}
+		if err == nil && n != ft.DimLens[i] {
+			t.Fatalf("Dim length is %d; expected %d\n", n, ft.DimLens[i])
+		}
+	}
+	v, err := f.Var(ft.VarName)
+	if err != nil {
+		t.Errorf("GetVar failed: %v\n", err)
+	}
+	ft.getAttrs(t, v)
+
+	n, err := v.Len()
+	if err != nil {
+		t.Fatalf("Var.Len failed: %v\n", err)
+	}
+	switch ft.DataType {
+	default:
+		t.Fatalf("unexpected type %v\n", ft.DataType)
+	case UINT64:
+		err = testReadUint64At(v, n)
+	case INT64:
+		err = testReadInt64At(v, n)
+	case DOUBLE:
+		err = testReadFloat64At(v, n)
+	case UINT:
+		err = testReadUint32At(v, n)
+	case INT:
+		err = testReadInt32At(v, n)
+	case FLOAT:
+		err = testReadFloat32At(v, n)
+	case USHORT:
+		err = testReadUint16At(v, n)
+	case SHORT:
+		err = testReadInt16At(v, n)
+	case UBYTE:
+		err = testReadUint8At(v, n)
+	case BYTE:
+		err = testReadInt8At(v, n)
+	case CHAR:
+		err = testReadBytesAt(v, n)
+	}
+	if err != nil {
+		t.Fatalf("reading data failed: %v\n", err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatalf("Close failed: %v\n", err)
+	}
+}
+
+func TestAt(t *testing.T) {
+	for _, ft := range fileTests {
+		f, err := ioutil.TempFile("", "netcdf_test")
+		if err != nil {
+			t.Fatalf("creating temporary file failed: %v\n", err)
+		}
+		testWriteFileViaIdx(t, f.Name(), &ft)
+		testReadFileViaIdx(t, f.Name(), &ft)
+		if err := os.Remove(f.Name()); err != nil {
+			t.Errorf("removing temporary file failed: %v\n", err)
+		}
 	}
 }

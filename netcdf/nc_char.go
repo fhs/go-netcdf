@@ -55,6 +55,20 @@ func (a Attr) ReadBytes(val []byte) (err error) {
 	return
 }
 
+// ReadBytesAt returns a value via index position
+func (v Var) ReadBytesAt(idx []uint64) (val byte, err error) {
+	err = newError(C.nc_get_var1_text(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.char)(unsafe.Pointer(&val))))
+	return
+}
+
+// WriteBytesAt sets a value via its index position
+func (v Var) WriteBytesAt(idx []uint64, val byte) (err error) {
+	err = newError(C.nc_put_var1_text(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.char)(unsafe.Pointer(&val))))
+	return
+}
+
 // BytesReader is a interface that allows reading a sequence of values of fixed length.
 type BytesReader interface {
 	Len() (n uint64, err error)
@@ -92,7 +106,46 @@ func testReadBytes(v Var, n uint64) error {
 	}
 	for i := 0; i < int(n); i++ {
 		if val := byte(i + 10); data[i] != val {
-			return fmt.Errorf("data at position %d is %v; expected %v\n", i, data[i], val)
+			return fmt.Errorf("data at position %d is %v; expected %v", i, data[i], val)
+		}
+	}
+	return nil
+}
+
+func testReadBytesAt(v Var, n uint64) error {
+	data := make([]byte, n)
+	if err := v.ReadBytes(data); err != nil {
+		return err
+	}
+	for i := 0; i < int(n); i++ {
+		shape, _ := v.LenDims()
+		coords, _ := UnravelIndex(uint64(i), shape)
+		expected := byte(i + 10)
+		val, _ := v.ReadBytesAt(coords)
+		if val != data[i] {
+			return fmt.Errorf("data at position %v is %v; expected %v", i, val, expected)
+		}
+	}
+	return nil
+}
+
+func testWriteBytesAt(v Var, n uint64) error {
+	shape, _ := v.LenDims()
+	ndim := len(shape)
+	coord := make([]uint64, ndim)
+	for i := 0; i < ndim; i++ {
+		for k := 0; k < ndim; k++ {
+			coord[k] = uint64(i)
+		}
+		v.WriteBytesAt(coord, byte(i))
+	}
+	for i := 0; i < ndim; i++ {
+		for k := 0; k < ndim; k++ {
+			coord[k] = uint64(i)
+		}
+		val, _ := v.ReadBytesAt(coord)
+		if val != byte(i) {
+			return fmt.Errorf("data at position %v is %v; expected %v", coord, val, int(i))
 		}
 	}
 	return nil

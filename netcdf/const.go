@@ -33,6 +33,7 @@ const (
 // Type is a netCDF external data type.
 type Type C.nc_type
 
+// Type declarations according to C standards
 const (
 	BYTE   Type = C.NC_BYTE   // signed 1 byte integer
 	CHAR   Type = C.NC_CHAR   // ISO/ASCII character

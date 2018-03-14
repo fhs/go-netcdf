@@ -55,6 +55,20 @@ func (a Attr) ReadFloat64s(val []float64) (err error) {
 	return
 }
 
+// ReadFloat64At returns a value via index position
+func (v Var) ReadFloat64At(idx []uint64) (val float64, err error) {
+	err = newError(C.nc_get_var1_double(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.double)(unsafe.Pointer(&val))))
+	return
+}
+
+// WriteFloat64At sets a value via its index position
+func (v Var) WriteFloat64At(idx []uint64, val float64) (err error) {
+	err = newError(C.nc_put_var1_double(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.double)(unsafe.Pointer(&val))))
+	return
+}
+
 // Float64sReader is a interface that allows reading a sequence of values of fixed length.
 type Float64sReader interface {
 	Len() (n uint64, err error)
@@ -92,7 +106,46 @@ func testReadFloat64s(v Var, n uint64) error {
 	}
 	for i := 0; i < int(n); i++ {
 		if val := float64(i + 10); data[i] != val {
-			return fmt.Errorf("data at position %d is %v; expected %v\n", i, data[i], val)
+			return fmt.Errorf("data at position %d is %v; expected %v", i, data[i], val)
+		}
+	}
+	return nil
+}
+
+func testReadFloat64At(v Var, n uint64) error {
+	data := make([]float64, n)
+	if err := v.ReadFloat64s(data); err != nil {
+		return err
+	}
+	for i := 0; i < int(n); i++ {
+		shape, _ := v.LenDims()
+		coords, _ := UnravelIndex(uint64(i), shape)
+		expected := data[i]
+		val, _ := v.ReadFloat64At(coords)
+		if val != expected {
+			return fmt.Errorf("data at position %v is %v; expected %v", i, val, expected)
+		}
+	}
+	return nil
+}
+
+func testWriteFloat64At(v Var, n uint64) error {
+	shape, _ := v.LenDims()
+	ndim := len(shape)
+	coord := make([]uint64, ndim)
+	for i := 0; i < ndim; i++ {
+		for k := 0; k < ndim; k++ {
+			coord[k] = uint64(i)
+		}
+		v.WriteFloat64At(coord, float64(i))
+	}
+	for i := 0; i < ndim; i++ {
+		for k := 0; k < ndim; k++ {
+			coord[k] = uint64(i)
+		}
+		val, _ := v.ReadFloat64At(coord)
+		if val != float64(i) {
+			return fmt.Errorf("data at position %v is %v; expected %v", coord, val, int(i))
 		}
 	}
 	return nil
