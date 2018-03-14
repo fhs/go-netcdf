@@ -55,15 +55,15 @@ func (a Attr) ReadInt8s(val []int8) (err error) {
 	return
 }
 
-// ReadIdxInt8 returns a value via index position
-func (v Var) ReadIdxInt8(idx []uint64) (val int8, err error) {
+// ReadInt8At returns a value via index position
+func (v Var) ReadInt8At(idx []uint64) (val int8, err error) {
 	err = newError(C.nc_get_var1_schar(C.int(v.ds), C.int(v.id),
 		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.schar)(unsafe.Pointer(&val))))
 	return
 }
 
-// WriteIdxInt8 sets a value via its index position
-func (v Var) WriteIdxInt8(idx []uint64, val int8) (err error) {
+// WriteInt8At sets a value via its index position
+func (v Var) WriteInt8At(idx []uint64, val int8) (err error) {
 	err = newError(C.nc_put_var1_schar(C.int(v.ds), C.int(v.id),
 		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.schar)(unsafe.Pointer(&val))))
 	return
@@ -112,7 +112,7 @@ func testReadInt8s(v Var, n uint64) error {
 	return nil
 }
 
-func testReadInt8Idx(v Var, n uint64) error {
+func testReadInt8At(v Var, n uint64) error {
 	data := make([]int8, n)
 	if err := v.ReadInt8s(data); err != nil {
 		return err
@@ -121,7 +121,7 @@ func testReadInt8Idx(v Var, n uint64) error {
 		shape, _ := v.LenDims()
 		coords, _ := UnravelIndex(uint64(i), shape)
 		expected := int8(i + 10)
-		val, _ := v.ReadIdxInt8(coords)
+		val, _ := v.ReadInt8At(coords)
 		if val != data[i] {
 			return fmt.Errorf("data at position %v is %v; expected %v", i, val, expected)
 		}
@@ -129,7 +129,7 @@ func testReadInt8Idx(v Var, n uint64) error {
 	return nil
 }
 
-func testWriteInt8Idx(v Var, n uint64) error {
+func testWriteInt8At(v Var, n uint64) error {
 	shape, _ := v.LenDims()
 	ndim := len(shape)
 	coord := make([]uint64, ndim)
@@ -137,13 +137,13 @@ func testWriteInt8Idx(v Var, n uint64) error {
 		for k := 0; k < ndim; k++ {
 			coord[k] = uint64(i)
 		}
-		v.WriteIdxInt8(coord, int8(i))
+		v.WriteInt8At(coord, int8(i))
 	}
 	for i := 0; i < ndim; i++ {
 		for k := 0; k < ndim; k++ {
 			coord[k] = uint64(i)
 		}
-		val, _ := v.ReadIdxInt8(coord)
+		val, _ := v.ReadInt8At(coord)
 		if val != int8(i) {
 			return fmt.Errorf("data at position %v is %v; expected %v", coord, val, int(i))
 		}

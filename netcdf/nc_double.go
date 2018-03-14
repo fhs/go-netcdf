@@ -55,15 +55,15 @@ func (a Attr) ReadFloat64s(val []float64) (err error) {
 	return
 }
 
-// ReadIdxFloat64 returns a value via index position
-func (v Var) ReadIdxFloat64(idx []uint64) (val float64, err error) {
+// ReadFloat64At returns a value via index position
+func (v Var) ReadFloat64At(idx []uint64) (val float64, err error) {
 	err = newError(C.nc_get_var1_double(C.int(v.ds), C.int(v.id),
 		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.double)(unsafe.Pointer(&val))))
 	return
 }
 
-// WriteIdxFloat64 sets a value via its index position
-func (v Var) WriteIdxFloat64(idx []uint64, val float64) (err error) {
+// WriteFloat64At sets a value via its index position
+func (v Var) WriteFloat64At(idx []uint64, val float64) (err error) {
 	err = newError(C.nc_put_var1_double(C.int(v.ds), C.int(v.id),
 		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.double)(unsafe.Pointer(&val))))
 	return
@@ -112,7 +112,7 @@ func testReadFloat64s(v Var, n uint64) error {
 	return nil
 }
 
-func testReadFloat64Idx(v Var, n uint64) error {
+func testReadFloat64At(v Var, n uint64) error {
 	data := make([]float64, n)
 	if err := v.ReadFloat64s(data); err != nil {
 		return err
@@ -120,16 +120,16 @@ func testReadFloat64Idx(v Var, n uint64) error {
 	for i := 0; i < int(n); i++ {
 		shape, _ := v.LenDims()
 		coords, _ := UnravelIndex(uint64(i), shape)
-		expected := float64(i + 10)
-		val, _ := v.ReadIdxFloat64(coords)
-		if val != data[i] {
+		expected := data[i]
+		val, _ := v.ReadFloat64At(coords)
+		if val != expected {
 			return fmt.Errorf("data at position %v is %v; expected %v", i, val, expected)
 		}
 	}
 	return nil
 }
 
-func testWriteFloat64Idx(v Var, n uint64) error {
+func testWriteFloat64At(v Var, n uint64) error {
 	shape, _ := v.LenDims()
 	ndim := len(shape)
 	coord := make([]uint64, ndim)
@@ -137,13 +137,13 @@ func testWriteFloat64Idx(v Var, n uint64) error {
 		for k := 0; k < ndim; k++ {
 			coord[k] = uint64(i)
 		}
-		v.WriteIdxFloat64(coord, float64(i))
+		v.WriteFloat64At(coord, float64(i))
 	}
 	for i := 0; i < ndim; i++ {
 		for k := 0; k < ndim; k++ {
 			coord[k] = uint64(i)
 		}
-		val, _ := v.ReadIdxFloat64(coord)
+		val, _ := v.ReadFloat64At(coord)
 		if val != float64(i) {
 			return fmt.Errorf("data at position %v is %v; expected %v", coord, val, int(i))
 		}

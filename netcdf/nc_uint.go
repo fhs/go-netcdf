@@ -55,15 +55,15 @@ func (a Attr) ReadUint32s(val []uint32) (err error) {
 	return
 }
 
-// ReadIdxUint32 returns a value via index position
-func (v Var) ReadIdxUint32(idx []uint64) (val uint32, err error) {
+// ReadUint32At returns a value via index position
+func (v Var) ReadUint32At(idx []uint64) (val uint32, err error) {
 	err = newError(C.nc_get_var1_uint(C.int(v.ds), C.int(v.id),
 		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.uint)(unsafe.Pointer(&val))))
 	return
 }
 
-// WriteIdxUint32 sets a value via its index position
-func (v Var) WriteIdxUint32(idx []uint64, val uint32) (err error) {
+// WriteUint32At sets a value via its index position
+func (v Var) WriteUint32At(idx []uint64, val uint32) (err error) {
 	err = newError(C.nc_put_var1_uint(C.int(v.ds), C.int(v.id),
 		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.uint)(unsafe.Pointer(&val))))
 	return
@@ -112,7 +112,7 @@ func testReadUint32s(v Var, n uint64) error {
 	return nil
 }
 
-func testReadUint32Idx(v Var, n uint64) error {
+func testReadUint32At(v Var, n uint64) error {
 	data := make([]uint32, n)
 	if err := v.ReadUint32s(data); err != nil {
 		return err
@@ -121,7 +121,7 @@ func testReadUint32Idx(v Var, n uint64) error {
 		shape, _ := v.LenDims()
 		coords, _ := UnravelIndex(uint64(i), shape)
 		expected := uint32(i + 10)
-		val, _ := v.ReadIdxUint32(coords)
+		val, _ := v.ReadUint32At(coords)
 		if val != data[i] {
 			return fmt.Errorf("data at position %v is %v; expected %v", i, val, expected)
 		}
@@ -129,7 +129,7 @@ func testReadUint32Idx(v Var, n uint64) error {
 	return nil
 }
 
-func testWriteUint32Idx(v Var, n uint64) error {
+func testWriteUint32At(v Var, n uint64) error {
 	shape, _ := v.LenDims()
 	ndim := len(shape)
 	coord := make([]uint64, ndim)
@@ -137,13 +137,13 @@ func testWriteUint32Idx(v Var, n uint64) error {
 		for k := 0; k < ndim; k++ {
 			coord[k] = uint64(i)
 		}
-		v.WriteIdxUint32(coord, uint32(i))
+		v.WriteUint32At(coord, uint32(i))
 	}
 	for i := 0; i < ndim; i++ {
 		for k := 0; k < ndim; k++ {
 			coord[k] = uint64(i)
 		}
-		val, _ := v.ReadIdxUint32(coord)
+		val, _ := v.ReadUint32At(coord)
 		if val != uint32(i) {
 			return fmt.Errorf("data at position %v is %v; expected %v", coord, val, int(i))
 		}

@@ -55,15 +55,15 @@ func (a Attr) ReadInt64s(val []int64) (err error) {
 	return
 }
 
-// ReadIdxInt64 returns a value via index position
-func (v Var) ReadIdxInt64(idx []uint64) (val int64, err error) {
+// ReadInt64At returns a value via index position
+func (v Var) ReadInt64At(idx []uint64) (val int64, err error) {
 	err = newError(C.nc_get_var1_longlong(C.int(v.ds), C.int(v.id),
 		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.longlong)(unsafe.Pointer(&val))))
 	return
 }
 
-// WriteIdxInt64 sets a value via its index position
-func (v Var) WriteIdxInt64(idx []uint64, val int64) (err error) {
+// WriteInt64At sets a value via its index position
+func (v Var) WriteInt64At(idx []uint64, val int64) (err error) {
 	err = newError(C.nc_put_var1_longlong(C.int(v.ds), C.int(v.id),
 		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.longlong)(unsafe.Pointer(&val))))
 	return
@@ -112,7 +112,7 @@ func testReadInt64s(v Var, n uint64) error {
 	return nil
 }
 
-func testReadInt64Idx(v Var, n uint64) error {
+func testReadInt64At(v Var, n uint64) error {
 	data := make([]int64, n)
 	if err := v.ReadInt64s(data); err != nil {
 		return err
@@ -121,7 +121,7 @@ func testReadInt64Idx(v Var, n uint64) error {
 		shape, _ := v.LenDims()
 		coords, _ := UnravelIndex(uint64(i), shape)
 		expected := int64(i + 10)
-		val, _ := v.ReadIdxInt64(coords)
+		val, _ := v.ReadInt64At(coords)
 		if val != data[i] {
 			return fmt.Errorf("data at position %v is %v; expected %v", i, val, expected)
 		}
@@ -129,7 +129,7 @@ func testReadInt64Idx(v Var, n uint64) error {
 	return nil
 }
 
-func testWriteInt64Idx(v Var, n uint64) error {
+func testWriteInt64At(v Var, n uint64) error {
 	shape, _ := v.LenDims()
 	ndim := len(shape)
 	coord := make([]uint64, ndim)
@@ -137,13 +137,13 @@ func testWriteInt64Idx(v Var, n uint64) error {
 		for k := 0; k < ndim; k++ {
 			coord[k] = uint64(i)
 		}
-		v.WriteIdxInt64(coord, int64(i))
+		v.WriteInt64At(coord, int64(i))
 	}
 	for i := 0; i < ndim; i++ {
 		for k := 0; k < ndim; k++ {
 			coord[k] = uint64(i)
 		}
-		val, _ := v.ReadIdxInt64(coord)
+		val, _ := v.ReadInt64At(coord)
 		if val != int64(i) {
 			return fmt.Errorf("data at position %v is %v; expected %v", coord, val, int(i))
 		}

@@ -55,15 +55,15 @@ func (a Attr) ReadFloat32s(val []float32) (err error) {
 	return
 }
 
-// ReadIdxFloat32 returns a value via index position
-func (v Var) ReadIdxFloat32(idx []uint64) (val float32, err error) {
+// ReadFloat32At returns a value via index position
+func (v Var) ReadFloat32At(idx []uint64) (val float32, err error) {
 	err = newError(C.nc_get_var1_float(C.int(v.ds), C.int(v.id),
 		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.float)(unsafe.Pointer(&val))))
 	return
 }
 
-// WriteIdxFloat32 sets a value via its index position
-func (v Var) WriteIdxFloat32(idx []uint64, val float32) (err error) {
+// WriteFloat32At sets a value via its index position
+func (v Var) WriteFloat32At(idx []uint64, val float32) (err error) {
 	err = newError(C.nc_put_var1_float(C.int(v.ds), C.int(v.id),
 		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.float)(unsafe.Pointer(&val))))
 	return
@@ -112,7 +112,7 @@ func testReadFloat32s(v Var, n uint64) error {
 	return nil
 }
 
-func testReadFloat32Idx(v Var, n uint64) error {
+func testReadFloat32At(v Var, n uint64) error {
 	data := make([]float32, n)
 	if err := v.ReadFloat32s(data); err != nil {
 		return err
@@ -121,7 +121,7 @@ func testReadFloat32Idx(v Var, n uint64) error {
 		shape, _ := v.LenDims()
 		coords, _ := UnravelIndex(uint64(i), shape)
 		expected := float32(i + 10)
-		val, _ := v.ReadIdxFloat32(coords)
+		val, _ := v.ReadFloat32At(coords)
 		if val != data[i] {
 			return fmt.Errorf("data at position %v is %v; expected %v", i, val, expected)
 		}
@@ -129,7 +129,7 @@ func testReadFloat32Idx(v Var, n uint64) error {
 	return nil
 }
 
-func testWriteFloat32Idx(v Var, n uint64) error {
+func testWriteFloat32At(v Var, n uint64) error {
 	shape, _ := v.LenDims()
 	ndim := len(shape)
 	coord := make([]uint64, ndim)
@@ -137,13 +137,13 @@ func testWriteFloat32Idx(v Var, n uint64) error {
 		for k := 0; k < ndim; k++ {
 			coord[k] = uint64(i)
 		}
-		v.WriteIdxFloat32(coord, float32(i))
+		v.WriteFloat32At(coord, float32(i))
 	}
 	for i := 0; i < ndim; i++ {
 		for k := 0; k < ndim; k++ {
 			coord[k] = uint64(i)
 		}
-		val, _ := v.ReadIdxFloat32(coord)
+		val, _ := v.ReadFloat32At(coord)
 		if val != float32(i) {
 			return fmt.Errorf("data at position %v is %v; expected %v", coord, val, int(i))
 		}

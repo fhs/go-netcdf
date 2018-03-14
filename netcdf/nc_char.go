@@ -55,15 +55,15 @@ func (a Attr) ReadBytes(val []byte) (err error) {
 	return
 }
 
-// ReadIdxBytes returns a value via index position
-func (v Var) ReadIdxBytes(idx []uint64) (val byte, err error) {
+// ReadBytesAt returns a value via index position
+func (v Var) ReadBytesAt(idx []uint64) (val byte, err error) {
 	err = newError(C.nc_get_var1_text(C.int(v.ds), C.int(v.id),
 		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.char)(unsafe.Pointer(&val))))
 	return
 }
 
-// WriteIdxBytes sets a value via its index position
-func (v Var) WriteIdxBytes(idx []uint64, val byte) (err error) {
+// WriteBytesAt sets a value via its index position
+func (v Var) WriteBytesAt(idx []uint64, val byte) (err error) {
 	err = newError(C.nc_put_var1_text(C.int(v.ds), C.int(v.id),
 		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.char)(unsafe.Pointer(&val))))
 	return
@@ -112,7 +112,7 @@ func testReadBytes(v Var, n uint64) error {
 	return nil
 }
 
-func testReadBytesIdx(v Var, n uint64) error {
+func testReadBytesAt(v Var, n uint64) error {
 	data := make([]byte, n)
 	if err := v.ReadBytes(data); err != nil {
 		return err
@@ -121,7 +121,7 @@ func testReadBytesIdx(v Var, n uint64) error {
 		shape, _ := v.LenDims()
 		coords, _ := UnravelIndex(uint64(i), shape)
 		expected := byte(i + 10)
-		val, _ := v.ReadIdxBytes(coords)
+		val, _ := v.ReadBytesAt(coords)
 		if val != data[i] {
 			return fmt.Errorf("data at position %v is %v; expected %v", i, val, expected)
 		}
@@ -129,7 +129,7 @@ func testReadBytesIdx(v Var, n uint64) error {
 	return nil
 }
 
-func testWriteBytesIdx(v Var, n uint64) error {
+func testWriteBytesAt(v Var, n uint64) error {
 	shape, _ := v.LenDims()
 	ndim := len(shape)
 	coord := make([]uint64, ndim)
@@ -137,13 +137,13 @@ func testWriteBytesIdx(v Var, n uint64) error {
 		for k := 0; k < ndim; k++ {
 			coord[k] = uint64(i)
 		}
-		v.WriteIdxBytes(coord, byte(i))
+		v.WriteBytesAt(coord, byte(i))
 	}
 	for i := 0; i < ndim; i++ {
 		for k := 0; k < ndim; k++ {
 			coord[k] = uint64(i)
 		}
-		val, _ := v.ReadIdxBytes(coord)
+		val, _ := v.ReadBytesAt(coord)
 		if val != byte(i) {
 			return fmt.Errorf("data at position %v is %v; expected %v", coord, val, int(i))
 		}

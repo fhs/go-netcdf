@@ -48,10 +48,6 @@ func product(nums []uint64) (prod uint64) {
 
 // UnravelIndex calculates coordinate position based on index
 func UnravelIndex(idx uint64, shape []uint64) ([]uint64, error) {
-	var maxval = product(shape)
-	var ndim = len(shape)
-	var coord = make([]uint64, ndim)
-
 	for _, v := range shape {
 		if v == 0 {
 			return nil, fmt.Errorf("Invalid shape, 0 encountered in shape %v", shape)
@@ -61,6 +57,10 @@ func UnravelIndex(idx uint64, shape []uint64) ([]uint64, error) {
 	if idx > product(shape) {
 		return nil, fmt.Errorf("Index %v > size %v of shape", idx, shape)
 	}
+
+	var maxval = product(shape)
+	var ndim = len(shape)
+	var coord = make([]uint64, ndim)
 
 	for i := 0; i < ndim; i++ {
 		shape[i] = 1

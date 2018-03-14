@@ -55,15 +55,15 @@ func (a Attr) ReadInt32s(val []int32) (err error) {
 	return
 }
 
-// ReadIdxInt32 returns a value via index position
-func (v Var) ReadIdxInt32(idx []uint64) (val int32, err error) {
+// ReadInt32At returns a value via index position
+func (v Var) ReadInt32At(idx []uint64) (val int32, err error) {
 	err = newError(C.nc_get_var1_int(C.int(v.ds), C.int(v.id),
 		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.int)(unsafe.Pointer(&val))))
 	return
 }
 
-// WriteIdxInt32 sets a value via its index position
-func (v Var) WriteIdxInt32(idx []uint64, val int32) (err error) {
+// WriteInt32At sets a value via its index position
+func (v Var) WriteInt32At(idx []uint64, val int32) (err error) {
 	err = newError(C.nc_put_var1_int(C.int(v.ds), C.int(v.id),
 		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.int)(unsafe.Pointer(&val))))
 	return
@@ -112,7 +112,7 @@ func testReadInt32s(v Var, n uint64) error {
 	return nil
 }
 
-func testReadInt32Idx(v Var, n uint64) error {
+func testReadInt32At(v Var, n uint64) error {
 	data := make([]int32, n)
 	if err := v.ReadInt32s(data); err != nil {
 		return err
@@ -121,7 +121,7 @@ func testReadInt32Idx(v Var, n uint64) error {
 		shape, _ := v.LenDims()
 		coords, _ := UnravelIndex(uint64(i), shape)
 		expected := int32(i + 10)
-		val, _ := v.ReadIdxInt32(coords)
+		val, _ := v.ReadInt32At(coords)
 		if val != data[i] {
 			return fmt.Errorf("data at position %v is %v; expected %v", i, val, expected)
 		}
@@ -129,7 +129,7 @@ func testReadInt32Idx(v Var, n uint64) error {
 	return nil
 }
 
-func testWriteInt32Idx(v Var, n uint64) error {
+func testWriteInt32At(v Var, n uint64) error {
 	shape, _ := v.LenDims()
 	ndim := len(shape)
 	coord := make([]uint64, ndim)
@@ -137,13 +137,13 @@ func testWriteInt32Idx(v Var, n uint64) error {
 		for k := 0; k < ndim; k++ {
 			coord[k] = uint64(i)
 		}
-		v.WriteIdxInt32(coord, int32(i))
+		v.WriteInt32At(coord, int32(i))
 	}
 	for i := 0; i < ndim; i++ {
 		for k := 0; k < ndim; k++ {
 			coord[k] = uint64(i)
 		}
-		val, _ := v.ReadIdxInt32(coord)
+		val, _ := v.ReadInt32At(coord)
 		if val != int32(i) {
 			return fmt.Errorf("data at position %v is %v; expected %v", coord, val, int(i))
 		}

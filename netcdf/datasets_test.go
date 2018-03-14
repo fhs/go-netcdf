@@ -397,9 +397,8 @@ func TestProduct(t *testing.T) {
 	}
 
 	for _, test := range results {
-		var result = product(test.shape)
-		if result != test.expected {
-			t.Errorf("Result of 'product(%v)' is %v, expected %v", test.shape, result, test.expected)
+		if p := product(test.shape); p != test.expected {
+			t.Errorf("Result of 'product(%v)' is %v, expected %v", test.shape, p, test.expected)
 		}
 	}
 
@@ -420,7 +419,7 @@ func TestValidUnravel(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		var result, err = UnravelIndex(test.idx, test.shape)
+		result, err := UnravelIndex(test.idx, test.shape)
 		if err != nil {
 			t.Errorf("Got error while reading valid test, got %v", err)
 		}
@@ -488,27 +487,27 @@ func testWriteFileViaIdx(t *testing.T, filename string, ft *FileTest) {
 	default:
 		t.Fatalf("unexpected type %v\n", ft.DataType)
 	case UINT64:
-		err = testWriteUint64Idx(v, n)
+		err = testWriteUint64At(v, n)
 	case INT64:
-		err = testWriteInt64Idx(v, n)
+		err = testWriteInt64At(v, n)
 	case DOUBLE:
-		err = testWriteFloat64Idx(v, n)
+		err = testWriteFloat64At(v, n)
 	case UINT:
-		err = testWriteUint32Idx(v, n)
+		err = testWriteUint32At(v, n)
 	case INT:
-		err = testWriteInt32Idx(v, n)
+		err = testWriteInt32At(v, n)
 	case FLOAT:
-		err = testWriteFloat32Idx(v, n)
+		err = testWriteFloat32At(v, n)
 	case USHORT:
-		err = testWriteUint16Idx(v, n)
+		err = testWriteUint16At(v, n)
 	case SHORT:
-		err = testWriteInt16Idx(v, n)
+		err = testWriteInt16At(v, n)
 	case UBYTE:
-		err = testWriteUint8Idx(v, n)
+		err = testWriteUint8At(v, n)
 	case BYTE:
-		err = testWriteInt8Idx(v, n)
+		err = testWriteInt8At(v, n)
 	case CHAR:
-		err = testWriteBytesIdx(v, n)
+		err = testWriteBytesAt(v, n)
 	}
 	if err != nil {
 		t.Errorf("%v: writing data failed: %v\n", ft.DataType, err)
@@ -557,27 +556,27 @@ func testReadFileViaIdx(t *testing.T, filename string, ft *FileTest) {
 	default:
 		t.Fatalf("unexpected type %v\n", ft.DataType)
 	case UINT64:
-		err = testReadUint64Idx(v, n)
+		err = testReadUint64At(v, n)
 	case INT64:
-		err = testReadInt64Idx(v, n)
+		err = testReadInt64At(v, n)
 	case DOUBLE:
-		err = testReadFloat64Idx(v, n)
+		err = testReadFloat64At(v, n)
 	case UINT:
-		err = testReadUint32Idx(v, n)
+		err = testReadUint32At(v, n)
 	case INT:
-		err = testReadInt32Idx(v, n)
+		err = testReadInt32At(v, n)
 	case FLOAT:
-		err = testReadFloat32Idx(v, n)
+		err = testReadFloat32At(v, n)
 	case USHORT:
-		err = testReadUint16Idx(v, n)
+		err = testReadUint16At(v, n)
 	case SHORT:
-		err = testReadInt16Idx(v, n)
+		err = testReadInt16At(v, n)
 	case UBYTE:
-		err = testReadUint8Idx(v, n)
+		err = testReadUint8At(v, n)
 	case BYTE:
-		err = testReadInt8Idx(v, n)
+		err = testReadInt8At(v, n)
 	case CHAR:
-		err = testReadBytesIdx(v, n)
+		err = testReadBytesAt(v, n)
 	}
 	if err != nil {
 		t.Fatalf("reading data failed: %v\n", err)
@@ -586,7 +585,7 @@ func testReadFileViaIdx(t *testing.T, filename string, ft *FileTest) {
 		t.Fatalf("Close failed: %v\n", err)
 	}
 }
-func TestIdx(t *testing.T) {
+func TestAt(t *testing.T) {
 	for _, ft := range fileTests {
 		f, err := ioutil.TempFile("", "netcdf_test")
 		if err != nil {
