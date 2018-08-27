@@ -25,6 +25,9 @@ func (v Var) Dims() (dims []Dim, err error) {
 	if err != nil {
 		return
 	}
+	if ndims == 0 {
+		return make([]Dim, 0), nil
+	}
 	dimids := make([]C.int, ndims)
 	err = newError(C.nc_inq_vardimid(C.int(v.ds), C.int(v.id), &dimids[0]))
 	if err != nil {
@@ -101,12 +104,16 @@ func (ds Dataset) AddVar(name string, t Type, dims []Dim) (v Var, err error) {
 	cname := C.CString(name)
 	defer C.free(unsafe.Pointer(cname))
 	var varid C.int
-	dimids := make([]C.int, len(dims))
-	for i, d := range dims {
-		dimids[i] = d.id
+	var dimPtr *C.int
+	if len(dims) > 0 {
+		dimids := make([]C.int, len(dims))
+		for i, d := range dims {
+			dimids[i] = d.id
+		}
+		dimPtr = &dimids[0]
 	}
 	err = newError(C.nc_def_var(C.int(ds), cname, C.nc_type(t),
-		C.int(len(dimids)), &dimids[0], &varid))
+		C.int(len(dims)), dimPtr, &varid))
 	v = Var{ds, varid}
 	return
 }
