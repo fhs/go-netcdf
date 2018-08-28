@@ -57,15 +57,23 @@ func (a Attr) ReadFloat64s(val []float64) (err error) {
 
 // ReadFloat64At returns a value via index position
 func (v Var) ReadFloat64At(idx []uint64) (val float64, err error) {
+	var dimPtr *C.size_t
+	if len(idx) > 0 {
+		dimPtr = (*C.size_t)(unsafe.Pointer(&idx[0]))
+	}
 	err = newError(C.nc_get_var1_double(C.int(v.ds), C.int(v.id),
-		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.double)(unsafe.Pointer(&val))))
+		dimPtr, (*C.double)(unsafe.Pointer(&val))))
 	return
 }
 
 // WriteFloat64At sets a value via its index position
 func (v Var) WriteFloat64At(idx []uint64, val float64) (err error) {
+	var dimPtr *C.size_t
+	if len(idx) > 0 {
+		dimPtr = (*C.size_t)(unsafe.Pointer(&idx[0]))
+	}
 	err = newError(C.nc_put_var1_double(C.int(v.ds), C.int(v.id),
-		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.double)(unsafe.Pointer(&val))))
+		dimPtr, (*C.double)(unsafe.Pointer(&val))))
 	return
 }
 

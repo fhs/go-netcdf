@@ -57,15 +57,23 @@ func (a Attr) ReadUint64s(val []uint64) (err error) {
 
 // ReadUint64At returns a value via index position
 func (v Var) ReadUint64At(idx []uint64) (val uint64, err error) {
+	var dimPtr *C.size_t
+	if len(idx) > 0 {
+		dimPtr = (*C.size_t)(unsafe.Pointer(&idx[0]))
+	}
 	err = newError(C.nc_get_var1_ulonglong(C.int(v.ds), C.int(v.id),
-		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.ulonglong)(unsafe.Pointer(&val))))
+		dimPtr, (*C.ulonglong)(unsafe.Pointer(&val))))
 	return
 }
 
 // WriteUint64At sets a value via its index position
 func (v Var) WriteUint64At(idx []uint64, val uint64) (err error) {
+	var dimPtr *C.size_t
+	if len(idx) > 0 {
+		dimPtr = (*C.size_t)(unsafe.Pointer(&idx[0]))
+	}
 	err = newError(C.nc_put_var1_ulonglong(C.int(v.ds), C.int(v.id),
-		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.ulonglong)(unsafe.Pointer(&val))))
+		dimPtr, (*C.ulonglong)(unsafe.Pointer(&val))))
 	return
 }
 
@@ -120,9 +128,9 @@ func testReadUint64At(v Var, n uint64) error {
 	for i := 0; i < int(n); i++ {
 		shape, _ := v.LenDims()
 		coords, _ := UnravelIndex(uint64(i), shape)
-		expected := uint64(i + 10)
+		expected := data[i]
 		val, _ := v.ReadUint64At(coords)
-		if val != data[i] {
+		if val != expected {
 			return fmt.Errorf("data at position %v is %v; expected %v", i, val, expected)
 		}
 	}

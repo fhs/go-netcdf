@@ -57,15 +57,23 @@ func (a Attr) ReadInt8s(val []int8) (err error) {
 
 // ReadInt8At returns a value via index position
 func (v Var) ReadInt8At(idx []uint64) (val int8, err error) {
+	var dimPtr *C.size_t
+	if len(idx) > 0 {
+		dimPtr = (*C.size_t)(unsafe.Pointer(&idx[0]))
+	}
 	err = newError(C.nc_get_var1_schar(C.int(v.ds), C.int(v.id),
-		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.schar)(unsafe.Pointer(&val))))
+		dimPtr, (*C.schar)(unsafe.Pointer(&val))))
 	return
 }
 
 // WriteInt8At sets a value via its index position
 func (v Var) WriteInt8At(idx []uint64, val int8) (err error) {
+	var dimPtr *C.size_t
+	if len(idx) > 0 {
+		dimPtr = (*C.size_t)(unsafe.Pointer(&idx[0]))
+	}
 	err = newError(C.nc_put_var1_schar(C.int(v.ds), C.int(v.id),
-		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.schar)(unsafe.Pointer(&val))))
+		dimPtr, (*C.schar)(unsafe.Pointer(&val))))
 	return
 }
 
@@ -120,9 +128,9 @@ func testReadInt8At(v Var, n uint64) error {
 	for i := 0; i < int(n); i++ {
 		shape, _ := v.LenDims()
 		coords, _ := UnravelIndex(uint64(i), shape)
-		expected := int8(i + 10)
+		expected := data[i]
 		val, _ := v.ReadInt8At(coords)
-		if val != data[i] {
+		if val != expected {
 			return fmt.Errorf("data at position %v is %v; expected %v", i, val, expected)
 		}
 	}

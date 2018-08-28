@@ -57,15 +57,23 @@ func (a Attr) ReadInt16s(val []int16) (err error) {
 
 // ReadInt16At returns a value via index position
 func (v Var) ReadInt16At(idx []uint64) (val int16, err error) {
+	var dimPtr *C.size_t
+	if len(idx) > 0 {
+		dimPtr = (*C.size_t)(unsafe.Pointer(&idx[0]))
+	}
 	err = newError(C.nc_get_var1_short(C.int(v.ds), C.int(v.id),
-		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.short)(unsafe.Pointer(&val))))
+		dimPtr, (*C.short)(unsafe.Pointer(&val))))
 	return
 }
 
 // WriteInt16At sets a value via its index position
 func (v Var) WriteInt16At(idx []uint64, val int16) (err error) {
+	var dimPtr *C.size_t
+	if len(idx) > 0 {
+		dimPtr = (*C.size_t)(unsafe.Pointer(&idx[0]))
+	}
 	err = newError(C.nc_put_var1_short(C.int(v.ds), C.int(v.id),
-		(*C.size_t)(unsafe.Pointer(&idx[0])), (*C.short)(unsafe.Pointer(&val))))
+		dimPtr, (*C.short)(unsafe.Pointer(&val))))
 	return
 }
 
@@ -120,9 +128,9 @@ func testReadInt16At(v Var, n uint64) error {
 	for i := 0; i < int(n); i++ {
 		shape, _ := v.LenDims()
 		coords, _ := UnravelIndex(uint64(i), shape)
-		expected := int16(i + 10)
+		expected := data[i]
 		val, _ := v.ReadInt16At(coords)
-		if val != data[i] {
+		if val != expected {
 			return fmt.Errorf("data at position %v is %v; expected %v", i, val, expected)
 		}
 	}
