@@ -26,7 +26,7 @@ func (v Var) Dims() (dims []Dim, err error) {
 		return
 	}
 	if ndims == 0 {
-		return make([]Dim, 0), nil
+		return nil, nil
 	}
 	dimids := make([]C.int, ndims)
 	err = newError(C.nc_inq_vardimid(C.int(v.ds), C.int(v.id), &dimids[0]))
