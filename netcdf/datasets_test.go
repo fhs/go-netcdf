@@ -150,7 +150,7 @@ func getFileTests() []FileTest {
 			"birthday":    "2009-11-10",
 		},
 	}
-	types := []Type{BYTE, CHAR, SHORT, INT, FLOAT, DOUBLE, UBYTE, USHORT, UINT, INT64, UINT64}
+	types := []Type{UINT64, INT64, DOUBLE, UINT, INT, FLOAT, USHORT, SHORT, UBYTE, BYTE, CHAR}
 	for _, test := range bases {
 		for _, attr := range attrs {
 			test.Attr = attr
