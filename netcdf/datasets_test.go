@@ -114,37 +114,29 @@ func (ft *FileTest) getAttrs(t *testing.T, v Var) {
 	}
 }
 
-var fileTests = []FileTest{
-	{
-		VarName:  "gopher",
-		DimNames: []string{"height", "width"},
-		DimLens:  []uint64{7, 3},
-		DataType: UINT64,
-	},
-	{
-		VarName:  "gopher",
-		DimNames: []string{"height", "width"},
-		DimLens:  []uint64{7, 3},
-		DataType: INT64,
-	},
-	{
-		VarName:  "gopher",
-		DimNames: []string{"height", "width"},
-		DimLens:  []uint64{7, 3},
-		DataType: DOUBLE,
-	},
-	{
-		VarName:  "gopher",
-		DimNames: []string{"height", "width"},
-		DimLens:  []uint64{7, 3},
-		DataType: UINT,
-	},
-	{
-		VarName:  "gopher",
-		DimNames: []string{"height", "width"},
-		DimLens:  []uint64{7, 3},
-		DataType: INT,
-		Attr: map[string]interface{}{
+func getFileTests() []FileTest {
+	var tests []FileTest
+
+	bases := []FileTest{
+		FileTest{
+			VarName:  "gopher",
+			DimNames: []string{"height", "width"},
+			DimLens:  []uint64{7, 3},
+		},
+		FileTest{
+			VarName:  "gopher",
+			DimNames: []string{"time", "height", "width"},
+			DimLens:  []uint64{12, 7, 3},
+		},
+		FileTest{
+			VarName:  "gopher",
+			DimNames: []string{},
+			DimLens:  []uint64{},
+		},
+	}
+	attrs := []map[string]interface{}{
+		nil,
+		map[string]interface{}{
 			"uint64_test": []uint64{0xFABCFABCFABCFABC, 999, 0, 222},
 			"int64_test":  []int64{0x7ABC7ABC7ABC7ABC, -999, 0, 222},
 			"double_test": []float64{3.14, 1.23, -5.7, 0, 7},
@@ -157,47 +149,22 @@ var fileTests = []FileTest{
 			"byte_test":   []int8{2, 100, -128, 127, -17},
 			"birthday":    "2009-11-10",
 		},
-	},
-	{
-		VarName:  "gopher",
-		DimNames: []string{"height", "width"},
-		DimLens:  []uint64{7, 3},
-		DataType: FLOAT,
-	},
-	{
-		VarName:  "gopher",
-		DimNames: []string{"height", "width"},
-		DimLens:  []uint64{7, 3},
-		DataType: USHORT,
-	},
-	{
-		VarName:  "gopher",
-		DimNames: []string{"height", "width"},
-		DimLens:  []uint64{7, 3},
-		DataType: SHORT,
-	},
-	{
-		VarName:  "gopher",
-		DimNames: []string{"height", "width"},
-		DimLens:  []uint64{7, 3},
-		DataType: UBYTE,
-	},
-	{
-		VarName:  "gopher",
-		DimNames: []string{"height", "width"},
-		DimLens:  []uint64{7, 3},
-		DataType: BYTE,
-	},
-	{
-		VarName:  "gopher",
-		DimNames: []string{"height", "width"},
-		DimLens:  []uint64{7, 3},
-		DataType: CHAR,
-	},
+	}
+	types := []Type{UINT64, INT64, DOUBLE, UINT, INT, FLOAT, USHORT, SHORT, UBYTE, BYTE, CHAR}
+	for _, test := range bases {
+		for _, attr := range attrs {
+			test.Attr = attr
+			for _, dataType := range types {
+				test.DataType = dataType
+				tests = append(tests, test)
+			}
+		}
+	}
+	return tests
 }
 
 func TestCreate(t *testing.T) {
-	for _, ft := range fileTests {
+	for _, ft := range getFileTests() {
 		f, err := ioutil.TempFile("", "netcdf_test")
 		if err != nil {
 			t.Fatalf("creating temporary file failed: %v\n", err)
@@ -215,7 +182,7 @@ func createFile(t *testing.T, filename string, ft *FileTest) {
 	if err != nil {
 		t.Fatalf("Create failed: %v\n", err)
 	}
-	dims := make([]Dim, 2)
+	dims := make([]Dim, len(ft.DimNames))
 	for i, name := range ft.DimNames {
 		if dims[i], err = f.AddDim(name, ft.DimLens[i]); err != nil {
 			t.Fatalf("PutDim failed: %v\n", err)
@@ -467,7 +434,7 @@ func testWriteFileViaIdx(t *testing.T, filename string, ft *FileTest) {
 	if err != nil {
 		t.Fatalf("Create failed: %v\n", err)
 	}
-	dims := make([]Dim, 2)
+	dims := make([]Dim, len(ft.DimNames))
 	for i, name := range ft.DimNames {
 		if dims[i], err = f.AddDim(name, ft.DimLens[i]); err != nil {
 			t.Fatalf("PutDim failed: %v\n", err)
@@ -587,7 +554,7 @@ func testReadFileViaIdx(t *testing.T, filename string, ft *FileTest) {
 }
 
 func TestAt(t *testing.T) {
-	for _, ft := range fileTests {
+	for _, ft := range getFileTests() {
 		f, err := ioutil.TempFile("", "netcdf_test")
 		if err != nil {
 			t.Fatalf("creating temporary file failed: %v\n", err)
