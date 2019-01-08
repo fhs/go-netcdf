@@ -50,12 +50,12 @@ func product(nums []uint64) (prod uint64) {
 func UnravelIndex(idx uint64, shape []uint64) ([]uint64, error) {
 	for _, v := range shape {
 		if v == 0 {
-			return nil, fmt.Errorf("Invalid shape, 0 encountered in shape %v", shape)
+			return nil, fmt.Errorf("invalid shape, 0 encountered in shape %v", shape)
 		}
 	}
 
 	if idx > product(shape) {
-		return nil, fmt.Errorf("Index %v > size %v of shape", idx, shape)
+		return nil, fmt.Errorf("index %v > size %v of shape", idx, shape)
 	}
 
 	var maxval = product(shape)
