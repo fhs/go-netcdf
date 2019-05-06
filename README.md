@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/fhs/go-netcdf.png)](https://travis-ci.org/fhs/go-netcdf)
 [![GoDoc](https://godoc.org/github.com/fhs/go-netcdf/netcdf?status.svg)](https://godoc.org/github.com/fhs/go-netcdf/netcdf)
+[![codecov](https://codecov.io/gh/fhs/go-netcdf/branch/master/graph/badge.svg)](https://codecov.io/gh/fhs/go-netcdf)
 
 ## Overview
 
