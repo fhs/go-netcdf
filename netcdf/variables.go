@@ -98,6 +98,19 @@ func (v Var) Name() (name string, err error) {
 	return
 }
 
+// SetCompression sets the deflate parameters for a variable in a NetCDF-4 file.
+func (v Var) SetCompression(shuffle, deflate bool, deflateLevel int) error {
+	sInt := C.int(0)
+	if shuffle {
+		sInt = 1
+	}
+	dInt := C.int(0)
+	if deflate {
+		dInt = 1
+	}
+	return newError(C.nc_def_var_deflate(C.int(v.ds), v.id, sInt, dInt, C.int(deflateLevel)))
+}
+
 // AddVar adds a new a variable named name of type t and dimensions dims.
 // The new variable v is returned.
 func (ds Dataset) AddVar(name string, t Type, dims []Dim) (v Var, err error) {
