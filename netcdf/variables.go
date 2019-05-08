@@ -111,6 +111,17 @@ func (v Var) SetCompression(shuffle, deflate bool, deflateLevel int) error {
 	return newError(C.nc_def_var_deflate(C.int(v.ds), v.id, sInt, dInt, C.int(deflateLevel)))
 }
 
+// Compression returns the deflate settings for a variable in a NetCDF-4 file.
+func (v Var) Compression() (shuffle, deflate bool, deflateLevel int, err error) {
+	var (
+		cShuffle      C.int
+		cDeflate      C.int
+		cDeflateLevel C.int
+	)
+	err = newError(C.nc_inq_var_deflate(C.int(v.ds), v.id, &cShuffle, &cDeflate, &cDeflateLevel))
+	return cShuffle != 0, cDeflate != 0, int(cDeflateLevel), err
+}
+
 // AddVar adds a new a variable named name of type t and dimensions dims.
 // The new variable v is returned.
 func (ds Dataset) AddVar(name string, t Type, dims []Dim) (v Var, err error) {
