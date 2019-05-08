@@ -566,3 +566,64 @@ func TestAt(t *testing.T) {
 		}
 	}
 }
+
+func TestCompression(t *testing.T) {
+	f, err := ioutil.TempFile("", "netcdf_test")
+	if err != nil {
+		t.Fatalf("creating temporary file failed: %v\n", err)
+	}
+	defer func() {
+		if err := os.Remove(f.Name()); err != nil {
+			t.Errorf("removing temporary file failed: %v\n", err)
+		}
+	}()
+
+	// Create a new NetCDF 4 file.
+	ds, err := CreateFile(f.Name(), CLOBBER|NETCDF4)
+	if err != nil {
+		t.Fatalf("creating file failed: %v\n", err)
+	}
+	defer ds.Close()
+
+	size, err := ds.AddDim("size", 5)
+	if err != nil {
+		t.Fatalf("adding dimension failed: %v\n", err)
+	}
+	v, err := ds.AddVar("gopher", INT, []Dim{size})
+	if err != nil {
+		t.Fatalf("adding variable failed: %v\n", err)
+	}
+
+	// Set and read compression parameters.
+	tests := []struct {
+		shuffle bool
+		deflate bool
+		level   int
+	}{
+		{true, true, 1},
+		{true, true, 5},
+		{true, true, 9},
+		{false, true, 0},
+		{true, false, 0},
+	}
+
+	for _, test := range tests {
+		err = v.SetCompression(test.shuffle, test.deflate, test.level)
+		if err != nil {
+			t.Fatalf("setting compression failed: %v\n", err)
+		}
+
+		shuffle, deflate, level, err := v.Compression()
+		if err != nil {
+			t.Fatalf("reading compression failed: %v\n", err)
+		}
+
+		if shuffle != test.shuffle || deflate != test.deflate || level != test.level {
+			t.Errorf("result of SetCompression(%t, %t, %d) is (%t, %t, %d), expected (%t, %t, %d)\n",
+				test.shuffle, test.deflate, test.level,
+				shuffle, deflate, level,
+				test.shuffle, test.deflate, test.level,
+			)
+		}
+	}
+}
