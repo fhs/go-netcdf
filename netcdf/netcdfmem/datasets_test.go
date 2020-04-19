@@ -5,12 +5,44 @@
 package netcdfmem
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"os"
 	"reflect"
 	"testing"
 
 	"github.com/fhs/go-netcdf/netcdf"
 )
+
+func TestOpenReader(t *testing.T) {
+	const expectedYear = 2012
+
+	f, err := os.Open("../gopher.nc")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	ds, err := OpenReader("gopher.nc", netcdf.NOWRITE, 0, f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer ds.Close()
+
+	v, err := ds.Var("gopher")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	year, err := netcdf.GetInt32s(v.Attr("year"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if year[0] != expectedYear {
+		t.Errorf("year is %d; expected %d", year[0], expectedYear)
+	}
+}
 
 type FileTest struct {
 	VarName  string
@@ -166,7 +198,19 @@ func getFileTests() []FileTest {
 func TestCreate(t *testing.T) {
 	for _, ft := range getFileTests() {
 		data := testCreate(t, &ft)
-		testRead(t, &ft, data)
+		testReadOpen(t, &ft, data)
+		testReadOpenReader(t, &ft, data)
+		testReadOpenLenReader(t, &ft, data)
+	}
+}
+
+func TestCreateCBytes(t *testing.T) {
+	for _, ft := range getFileTests() {
+		data := testCreateCBytes(t, &ft)
+		testReadOpen(t, &ft, data.Data)
+		testReadOpenReader(t, &ft, data.Data)
+		testReadOpenLenReader(t, &ft, data.Data)
+		data.Free()
 	}
 }
 
@@ -175,7 +219,35 @@ func testCreate(t *testing.T, ft *FileTest) []byte {
 	if err != nil {
 		t.Fatalf("Create failed: %v\n", err)
 	}
+
+	testCreateData(t, ft, f)
+
+	data, err := f.CloseMem()
+	if err != nil {
+		t.Fatalf("Close failed: %v\n", err)
+	}
+	return data
+}
+
+func testCreateCBytes(t *testing.T, ft *FileTest) *CBytes {
+	f, err := Create("netcdf_test", netcdf.CLOBBER|netcdf.NETCDF4, 0)
+	if err != nil {
+		t.Fatalf("Create failed: %v\n", err)
+	}
+
+	testCreateData(t, ft, f)
+
+	data, err := f.CloseMemCBytes()
+	if err != nil {
+		data.Free()
+		t.Fatalf("Close failed: %v\n", err)
+	}
+	return data
+}
+
+func testCreateData(t *testing.T, ft *FileTest, f Dataset) {
 	dims := make([]netcdf.Dim, len(ft.DimNames))
+	var err error
 	for i, name := range ft.DimNames {
 		if dims[i], err = f.AddDim(name, ft.DimLens[i]); err != nil {
 			t.Fatalf("PutDim failed: %v\n", err)
@@ -220,18 +292,50 @@ func testCreate(t *testing.T, ft *FileTest) []byte {
 	if err != nil {
 		t.Errorf("writing data failed: %v\n", err)
 	}
-	data, err := f.CloseMem()
-	if err != nil {
-		t.Fatalf("Close failed: %v\n", err)
-	}
-	return data
 }
 
-func testRead(t *testing.T, ft *FileTest, data []byte) {
+func testReadOpen(t *testing.T, ft *FileTest, data []byte) {
 	f, err := Open("netdf_test", netcdf.NOWRITE, 0, data)
 	if err != nil {
 		t.Fatalf("Open failed: %v\n", err)
 	}
+
+	testReadData(t, ft, f)
+}
+
+// readerOnly is an io.Reader which does not fulfill other
+// interfaces, such as LenReader.
+type readerOnly struct {
+	r io.Reader
+}
+
+func (ro readerOnly) Read(p []byte) (int, error) {
+	return ro.r.Read(p)
+}
+
+func testReadOpenReader(t *testing.T, ft *FileTest, data []byte) {
+	r := readerOnly{bytes.NewReader(data)}
+
+	f, err := OpenReader("netdf_test", netcdf.NOWRITE, 0, r)
+	if err != nil {
+		t.Fatalf("Open failed: %v\n", err)
+	}
+
+	testReadData(t, ft, f)
+}
+
+func testReadOpenLenReader(t *testing.T, ft *FileTest, data []byte) {
+	r := bytes.NewReader(data)
+
+	f, err := OpenReader("netdf_test", netcdf.NOWRITE, 0, r)
+	if err != nil {
+		t.Fatalf("Open failed: %v\n", err)
+	}
+
+	testReadData(t, ft, f)
+}
+
+func testReadData(t *testing.T, ft *FileTest, f Dataset) {
 	for i, name := range ft.DimNames {
 		d, err := f.Dim(name)
 		if err != nil {

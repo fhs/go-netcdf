@@ -6,6 +6,10 @@ package netcdfmem
 // #include <netcdf_mem.h>
 import "C"
 import (
+	"bytes"
+	"fmt"
+	"io"
+	"reflect"
 	"unsafe"
 
 	"github.com/fhs/go-netcdf/netcdf"
@@ -37,6 +41,38 @@ func Open(path string, mode netcdf.FileMode, flags Flags, data []byte) (ds Datas
 	memio := C.NC_memio{
 		size:   C.size_t(len(data)),
 		memory: C.CBytes(data),
+		flags:  C.int(flags),
+	}
+
+	var id C.int
+	err = newError(C.nc_open_memio(cpath, C.int(mode), &memio, &id))
+	if err != nil {
+		C.free(memio.memory)
+	}
+
+	ds.Dataset = netcdf.Dataset(id)
+	return
+}
+
+// OpenReader reads and opens an existing netCDF dataset from r.
+// Path sets the dataset name.
+// Mode is a bitwise-or of netcdf.FileMode values.
+// Flags is a bitwise-or of Flags values.
+//
+// If r fulfills LenReader, it's Len method will be used to determine how much
+// memory to allocate.
+func OpenReader(path string, mode netcdf.FileMode, flags Flags, r io.Reader) (ds Dataset, err error) {
+	cpath := C.CString(path)
+	defer C.free(unsafe.Pointer(cpath))
+
+	size, ptr, err := readAll(r)
+	if err != nil {
+		return ds, err
+	}
+
+	memio := C.NC_memio{
+		size:   C.size_t(size),
+		memory: ptr,
 		flags:  C.int(flags),
 	}
 
@@ -111,6 +147,128 @@ func (ds Dataset) CloseMem() (data []byte, err error) {
 		C.free(memio.memory)
 	}
 	return
+}
+
+// CloseMemCBytes closes the dataset and returns a reference to C allocated
+// memory.
+func (ds Dataset) CloseMemCBytes() (*CBytes, error) {
+	var memio C.NC_memio
+	err := newError(C.nc_close_memio(C.int(ds.Dataset), &memio))
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := unsafeByteSlice(memio.memory, uint64(memio.size))
+	if err != nil {
+		C.free(memio.memory)
+		return nil, err
+	}
+
+	return &CBytes{
+		Data: data,
+		ptr:  memio.memory,
+	}, nil
+}
+
+// CBytes provides a view into C allocated data. It's Free method
+// method must be called to release the memory.
+type CBytes struct {
+	Data []byte
+	ptr  unsafe.Pointer
+}
+
+// Free releases the underlying data. All references to Data are
+// invalid after calling.
+func (b *CBytes) Free() {
+	if b.ptr != nil {
+		C.free(b.ptr)
+		b.Data = nil
+		b.ptr = nil
+	}
+}
+
+// LenReader is an io.Reader which can provide it's unread length.
+type LenReader interface {
+	io.Reader
+	Len() int
+}
+
+func readAll(r io.Reader) (C.size_t, unsafe.Pointer, error) {
+	if lr, ok := r.(LenReader); ok {
+		// allocate the full amount of memory needed
+		length := lr.Len()
+		ptr := C.malloc(C.size_t(length))
+
+		// create a slice view
+		data, err := unsafeByteSlice(ptr, uint64(length))
+		if err != nil {
+			C.free(ptr)
+			return 0, nil, err
+		}
+
+		// read out the data
+		_, err = io.ReadFull(r, data)
+		if err != nil {
+			C.free(ptr)
+			return 0, nil, err
+		}
+		return C.size_t(length), ptr, nil
+	}
+
+	// The amount of memory required is unknown. Use a growth strategy
+	// similar to ioutil.ReadAll. Start with bytes.MinRead and double
+	// when filled.
+	var (
+		ptr    = C.malloc(bytes.MinRead)
+		length = C.size_t(0)
+		cap    = C.size_t(bytes.MinRead)
+	)
+
+	for {
+		// if cap has been reached, realloc at twice the size.
+		if length >= cap {
+			cap *= 2
+			newPtr, err := C.realloc(ptr, cap)
+			if err != nil {
+				C.free(ptr) // if realloc fails, existing ptr must be freed
+				return 0, nil, fmt.Errorf("failed realloc to %d: %v", cap, err)
+			}
+			ptr = newPtr
+		}
+
+		// create slice view
+		s, err := unsafeByteSlice(ptr, uint64(cap))
+		if err != nil {
+			C.free(ptr)
+			return 0, nil, err
+		}
+
+		// read additional data
+		n, err := r.Read(s[length:])
+		length += C.size_t(n)
+		if err == io.EOF {
+			// io.EOF indicates r has been read to completion
+			return length, ptr, nil
+		}
+		if err != nil {
+			C.free(ptr) // reading failed, free the data
+			return 0, nil, err
+		}
+	}
+}
+
+// unsafeByteSlice creates a []byte view into ptr.
+func unsafeByteSlice(ptr unsafe.Pointer, size uint64) ([]byte, error) {
+	const maxInt = uint64(^uint(0) >> 1)
+	if size > maxInt {
+		return nil, fmt.Errorf("unsafeByteSlice: size %d larger than max %d", size, maxInt)
+	}
+
+	return *(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{
+		Data: uintptr(ptr),
+		Len:  int(size),
+		Cap:  int(size),
+	})), nil
 }
 
 func newError(n C.int) error {
