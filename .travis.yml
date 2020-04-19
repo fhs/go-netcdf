@@ -1,5 +1,6 @@
 language: go
 go_import_path: github.com/fhs/go-netcdf
+dist: bionic
 
 env:
   global:
