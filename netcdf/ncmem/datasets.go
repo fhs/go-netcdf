@@ -1,4 +1,4 @@
-package netcdfmem
+package ncmem
 
 // #cgo pkg-config: netcdf
 // #include <stdlib.h>
@@ -25,7 +25,8 @@ const (
 
 // Dataset wraps netcdf.Dataset, adding methods specific to in-memory datasets.
 //
-// Must be closed via the added Close or CloseMem method to properly release memory.
+// Must be closed via one of the added Close, CloseBytes, or CloseCopyBytes
+// methods to properly release memory.
 type Dataset struct {
 	netcdf.Dataset
 }
@@ -138,8 +139,8 @@ func (ds Dataset) Close() (err error) {
 	return
 }
 
-// CloseMem closes the dataset and returns a copy of the in-memory data.
-func (ds Dataset) CloseMem() (data []byte, err error) {
+// CloseCopyBytes closes the dataset and returns a copy of the in-memory data.
+func (ds Dataset) CloseCopyBytes() (data []byte, err error) {
 	var memio C.NC_memio
 	err = newError(C.nc_close_memio(C.int(ds.Dataset), &memio))
 	if memio.memory != nil {
@@ -149,9 +150,9 @@ func (ds Dataset) CloseMem() (data []byte, err error) {
 	return
 }
 
-// CloseMemCBytes closes the dataset and returns a reference to C allocated
+// CloseBytes closes the dataset and returns a reference to C allocated
 // memory.
-func (ds Dataset) CloseMemCBytes() (*CBytes, error) {
+func (ds Dataset) CloseBytes() (*Bytes, error) {
 	var memio C.NC_memio
 	err := newError(C.nc_close_memio(C.int(ds.Dataset), &memio))
 	if err != nil {
@@ -164,22 +165,22 @@ func (ds Dataset) CloseMemCBytes() (*CBytes, error) {
 		return nil, err
 	}
 
-	return &CBytes{
+	return &Bytes{
 		Data: data,
 		ptr:  memio.memory,
 	}, nil
 }
 
-// CBytes provides a view into C allocated data. It's Free method
+// Bytes provides a view into C allocated data. It's Free method
 // method must be called to release the memory.
-type CBytes struct {
+type Bytes struct {
 	Data []byte
 	ptr  unsafe.Pointer
 }
 
 // Free releases the underlying data. All references to Data are
 // invalid after calling.
-func (b *CBytes) Free() {
+func (b *Bytes) Free() {
 	if b.ptr != nil {
 		C.free(b.ptr)
 		b.Data = nil

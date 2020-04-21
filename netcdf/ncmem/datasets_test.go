@@ -2,7 +2,7 @@
 // Use of this source code is governed by the MIT
 // license that can be found in the LICENSE file.
 
-package netcdfmem
+package ncmem
 
 import (
 	"bytes"
@@ -206,7 +206,7 @@ func TestCreate(t *testing.T) {
 
 func TestCreateCBytes(t *testing.T) {
 	for _, ft := range getFileTests() {
-		data := testCreateCBytes(t, &ft)
+		data := testCreateBytes(t, &ft)
 		testReadOpen(t, &ft, data.Data)
 		testReadOpenReader(t, &ft, data.Data)
 		testReadOpenLenReader(t, &ft, data.Data)
@@ -222,14 +222,14 @@ func testCreate(t *testing.T, ft *FileTest) []byte {
 
 	testCreateData(t, ft, f)
 
-	data, err := f.CloseMem()
+	data, err := f.CloseCopyBytes()
 	if err != nil {
 		t.Fatalf("Close failed: %v\n", err)
 	}
 	return data
 }
 
-func testCreateCBytes(t *testing.T, ft *FileTest) *CBytes {
+func testCreateBytes(t *testing.T, ft *FileTest) *Bytes {
 	f, err := Create("netcdf_test", netcdf.CLOBBER|netcdf.NETCDF4, 0)
 	if err != nil {
 		t.Fatalf("Create failed: %v\n", err)
@@ -237,7 +237,7 @@ func testCreateCBytes(t *testing.T, ft *FileTest) *CBytes {
 
 	testCreateData(t, ft, f)
 
-	data, err := f.CloseMemCBytes()
+	data, err := f.CloseBytes()
 	if err != nil {
 		data.Free()
 		t.Fatalf("Close failed: %v\n", err)
@@ -486,7 +486,7 @@ func testWriteFileViaIdx(t *testing.T, ft *FileTest) []byte {
 	if err != nil {
 		t.Errorf("%v: writing data failed: %v\n", ft.DataType, err)
 	}
-	data, err := f.CloseMem()
+	data, err := f.CloseCopyBytes()
 	if err != nil {
 		t.Fatalf("Close failed: %v\n", err)
 	}
