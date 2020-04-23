@@ -1,3 +1,10 @@
+// Package ncmem is a Go binding for the netCDF C library's in-memory
+// operations.
+//
+// NetCDF version 4.6.2 or later is required.
+//
+// In-memory support is documented here:
+// https://www.unidata.ucar.edu/software/netcdf/docs/md__Volumes_Workspace_releases_netcdf-c-4_87_84_netcdf-c_docs_inmemory.html
 package ncmem
 
 // #cgo pkg-config: netcdf
