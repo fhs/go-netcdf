@@ -11,14 +11,20 @@ go:
   - "1.11.x"
   - "1.12.x"
 
-before_install:
-  - sudo apt-get update -q -y
-  - sudo apt-get install libnetcdf-dev -y
+install: ignore
 
 script:
-  - go install -v ./...
   - test `gofmt -l . | wc -l` = 0
-  - go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+  - |
+    docker run --rm \
+      -v "$(go env GOROOT):/usr/local/go" \
+      -v "$(pwd):/go/src/github.com/fhs/go-netcdf" -w "/go/src/github.com/fhs/go-netcdf" \
+      golang:buster \
+      bash -c "
+        apt-get update &&
+        apt-get install -y libnetcdf-dev &&
+        go version &&
+        go test -v -race -coverprofile=coverage.txt -covermode=atomic ./..."
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
