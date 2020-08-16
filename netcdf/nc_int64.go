@@ -77,6 +77,62 @@ func (v Var) WriteInt64At(idx []uint64, val int64) (err error) {
 	return
 }
 
+// WriteInt64Slice writes data as a slice of variable v. The slice is specified by start and count:
+// https://www.unidata.ucar.edu/software/netcdf/docs/programming_notes.html#specify_hyperslab.
+func (v Var) WriteInt64Slice(data []int64, start, count []uint64) error {
+	if err := okDataSlice(v, INT64, len(data), start, count); err != nil {
+		return err
+	}
+	return newError(C.nc_put_vara_longlong(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&start[0])),
+		(*C.size_t)(unsafe.Pointer(&count[0])),
+		(*C.longlong)(unsafe.Pointer(&data[0])),
+	))
+}
+
+// ReadInt64Slice reads a slice of variable v into data, which must have enough
+// space for all the values. The slice is specified by start and count:
+// https://www.unidata.ucar.edu/software/netcdf/docs/programming_notes.html#specify_hyperslab.
+func (v Var) ReadInt64Slice(data []int64, start, count []uint64) error {
+	if err := okDataSlice(v, INT64, len(data), start, count); err != nil {
+		return err
+	}
+	return newError(C.nc_get_vara_longlong(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&start[0])),
+		(*C.size_t)(unsafe.Pointer(&count[0])),
+		(*C.longlong)(unsafe.Pointer(&data[0])),
+	))
+}
+
+// WriteInt64StridedSlice writes data as a slice of variable v. The slice is specified by start, count and stride:
+// https://www.unidata.ucar.edu/software/netcdf/docs/programming_notes.html#specify_hyperslab.
+func (v Var) WriteInt64StridedSlice(data []int64, start, count []uint64, stride []int64) error {
+	if err := okDataStride(v, INT64, len(data), start, count, stride); err != nil {
+		return err
+	}
+	return newError(C.nc_put_vars_longlong(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&start[0])),
+		(*C.size_t)(unsafe.Pointer(&count[0])),
+		(*C.ptrdiff_t)(unsafe.Pointer(&stride[0])),
+		(*C.longlong)(unsafe.Pointer(&data[0])),
+	))
+}
+
+// ReadInt64StridedSlice reads a strided slice of variable v into data, which must have enough
+// space for all the values. The slice is specified by start, count and stride:
+// https://www.unidata.ucar.edu/software/netcdf/docs/programming_notes.html#specify_hyperslab.
+func (v Var) ReadInt64StridedSlice(data []int64, start, count []uint64, stride []int64) error {
+	if err := okDataStride(v, INT64, len(data), start, count, stride); err != nil {
+		return err
+	}
+	return newError(C.nc_get_vars_longlong(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&start[0])),
+		(*C.size_t)(unsafe.Pointer(&count[0])),
+		(*C.ptrdiff_t)(unsafe.Pointer(&stride[0])),
+		(*C.longlong)(unsafe.Pointer(&data[0])),
+	))
+}
+
 // Int64sReader is a interface that allows reading a sequence of values of fixed length.
 type Int64sReader interface {
 	Len() (n uint64, err error)
@@ -115,6 +171,92 @@ func testReadInt64s(v Var, n uint64) error {
 	for i := 0; i < int(n); i++ {
 		if val := int64(i + 10); data[i] != val {
 			return fmt.Errorf("data at position %d is %v; expected %v", i, data[i], val)
+		}
+	}
+	return nil
+}
+
+// testWriteInt64Slice writes somes data to v. N is v.LenDim().
+// This function is only used for testing.
+func testWriteInt64Slice(v Var, n []uint64) error {
+	if len(n) == 0 {
+		return nil // Don't test empty data.
+	}
+	start, count := make([]uint64, len(n)), make([]uint64, len(n))
+	for i, v := range n {
+		start[i] = v / 2
+		count[i] = v / 2
+	}
+	data := make([]int64, product(count))
+	for i := 0; i < int(product(count)); i++ {
+		data[i] = int64(i + 10)
+	}
+	return v.WriteInt64Slice(data, start, count)
+}
+
+// testReadInt64Slice reads data from v and checks that it's the same as what
+// was written by testWriteDouble. N is v.LenDim().
+// This function is only used for testing.
+func testReadInt64Slice(v Var, n []uint64) error {
+	if len(n) == 0 {
+		return nil // Don't test empty data.
+	}
+	start, count := make([]uint64, len(n)), make([]uint64, len(n))
+	for i, v := range n {
+		start[i] = v / 2
+		count[i] = v / 2
+	}
+	data := make([]int64, product(count))
+	if err := v.ReadInt64Slice(data, start, count); err != nil {
+		return err
+	}
+	for i := 0; i < int(product(count)); i++ {
+		if val := int64(i + 10); data[i] != val {
+			return fmt.Errorf("strided slice data at position %d is %v; expected %v", i, data[i], val)
+		}
+	}
+	return nil
+}
+
+// testWriteInt64StridedSlice writes somes data to v. N is v.LenDim().
+// This function is only used for testing.
+func testWriteInt64StridedSlice(v Var, n []uint64) error {
+	if len(n) == 0 {
+		return nil // Don't test empty data.
+	}
+	start, count, stride := make([]uint64, len(n)), make([]uint64, len(n)), make([]int64, len(n))
+	for i, v := range n {
+		start[i] = 1
+		count[i] = (v - 1) / 2
+		stride[i] = 2
+	}
+	data := make([]int64, product(count))
+	for i := 0; i < int(product(count)); i++ {
+		data[i] = int64(i + 10)
+	}
+	return v.WriteInt64StridedSlice(data, start, count, stride)
+}
+
+// testReadInt64StridedSlice reads data from v and checks that it's the same as what
+// was written by testWriteDouble. N is v.LenDim().
+// This function is only used for testing.
+func testReadInt64StridedSlice(v Var, n []uint64) error {
+	if len(n) == 0 {
+		return nil // Don't test empty data.
+	}
+	start, count, stride := make([]uint64, len(n)), make([]uint64, len(n)), make([]int64, len(n))
+	for i, v := range n {
+		start[i] = 1
+		count[i] = (v - 1) / 2
+		stride[i] = 2
+	}
+	data := make([]int64, product(count))
+	if err := v.ReadInt64StridedSlice(data, start, count, stride); err != nil {
+		return err
+	}
+	for i := 0; i < int(product(count)); i++ {
+		if val := int64(i + 10); data[i] != val {
+			return fmt.Errorf("strided slice data at position %d is %v; expected %v", i, data[i], val)
 		}
 	}
 	return nil

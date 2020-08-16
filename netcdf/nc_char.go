@@ -77,6 +77,62 @@ func (v Var) WriteBytesAt(idx []uint64, val byte) (err error) {
 	return
 }
 
+// WriteBytesSlice writes data as a slice of variable v. The slice is specified by start and count:
+// https://www.unidata.ucar.edu/software/netcdf/docs/programming_notes.html#specify_hyperslab.
+func (v Var) WriteBytesSlice(data []byte, start, count []uint64) error {
+	if err := okDataSlice(v, CHAR, len(data), start, count); err != nil {
+		return err
+	}
+	return newError(C.nc_put_vara_text(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&start[0])),
+		(*C.size_t)(unsafe.Pointer(&count[0])),
+		(*C.char)(unsafe.Pointer(&data[0])),
+	))
+}
+
+// ReadBytesSlice reads a slice of variable v into data, which must have enough
+// space for all the values. The slice is specified by start and count:
+// https://www.unidata.ucar.edu/software/netcdf/docs/programming_notes.html#specify_hyperslab.
+func (v Var) ReadBytesSlice(data []byte, start, count []uint64) error {
+	if err := okDataSlice(v, CHAR, len(data), start, count); err != nil {
+		return err
+	}
+	return newError(C.nc_get_vara_text(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&start[0])),
+		(*C.size_t)(unsafe.Pointer(&count[0])),
+		(*C.char)(unsafe.Pointer(&data[0])),
+	))
+}
+
+// WriteBytesStridedSlice writes data as a slice of variable v. The slice is specified by start, count and stride:
+// https://www.unidata.ucar.edu/software/netcdf/docs/programming_notes.html#specify_hyperslab.
+func (v Var) WriteBytesStridedSlice(data []byte, start, count []uint64, stride []int64) error {
+	if err := okDataStride(v, CHAR, len(data), start, count, stride); err != nil {
+		return err
+	}
+	return newError(C.nc_put_vars_text(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&start[0])),
+		(*C.size_t)(unsafe.Pointer(&count[0])),
+		(*C.ptrdiff_t)(unsafe.Pointer(&stride[0])),
+		(*C.char)(unsafe.Pointer(&data[0])),
+	))
+}
+
+// ReadBytesStridedSlice reads a strided slice of variable v into data, which must have enough
+// space for all the values. The slice is specified by start, count and stride:
+// https://www.unidata.ucar.edu/software/netcdf/docs/programming_notes.html#specify_hyperslab.
+func (v Var) ReadBytesStridedSlice(data []byte, start, count []uint64, stride []int64) error {
+	if err := okDataStride(v, CHAR, len(data), start, count, stride); err != nil {
+		return err
+	}
+	return newError(C.nc_get_vars_text(C.int(v.ds), C.int(v.id),
+		(*C.size_t)(unsafe.Pointer(&start[0])),
+		(*C.size_t)(unsafe.Pointer(&count[0])),
+		(*C.ptrdiff_t)(unsafe.Pointer(&stride[0])),
+		(*C.char)(unsafe.Pointer(&data[0])),
+	))
+}
+
 // BytesReader is a interface that allows reading a sequence of values of fixed length.
 type BytesReader interface {
 	Len() (n uint64, err error)
@@ -115,6 +171,92 @@ func testReadBytes(v Var, n uint64) error {
 	for i := 0; i < int(n); i++ {
 		if val := byte(i + 10); data[i] != val {
 			return fmt.Errorf("data at position %d is %v; expected %v", i, data[i], val)
+		}
+	}
+	return nil
+}
+
+// testWriteBytesSlice writes somes data to v. N is v.LenDim().
+// This function is only used for testing.
+func testWriteBytesSlice(v Var, n []uint64) error {
+	if len(n) == 0 {
+		return nil // Don't test empty data.
+	}
+	start, count := make([]uint64, len(n)), make([]uint64, len(n))
+	for i, v := range n {
+		start[i] = v / 2
+		count[i] = v / 2
+	}
+	data := make([]byte, product(count))
+	for i := 0; i < int(product(count)); i++ {
+		data[i] = byte(i + 10)
+	}
+	return v.WriteBytesSlice(data, start, count)
+}
+
+// testReadBytesSlice reads data from v and checks that it's the same as what
+// was written by testWriteDouble. N is v.LenDim().
+// This function is only used for testing.
+func testReadBytesSlice(v Var, n []uint64) error {
+	if len(n) == 0 {
+		return nil // Don't test empty data.
+	}
+	start, count := make([]uint64, len(n)), make([]uint64, len(n))
+	for i, v := range n {
+		start[i] = v / 2
+		count[i] = v / 2
+	}
+	data := make([]byte, product(count))
+	if err := v.ReadBytesSlice(data, start, count); err != nil {
+		return err
+	}
+	for i := 0; i < int(product(count)); i++ {
+		if val := byte(i + 10); data[i] != val {
+			return fmt.Errorf("strided slice data at position %d is %v; expected %v", i, data[i], val)
+		}
+	}
+	return nil
+}
+
+// testWriteBytesStridedSlice writes somes data to v. N is v.LenDim().
+// This function is only used for testing.
+func testWriteBytesStridedSlice(v Var, n []uint64) error {
+	if len(n) == 0 {
+		return nil // Don't test empty data.
+	}
+	start, count, stride := make([]uint64, len(n)), make([]uint64, len(n)), make([]int64, len(n))
+	for i, v := range n {
+		start[i] = 1
+		count[i] = (v - 1) / 2
+		stride[i] = 2
+	}
+	data := make([]byte, product(count))
+	for i := 0; i < int(product(count)); i++ {
+		data[i] = byte(i + 10)
+	}
+	return v.WriteBytesStridedSlice(data, start, count, stride)
+}
+
+// testReadBytesStridedSlice reads data from v and checks that it's the same as what
+// was written by testWriteDouble. N is v.LenDim().
+// This function is only used for testing.
+func testReadBytesStridedSlice(v Var, n []uint64) error {
+	if len(n) == 0 {
+		return nil // Don't test empty data.
+	}
+	start, count, stride := make([]uint64, len(n)), make([]uint64, len(n)), make([]int64, len(n))
+	for i, v := range n {
+		start[i] = 1
+		count[i] = (v - 1) / 2
+		stride[i] = 2
+	}
+	data := make([]byte, product(count))
+	if err := v.ReadBytesStridedSlice(data, start, count, stride); err != nil {
+		return err
+	}
+	for i := 0; i < int(product(count)); i++ {
+		if val := byte(i + 10); data[i] != val {
+			return fmt.Errorf("strided slice data at position %d is %v; expected %v", i, data[i], val)
 		}
 	}
 	return nil
