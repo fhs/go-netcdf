@@ -567,6 +567,282 @@ func TestAt(t *testing.T) {
 	}
 }
 
+func testWriteFileViaSlice(t *testing.T, filename string, ft *FileTest) {
+	f, err := CreateFile(filename, CLOBBER|NETCDF4)
+	if err != nil {
+		t.Fatalf("Create failed: %v\n", err)
+	}
+	dims := make([]Dim, len(ft.DimNames))
+	for i, name := range ft.DimNames {
+		if dims[i], err = f.AddDim(name, ft.DimLens[i]); err != nil {
+			t.Fatalf("PutDim failed: %v\n", err)
+		}
+	}
+	v, err := f.AddVar(ft.VarName, ft.DataType, dims)
+	if err != nil {
+		t.Fatalf("PutVar failed: %v\n", err)
+	}
+	ft.putAttrs(t, v)
+
+	n, err := v.LenDims()
+	if err != nil {
+		t.Fatalf("Var.LenDims failed: %v\n", err)
+	}
+	switch ft.DataType {
+	default:
+		t.Fatalf("unexpected type %v\n", ft.DataType)
+	case UINT64:
+		err = testWriteUint64Slice(v, n)
+	case INT64:
+		err = testWriteInt64Slice(v, n)
+	case DOUBLE:
+		err = testWriteFloat64Slice(v, n)
+	case UINT:
+		err = testWriteUint32Slice(v, n)
+	case INT:
+		err = testWriteInt32Slice(v, n)
+	case FLOAT:
+		err = testWriteFloat32Slice(v, n)
+	case USHORT:
+		err = testWriteUint16Slice(v, n)
+	case SHORT:
+		err = testWriteInt16Slice(v, n)
+	case UBYTE:
+		err = testWriteUint8Slice(v, n)
+	case BYTE:
+		err = testWriteInt8Slice(v, n)
+	case CHAR:
+		err = testWriteBytesSlice(v, n)
+	}
+	if err != nil {
+		t.Errorf("%v: writing data failed: %v\n", ft.DataType, err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatalf("Close failed: %v\n", err)
+	}
+}
+
+func testReadFileViaSlice(t *testing.T, filename string, ft *FileTest) {
+	f, err := OpenFile(filename, NOWRITE)
+	if err != nil {
+		t.Fatalf("Open failed: %v\n", err)
+	}
+	for i, name := range ft.DimNames {
+		d, err := f.Dim(name)
+		if err != nil {
+			t.Fatalf("GetDim failed: %v\n", err)
+		}
+		s, err := d.Name()
+		if err != nil {
+			t.Fatalf("Dim.Name failed: %v\n", err)
+		}
+		if err == nil && s != name {
+			t.Fatalf("Dim name is %q; expected %q\n", s, name)
+		}
+		n, err := d.Len()
+		if err != nil {
+			t.Fatalf("Dim.Len failed: %v\n", err)
+		}
+		if err == nil && n != ft.DimLens[i] {
+			t.Fatalf("Dim length is %d; expected %d\n", n, ft.DimLens[i])
+		}
+	}
+	v, err := f.Var(ft.VarName)
+	if err != nil {
+		t.Errorf("GetVar failed: %v\n", err)
+	}
+	ft.getAttrs(t, v)
+
+	n, err := v.LenDims()
+	if err != nil {
+		t.Fatalf("Var.LenDims failed: %v\n", err)
+	}
+	switch ft.DataType {
+	default:
+		t.Fatalf("unexpected type %v\n", ft.DataType)
+	case UINT64:
+		err = testReadUint64Slice(v, n)
+	case INT64:
+		err = testReadInt64Slice(v, n)
+	case DOUBLE:
+		err = testReadFloat64Slice(v, n)
+	case UINT:
+		err = testReadUint32Slice(v, n)
+	case INT:
+		err = testReadInt32Slice(v, n)
+	case FLOAT:
+		err = testReadFloat32Slice(v, n)
+	case USHORT:
+		err = testReadUint16Slice(v, n)
+	case SHORT:
+		err = testReadInt16Slice(v, n)
+	case UBYTE:
+		err = testReadUint8Slice(v, n)
+	case BYTE:
+		err = testReadInt8Slice(v, n)
+	case CHAR:
+		err = testReadBytesSlice(v, n)
+	}
+	if err != nil {
+		t.Fatalf("reading data failed: %v\n", err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatalf("Close failed: %v\n", err)
+	}
+}
+
+func TestSlice(t *testing.T) {
+	for _, ft := range getFileTests() {
+		f, err := ioutil.TempFile("", "netcdf_test")
+		if err != nil {
+			t.Fatalf("creating temporary file failed: %v\n", err)
+		}
+		testWriteFileViaSlice(t, f.Name(), &ft)
+		testReadFileViaSlice(t, f.Name(), &ft)
+		if err := os.Remove(f.Name()); err != nil {
+			t.Errorf("removing temporary file failed: %v\n", err)
+		}
+	}
+}
+
+func testWriteFileViaStridedSlice(t *testing.T, filename string, ft *FileTest) {
+	f, err := CreateFile(filename, CLOBBER|NETCDF4)
+	if err != nil {
+		t.Fatalf("Create failed: %v\n", err)
+	}
+	dims := make([]Dim, len(ft.DimNames))
+	for i, name := range ft.DimNames {
+		if dims[i], err = f.AddDim(name, ft.DimLens[i]); err != nil {
+			t.Fatalf("PutDim failed: %v\n", err)
+		}
+	}
+	v, err := f.AddVar(ft.VarName, ft.DataType, dims)
+	if err != nil {
+		t.Fatalf("PutVar failed: %v\n", err)
+	}
+	ft.putAttrs(t, v)
+
+	n, err := v.LenDims()
+	if err != nil {
+		t.Fatalf("Var.LenDims failed: %v\n", err)
+	}
+	switch ft.DataType {
+	default:
+		t.Fatalf("unexpected type %v\n", ft.DataType)
+	case UINT64:
+		err = testWriteUint64StridedSlice(v, n)
+	case INT64:
+		err = testWriteInt64StridedSlice(v, n)
+	case DOUBLE:
+		err = testWriteFloat64StridedSlice(v, n)
+	case UINT:
+		err = testWriteUint32StridedSlice(v, n)
+	case INT:
+		err = testWriteInt32StridedSlice(v, n)
+	case FLOAT:
+		err = testWriteFloat32StridedSlice(v, n)
+	case USHORT:
+		err = testWriteUint16StridedSlice(v, n)
+	case SHORT:
+		err = testWriteInt16StridedSlice(v, n)
+	case UBYTE:
+		err = testWriteUint8StridedSlice(v, n)
+	case BYTE:
+		err = testWriteInt8StridedSlice(v, n)
+	case CHAR:
+		err = testWriteBytesStridedSlice(v, n)
+	}
+	if err != nil {
+		t.Errorf("%v: writing data failed: %v\n", ft.DataType, err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatalf("Close failed: %v\n", err)
+	}
+}
+
+func testReadFileViaStridedSlice(t *testing.T, filename string, ft *FileTest) {
+	f, err := OpenFile(filename, NOWRITE)
+	if err != nil {
+		t.Fatalf("Open failed: %v\n", err)
+	}
+	for i, name := range ft.DimNames {
+		d, err := f.Dim(name)
+		if err != nil {
+			t.Fatalf("GetDim failed: %v\n", err)
+		}
+		s, err := d.Name()
+		if err != nil {
+			t.Fatalf("Dim.Name failed: %v\n", err)
+		}
+		if err == nil && s != name {
+			t.Fatalf("Dim name is %q; expected %q\n", s, name)
+		}
+		n, err := d.Len()
+		if err != nil {
+			t.Fatalf("Dim.Len failed: %v\n", err)
+		}
+		if err == nil && n != ft.DimLens[i] {
+			t.Fatalf("Dim length is %d; expected %d\n", n, ft.DimLens[i])
+		}
+	}
+	v, err := f.Var(ft.VarName)
+	if err != nil {
+		t.Errorf("GetVar failed: %v\n", err)
+	}
+	ft.getAttrs(t, v)
+
+	n, err := v.LenDims()
+	if err != nil {
+		t.Fatalf("Var.LenDims failed: %v\n", err)
+	}
+	switch ft.DataType {
+	default:
+		t.Fatalf("unexpected type %v\n", ft.DataType)
+	case UINT64:
+		err = testReadUint64StridedSlice(v, n)
+	case INT64:
+		err = testReadInt64StridedSlice(v, n)
+	case DOUBLE:
+		err = testReadFloat64StridedSlice(v, n)
+	case UINT:
+		err = testReadUint32StridedSlice(v, n)
+	case INT:
+		err = testReadInt32StridedSlice(v, n)
+	case FLOAT:
+		err = testReadFloat32StridedSlice(v, n)
+	case USHORT:
+		err = testReadUint16StridedSlice(v, n)
+	case SHORT:
+		err = testReadInt16StridedSlice(v, n)
+	case UBYTE:
+		err = testReadUint8StridedSlice(v, n)
+	case BYTE:
+		err = testReadInt8StridedSlice(v, n)
+	case CHAR:
+		err = testReadBytesStridedSlice(v, n)
+	}
+	if err != nil {
+		t.Fatalf("reading data failed: %v\n", err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatalf("Close failed: %v\n", err)
+	}
+}
+
+func TestStridedSlice(t *testing.T) {
+	for _, ft := range getFileTests() {
+		f, err := ioutil.TempFile("", "netcdf_test")
+		if err != nil {
+			t.Fatalf("creating temporary file failed: %v\n", err)
+		}
+		testWriteFileViaStridedSlice(t, f.Name(), &ft)
+		testReadFileViaStridedSlice(t, f.Name(), &ft)
+		if err := os.Remove(f.Name()); err != nil {
+			t.Errorf("removing temporary file failed: %v\n", err)
+		}
+	}
+}
+
 func TestCompression(t *testing.T) {
 	f, err := ioutil.TempFile("", "netcdf_test")
 	if err != nil {
