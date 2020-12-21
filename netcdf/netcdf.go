@@ -61,7 +61,7 @@ func okDataSlice(a sliceableTypedArray, t Type, n int, start, count []uint64) er
 	if len(start) != len(d) {
 		return fmt.Errorf("incorrect number of dimensions in start: %d != %d", start, len(d))
 	}
-	if len(start) != len(d) {
+	if len(count) != len(d) {
 		return fmt.Errorf("incorrect number of dimensions in count: %d != %d", count, len(d))
 	}
 
@@ -99,7 +99,7 @@ func okDataStride(a sliceableTypedArray, t Type, n int, start, count []uint64, s
 	if len(start) != len(d) {
 		return fmt.Errorf("incorrect number of dimensions in start: %d != %d", start, len(d))
 	}
-	if len(start) != len(d) {
+	if len(count) != len(d) {
 		return fmt.Errorf("incorrect number of dimensions in count: %d != %d", count, len(d))
 	}
 	if len(stride) != len(d) {
