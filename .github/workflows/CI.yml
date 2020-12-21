@@ -1,0 +1,39 @@
+on: [push, pull_request]
+name: CI
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        go-version: [1.14.x, 1.15.x]
+        platform: [ubuntu-20.04]
+      fail-fast: false
+    runs-on: ${{ matrix.platform }}
+    env:
+      GO111MODULE: on
+
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v1
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Checkout code
+      uses: actions/checkout@v1
+
+    - name: Install libnetcdf
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libnetcdf-dev
+
+    - name: Run tests
+      run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+
+    - name: Sending coverage report to codecov.io
+      run: bash <(curl -s https://codecov.io/bash)
+
+    - name: Check gofmt
+      run: |
+        gofmt -l .
+        test `gofmt -l . | wc -l` = 0
+      shell: bash
