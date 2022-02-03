@@ -55,3 +55,7 @@ func (ds Dataset) Dim(name string) (d Dim, err error) {
 	d = Dim{ds, id}
 	return
 }
+
+func (dim Dim) Id() int {
+	return int(dim.id)
+}
