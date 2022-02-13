@@ -55,3 +55,8 @@ func (ds Dataset) Dim(name string) (d Dim, err error) {
 	d = Dim{ds, id}
 	return
 }
+
+// ID returns the id of the dimension.
+func (dim Dim) ID() int {
+	return int(dim.id)
+}
